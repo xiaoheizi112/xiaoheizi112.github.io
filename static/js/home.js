@@ -1,9 +1,11 @@
 // 首页交互：导航底色、滚动淡入、数字滚动。无依赖。
 (() => {
   const nav = document.getElementById("nav");
-  const onScroll = () => nav.classList.toggle("scrolled", scrollY > 24);
-  addEventListener("scroll", onScroll, { passive: true });
-  onScroll();
+  if (nav) { // 相册等页面没有这个 id，缺 guard 会让后面的淡入逻辑整个不执行
+    const onScroll = () => nav.classList.toggle("scrolled", scrollY > 24);
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
 
   const io = new IntersectionObserver((es) => {
     for (const e of es) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }

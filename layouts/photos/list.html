@@ -13,8 +13,8 @@
   <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
 </head>
-<body>
-<nav class="nav scrolled">
+<body class="page-photos">
+<nav class="nav scrolled" id="nav">
   <div class="nav-inner">
     <a href="{{ "/" | relURL }}" class="brand">
       <span class="brand-mark" aria-hidden="true">{{ $h.about.mark }}</span>
@@ -35,25 +35,30 @@
 
 <main class="wrap" id="main">
   {{- if $photos }}
-  <div class="masonry">
-    {{- $lastYear := "" -}}
-    {{- range $i, $p := $photos -}}
-      {{- $y := substr $p.date 0 4 -}}
-      {{- if ne $y $lastYear -}}{{- $lastYear = $y }}
-    <h2 class="year-head" data-year>{{ $y }}</h2>
-      {{- end }}
-    <figure class="photo-item rv">
-      <img src="{{ $p.src | relURL }}" alt="{{ $p.caption | default $p.place }}" loading="lazy" data-lb="{{ $i }}" />
-      {{- if or $p.caption $p.place }}<figcaption>{{ $p.place }}{{ if and $p.place $p.caption }} · {{ end }}{{ $p.caption }}</figcaption>{{ end }}
-    </figure>
-    {{- end }}
+  {{- $pcount := dict -}}
+  {{- range $photos }}{{ $pcount = merge $pcount (dict .place (add 1 (default 0 (index $pcount .place)))) }}{{ end }}
+  <div class="chips" role="group" aria-label="按地点筛选">
+    <button class="chip on" data-f="">全部 {{ len $photos }}</button>
+    {{- range $k, $v := $pcount }}<button class="chip" data-f="{{ $k }}">{{ $k }} {{ $v }}</button>{{ end }}
   </div>
+  {{- $lastYear := "" -}}
+  {{- range $i, $p := $photos -}}
+    {{- $y := substr $p.date 0 4 -}}
+    {{- if ne $y $lastYear -}}
+      {{- if ne $lastYear "" }}</div></section>{{ end -}}
+      {{- $lastYear = $y }}
+      {{- $yc := 0 }}{{ range $photos }}{{ if eq (substr .date 0 4) $y }}{{ $yc = add $yc 1 }}{{ end }}{{ end }}
+  <section class="year-sec"><h2 class="year-head" data-year>{{ $y }}<span class="cnt">{{ $yc }} 张</span></h2><div class="masonry">
+    {{- end }}
+    <figure class="photo-item rv" data-place="{{ $p.place }}">
+      <img src="{{ $p.src | relURL }}" alt="{{ $p.caption | default $p.place }}" loading="lazy" data-lb="{{ $i }}" />
+    </figure>
+  {{- end }}</div></section>
   <div id="lightbox" hidden>
     <button class="lb-close" aria-label="关闭">✕</button>
     <button class="lb-prev" aria-label="上一张">←</button>
     <img class="lb-img" alt="" />
     <button class="lb-next" aria-label="下一张">→</button>
-    <p class="lb-cap"></p>
   </div>
   {{- else }}
   <p class="empty">还没有照片。跑 <code>python scripts/add_photos.py --place 某地 照片.jpg</code> 导入第一批。</p>
@@ -64,6 +69,15 @@
   <div class="wrap footer-inner"><span>{{ $h.footer.line }}</span></div>
 </footer>
 <script src="{{ "js/lightbox.js" | relURL }}"></script>
+<script>
+/* 地点筛选：隐藏不匹配的图与空年份段 */
+document.querySelectorAll(".chip").forEach((ch) => ch.addEventListener("click", () => {
+  const f = ch.dataset.f;
+  document.querySelectorAll(".chip").forEach((c) => c.classList.toggle("on", c === ch));
+  document.querySelectorAll(".photo-item").forEach((p) => { p.hidden = !!f && p.dataset.place !== f; });
+  document.querySelectorAll(".year-sec").forEach((s) => { s.hidden = [...s.querySelectorAll(".photo-item")].every((p) => p.hidden); });
+}));
+</script>
 <script src="{{ "js/home.js" | relURL }}"></script>
 </body>
 </html>

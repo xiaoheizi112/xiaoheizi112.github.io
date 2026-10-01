@@ -11,7 +11,7 @@ hero:
   line1: "慢慢写，"
   line2: "只写想起来的那一句。"   # 这一行会显示成强调色
   sub: >-
-    懒是主要驱动力。这里堆放想法、代码残骸和一个薛之谦歌单。
+    懒是主要驱动力。这里堆放想法、代码残骸和一个 XXXTentacion 歌单。
     更新频率随机，但写的每一句都是真的。
   cta_primary: "开始阅读"
   cta_secondary: "先听一首"
@@ -31,7 +31,7 @@ about:
     - >-
       相信<span class="em">能把复杂的事拆到每天能用的一块</span>，
       就已经赢了大部分空想。
-  tags: ["摸鱼开发", "随笔", "自动化", "薛之谦", "想一出是一出"]
+  tags: ["摸鱼开发", "随笔", "自动化", "XXXTENTACION", "想一出是一出"]
 
 # 专注方向 / 项目。external: true 会新开标签页
 focus:
@@ -47,7 +47,7 @@ focus:
     external: true
   - num: "03"
     title: "歌单"
-    desc: "写作B站歌单常驻，薛之谦含量超标。"
+    desc: "XXXTENTACION 常驻歌单，纪念一位二十岁的歌手。"
     url: "#music"
     external: false
 
@@ -65,4 +65,4 @@ stats:
   since_year: 2026
 
 footer:
-  line: "慢公子 · 想起来才更新 ｜ 背景音乐 Kevin MacLeod (incompetech.com) · CC-BY 4.0"
+  line: "慢公子 · 想起来才更新 ｜ 背景音乐：XXXTENTACION"

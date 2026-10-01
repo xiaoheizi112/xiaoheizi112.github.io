@@ -19,7 +19,10 @@
   {{- /* 国内镜像 fonts.loli.net；被墙时备用地址 https://fonts.googleapis.com/css2?... 同路径 */ -}}
   <link rel="preconnect" href="https://fonts.loli.net" />
   <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
+  {{- /* 致敬语用的宋体子集：text= 只打包这句用到的十几个字，几十 KB */ -}}
+  <link href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400&display=swap&text=%E6%8A%8A%E8%BF%99%E4%BA%9B%E6%AD%8C%E6%94%BE%E4%B8%8A%E6%9C%AC%E7%AB%99%EF%BC%8C%E6%98%AF%E6%88%91%E8%83%BD%E6%83%B3%E5%88%B0%E7%9A%84%E6%9C%80%E5%AE%89%E9%9D%99%E7%9A%84%E7%BA%AA%E5%BF%B5%E2%80%94%E2%80%94%E4%BD%A0%E6%9D%A5%E8%AF%BB%E5%AD%97%EF%BC%8C%E4%B9%9F%E9%A1%BA%E4%BE%BF%E5%90%AC%E5%90%AC%E4%BB%96%E3%80%82" rel="stylesheet" />
   <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
+  <script src="{{ "lib/turbo/turbo.umd.js" | relURL }}" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">跳到主要内容</a>
@@ -56,19 +59,32 @@
 <header class="hero" id="home">
   <div class="hero-orbit" aria-hidden="true"></div>
   <div class="hero-inner">
-    <p class="hero-eyebrow">{{ $h.hero.eyebrow }}</p>
-    <h1>{{ $h.hero.line1 }}<br /><span class="acc">{{ $h.hero.line2 }}</span></h1>
-    <p class="hero-sub">{{ $h.hero.sub }}</p>
-    <div class="hero-divider" aria-hidden="true"></div>
-    <div class="hero-ctas">
-      <a href="#posts" class="btn-primary">{{ $h.hero.cta_primary }} <span class="arr">→</span></a>
-      {{- if $songs }}<a href="#music" class="btn-ghost">{{ $h.hero.cta_secondary }}</a>{{ end }}
+    <div class="hero-copy">
+      <p class="hero-eyebrow">{{ $h.hero.eyebrow }}</p>
+      <h1>{{ $h.hero.line1 }}<br /><span class="acc">{{ $h.hero.line2 }}<svg class="squig" viewBox="0 0 240 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 9 C 34 3, 58 13, 92 7 S 150 3, 182 10 S 222 8, 237 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span></h1>
+      <p class="hero-sub">{{ $h.hero.sub }}</p>
+      <div class="hero-divider" aria-hidden="true"></div>
+      <div class="hero-ctas">
+        <a href="#posts" class="btn-primary">{{ $h.hero.cta_primary }} <span class="arr">→</span></a>
+        {{- if $songs }}<a href="#music" class="btn-ghost">{{ $h.hero.cta_secondary }}</a>{{ end }}
+      </div>
+      <dl class="hero-stats" aria-label="站点快照">
+        <div><dt data-count="{{ len site.RegularPages }}">0</dt><dd>篇笔记</dd></div>
+        <div><dt data-count="{{ len site.Taxonomies.tags }}">0</dt><dd>个标签</dd></div>
+        <div><dt data-count="{{ $years }}">0</dt><dd>年更新</dd></div>
+      </dl>
     </div>
-    <dl class="hero-stats" aria-label="站点快照">
-      <div><dt data-count="{{ len site.RegularPages }}">0</dt><dd>篇笔记</dd></div>
-      <div><dt data-count="{{ len site.Taxonomies.tags }}">0</dt><dd>个标签</dd></div>
-      <div><dt data-count="{{ $years }}">0</dt><dd>年更新</dd></div>
-    </dl>
+    {{- range first 1 $photos }}
+    <figure class="hero-polaroid" aria-hidden="true">
+      <img src="{{ .src | relURL }}" alt="" loading="lazy" />
+      <svg class="postmark" viewBox="0 0 96 96" aria-hidden="true">
+        <circle cx="48" cy="48" r="44" fill="none" stroke="currentColor" stroke-width="2" />
+        <circle cx="48" cy="48" r="36" fill="none" stroke="currentColor" stroke-width="1" />
+        <text x="48" y="45" text-anchor="middle" font-size="12.5" fill="currentColor">{{ now.Format "2006.01.02" }}</text>
+        <text x="48" y="62" text-anchor="middle" font-size="11" letter-spacing="3" fill="currentColor">慢公子</text>
+      </svg>
+    </figure>
+    {{- end }}
   </div>
   <div class="hero-scroll" aria-hidden="true"><span>SCROLL</span><span class="line"></span></div>
 </header>
@@ -153,17 +169,28 @@
     <div class="wrap">
       <div class="sec-head rv">
         <div class="sec-eyebrow"><span class="dot"></span>SOUNDTRACK · 音乐</div>
-        <h2>写代码时<br />循环的那几张。</h2>
-        <p class="sec-desc">右下角播放器常驻，点了就播。</p>
+        <h2>想听的<br />音乐。</h2>
       </div>
-      <div class="music-grid rv">
-        {{- range $songs }}
-        <div class="track">
-          <img src="{{ .cover | absURL }}" alt="{{ .title }} 封面" loading="lazy" />
-          <div class="track-name">{{ .title }}</div>
-          <div class="track-artist">{{ .artist }}</div>
+      <div class="music-layout rv">
+        <div class="artist-card">
+          <div class="artist-memorial">IN MEMORIAM</div>
+          <div class="artist-name">XXXTENTACION</div>
+          <div class="artist-years">1998.1.18 — 2018.6.18</div>
+          <p>本名 Jahseh Onfroy，美国歌手。失眠、难过、温柔，他都原样写进歌里，从不遮掩。2018 年 6 月，他在自己二十岁的这一年离开，最后一句没能唱完。</p>
+          <p class="artist-quote">把这些歌放上本站，是我能想到的最安静的纪念——<br />你来读字，也顺便听听他。</p>
         </div>
-        {{- end }}
+        <ol class="tracklist">
+          {{- range $i, $e := $songs }}
+          <li class="track">
+            <span class="track-no">{{ printf "%02d" (add $i 1) }}</span>
+            <img class="track-cover" src="{{ .cover | relURL }}" alt="{{ .title }} 封面" loading="lazy" />
+            <div class="track-body">
+              <div class="track-name">{{ .title }}</div>
+              <div class="track-desc">{{ .desc }}</div>
+            </div>
+          </li>
+          {{- end }}
+        </ol>
       </div>
     </div>
   </section>
