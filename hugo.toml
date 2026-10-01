@@ -44,6 +44,11 @@ name = '标签'
 url = '/tags/'
 weight = 20
 [[menu.main]]
+identifier = 'photos'
+name = '相册'
+url = '/photos/'
+weight = 25
+[[menu.main]]
 identifier = 'about'
 name = '关于'
 url = '/about/'

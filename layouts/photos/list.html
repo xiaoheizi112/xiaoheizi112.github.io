@@ -1,0 +1,69 @@
+{{- $h := hugo.Data.home -}}
+{{- $photos := sort hugo.Data.photos "date" "desc" -}}
+<!doctype html>
+<html lang="{{ site.Language.Locale }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F7F5F0" />
+  <meta name="color-scheme" content="light" />
+  <title>相册 · {{ site.Title }}</title>
+  <meta name="description" content="生活与旅行的照片。" />
+  <link rel="preconnect" href="https://fonts.loli.net" />
+  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
+</head>
+<body>
+<nav class="nav scrolled">
+  <div class="nav-inner">
+    <a href="{{ "/" | relURL }}" class="brand">
+      <span class="brand-mark" aria-hidden="true">{{ $h.about.mark }}</span>
+      <span class="brand-name">{{ $h.brand.cn }}<span class="en">{{ $h.brand.en }}</span></span>
+    </a>
+    <div class="nav-links" style="display:flex">
+      <a href="{{ "/" | relURL }}#home">首页</a>
+      <a href="{{ "/" | relURL }}#posts">笔记</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-head">
+  <p class="sec-eyebrow"><span class="dot"></span>PHOTOS · 相册</p>
+  <h1>生活的<br />证据们。</h1>
+  <p class="sec-desc">走过的地方、路过的天气。共 {{ len $photos }} 张。</p>
+</header>
+
+<main class="wrap" id="main">
+  {{- if $photos }}
+  <div class="masonry">
+    {{- $lastYear := "" -}}
+    {{- range $i, $p := $photos -}}
+      {{- $y := substr $p.date 0 4 -}}
+      {{- if ne $y $lastYear -}}{{- $lastYear = $y }}
+    <h2 class="year-head" data-year>{{ $y }}</h2>
+      {{- end }}
+    <figure class="photo-item rv">
+      <img src="{{ $p.src | relURL }}" alt="{{ $p.caption | default $p.place }}" loading="lazy" data-lb="{{ $i }}" />
+      {{- if or $p.caption $p.place }}<figcaption>{{ $p.place }}{{ if and $p.place $p.caption }} · {{ end }}{{ $p.caption }}</figcaption>{{ end }}
+    </figure>
+    {{- end }}
+  </div>
+  <div id="lightbox" hidden>
+    <button class="lb-close" aria-label="关闭">✕</button>
+    <button class="lb-prev" aria-label="上一张">←</button>
+    <img class="lb-img" alt="" />
+    <button class="lb-next" aria-label="下一张">→</button>
+    <p class="lb-cap"></p>
+  </div>
+  {{- else }}
+  <p class="empty">还没有照片。跑 <code>python scripts/add_photos.py --place 某地 照片.jpg</code> 导入第一批。</p>
+  {{- end }}
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner"><span>{{ $h.footer.line }}</span></div>
+</footer>
+<script src="{{ "js/lightbox.js" | relURL }}"></script>
+<script src="{{ "js/home.js" | relURL }}"></script>
+</body>
+</html>
