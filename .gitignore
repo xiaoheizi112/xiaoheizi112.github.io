@@ -4,3 +4,6 @@ resources/_gen/
 _gh_login.log
 _hugo_server.log
 _smoke/
+
+# 照片初筛中间产物（拼版图/候选表）
+scripts/_triage/
