@@ -67,3 +67,59 @@ body::before {
 
 /* 标签页/面包屑等胶囊元素贴首页圆角 */
 .terms-tags a, .post-tags a, .tag { border-radius: 99px; }
+
+/* ============ 分页页码:底部居中 ============ */
+nav.pagination {
+  justify-content: center;
+  gap: 8px;
+}
+
+nav.pagination .page-number,
+nav.pagination .prev,
+nav.pagination .next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--paper-bg-3);
+  border-radius: 10px;
+  background: var(--paper-bg);
+  color: var(--paper-ink-2);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+nav.pagination .page-number:hover,
+nav.pagination .prev:hover,
+nav.pagination .next:hover {
+  border-color: var(--paper-accent);
+  color: var(--paper-accent-deep);
+  transform: translateY(-1px);
+}
+
+nav.pagination .page-number.active {
+  background: var(--paper-accent);
+  border-color: var(--paper-accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ============ 生活感纸底：与首页同源 ============ */
+body {
+  background-image: radial-gradient(circle, rgba(38, 35, 32, 0.05) 1.1px, transparent 1.1px);
+  background-size: 26px 26px;
+}
+:root[data-theme="dark"] body {
+  background-image: radial-gradient(circle, rgba(239, 235, 226, 0.05) 1.1px, transparent 1.1px);
+}
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(circle at 86% 14%, transparent 37px, rgba(122,104,73,.08) 38px, rgba(122,104,73,.08) 41px, transparent 42px),
+    radial-gradient(circle at 86% 14%, transparent 30px, rgba(122,104,73,.05) 31px, rgba(122,104,73,.05) 33px, transparent 34px),
+    radial-gradient(circle at 7% 72%, transparent 52px, rgba(122,104,73,.06) 53px, rgba(122,104,73,.06) 57px, transparent 58px);
+}

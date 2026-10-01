@@ -7,3 +7,9 @@ _smoke/
 
 # 照片初筛中间产物（拼版图/候选表）
 scripts/_triage/
+
+# 飞书文案原始导出素材（docx/pptx/zip，本地留档，不入库）
+Myresource/
+_server.log
+scripts/_captions_once.py
+scripts/_replace_once.py

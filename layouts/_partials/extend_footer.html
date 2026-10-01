@@ -2,12 +2,14 @@
 {{- if $songs }}
 {{- /* 整个列表一次 jsonify + safeJS：逐字段 jsonify 会被 html/template 在 <script> 里二次转义，URL 带上字面引号导致播放失败 */ -}}
 {{- $list := slice }}
-{{- range $songs }}{{ $list = $list | append (dict "name" .title "artist" .artist "url" (.url | absURL) "cover" (.cover | absURL)) }}{{ end }}
-<link rel="stylesheet" href="{{ "lib/aplayer/APlayer.min.css" | absURL }}">
-<div id="aplayer-float"></div>
-<script src="{{ "lib/aplayer/APlayer.min.js" | absURL }}"></script>
+{{- /* relURL 而非 absURL：absURL 永远拼 baseURL，本地预览会去请求线上文件，新歌没上线就 404 */ -}}
+{{- range $songs }}{{ $list = $list | append (dict "name" .title "artist" .artist "url" (.url | relURL) "cover" (.cover | relURL)) }}{{ end }}
+<link rel="stylesheet" href="{{ "lib/aplayer/APlayer.min.css" | relURL }}">
+<div id="aplayer-float" data-turbo-permanent></div>
+<script src="{{ "lib/aplayer/APlayer.min.js" | relURL }}"></script>
 <script>
-window.player = new APlayer({
+/* Turbo 切页时播放器元素与 window 都不重载；缺 guard 会重复 new 出第二个播放器 */
+if (!window.player) window.player = new APlayer({
   container: document.getElementById('aplayer-float'),
   fixed: true,
   loop: 'all',
