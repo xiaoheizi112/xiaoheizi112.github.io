@@ -1,0 +1,24 @@
+{{- $songs := hugo.Data.music }}
+{{- if $songs }}
+<link rel="stylesheet" href="{{ "lib/aplayer/APlayer.min.css" | absURL }}">
+<div id="aplayer-float"></div>
+<script src="{{ "lib/aplayer/APlayer.min.js" | absURL }}"></script>
+<script>
+new APlayer({
+  container: document.getElementById('aplayer-float'),
+  fixed: true,
+  loop: 'all',
+  order: 'list',
+  preload: 'metadata',
+  volume: 0.7,
+  mutex: true,
+  listFolded: false,
+  listMaxHeight: 280,
+  audio: [
+    {{- range $songs }}
+    { name: {{ .title | jsonify }}, artist: {{ .artist | jsonify }}, url: {{ .url | absURL | jsonify }}, cover: {{ .cover | absURL | jsonify }} },
+    {{- end }}
+  ]
+});
+</script>
+{{- end }}

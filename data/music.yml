@@ -1,0 +1,27 @@
+# Music Playlist - 慢公子的小站
+# Format: title | artist | file_path (relative to /music/)
+
+- title: "动物世界"
+  artist: "薛之谦"
+  url: "music/dongwushijie.mp3"
+  cover: "music/covers/dongwushijie.jpg"
+
+- title: "你还要我怎样"
+  artist: "薛之谦"
+  url: "music/nihaiyaowozenyang.mp3"
+  cover: "music/covers/default.svg"
+
+- title: "像风一样"
+  artist: "薛之谦"
+  url: "music/xiangfengyiyang.mp3"
+  cover: "music/covers/default.svg"
+
+- title: "演员"
+  artist: "薛之谦"
+  url: "music/yanyuan.mp3"
+  cover: "music/covers/default.svg"
+
+- title: "高尚"
+  artist: "薛之谦"
+  url: "music/gaoshang.mp3"
+  cover: "music/covers/default.svg"

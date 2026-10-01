@@ -1,0 +1,202 @@
+{{- $h := hugo.Data.home -}}
+{{- $songs := hugo.Data.music -}}
+{{- $posts := first 6 site.RegularPages -}}
+{{- $words := 0 -}}
+{{- range site.RegularPages -}}{{- $words = add $words .WordCount -}}{{- end -}}
+{{- $years := sub now.Year $h.stats.since_year -}}
+<!doctype html>
+<html lang="{{ site.Language.Locale }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F7F5F0" />
+  <meta name="color-scheme" content="light" />
+  <title>{{ site.Title }}</title>
+  <meta name="description" content="{{ site.Params.description }}" />
+  <link rel="canonical" href="{{ .Permalink }}" />
+  {{- if site.Params.assets.favicon }}<link rel="icon" href="{{ site.Params.assets.favicon | relURL }}" />{{ end }}
+  {{- /* 国内镜像 fonts.loli.net；被墙时备用地址 https://fonts.googleapis.com/css2?... 同路径 */ -}}
+  <link rel="preconnect" href="https://fonts.loli.net" />
+  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<nav class="nav" id="nav" aria-label="主导航">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark" aria-hidden="true">{{ $h.about.mark }}</span>
+      <span class="brand-name">{{ $h.brand.cn }}<span class="en">{{ $h.brand.en }}</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#about">关于</a>
+      <a href="#posts">笔记</a>
+      {{- if $songs }}<a href="#music">音乐</a>{{ end }}
+      <a href="#focus">方向</a>
+      <a href="#friends">推荐</a>
+    </div>
+    <div class="nav-actions">
+      {{- range site.Params.socialIcons }}
+      <a class="icon-action" href="{{ .url }}" target="_blank" rel="noopener noreferrer" data-tip="{{ .name }}" aria-label="{{ .name }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          {{- if eq .name "github" }}
+          <path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.9 9.6.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.7.1-.7.1-.7 1 0 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 2.9.8.1-.7.4-1.1.7-1.4-2.2-.3-4.6-1.1-4.6-5a3.9 3.9 0 0 1 1-2.7c-.1-.3-.5-1.3.1-2.7 0 0 .9-.3 2.8 1a9.5 9.5 0 0 1 5.1 0c1.9-1.3 2.8-1 2.8-1 .6 1.4.2 2.4.1 2.7a3.9 3.9 0 0 1 1 2.7c0 3.9-2.4 4.7-4.6 5 .4.3.8 1 .8 2.1v3.1c0 .3.2.6.8.5A10.1 10.1 0 0 0 22 12.2C22 6.6 17.5 2 12 2Z" />
+          {{- else }}<circle cx="12" cy="12" r="9" />
+          {{- end }}
+        </svg>
+      </a>
+      {{- end }}
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-orbit" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <p class="hero-eyebrow">{{ $h.hero.eyebrow }}</p>
+    <h1>{{ $h.hero.line1 }}<br /><span class="acc">{{ $h.hero.line2 }}</span></h1>
+    <p class="hero-sub">{{ $h.hero.sub }}</p>
+    <div class="hero-divider" aria-hidden="true"></div>
+    <div class="hero-ctas">
+      <a href="#posts" class="btn-primary">{{ $h.hero.cta_primary }} <span class="arr">→</span></a>
+      {{- if $songs }}<a href="#music" class="btn-ghost">{{ $h.hero.cta_secondary }}</a>{{ end }}
+    </div>
+    <dl class="hero-stats" aria-label="站点快照">
+      <div><dt data-count="{{ len site.RegularPages }}">0</dt><dd>篇笔记</dd></div>
+      <div><dt data-count="{{ len site.Taxonomies.tags }}">0</dt><dd>个标签</dd></div>
+      <div><dt data-count="{{ $years }}">0</dt><dd>年更新</dd></div>
+    </dl>
+  </div>
+  <div class="hero-scroll" aria-hidden="true"><span>SCROLL</span><span class="line"></span></div>
+</header>
+
+<main id="main">
+  <section class="sec" id="about">
+    <div class="wrap">
+      <div class="about-grid">
+        <div class="about-portrait rv">
+          <div class="portrait-mark">{{ $h.about.mark }}</div>
+          <span class="portrait-tag">{{ $h.about.since }}</span>
+        </div>
+        <div class="about-body rv">
+          <div class="sec-eyebrow"><span class="dot"></span>ABOUT · 关于</div>
+          <h2>不追风口，<br />只写真的想过的事。</h2>
+          {{- range $h.about.paragraphs }}<p>{{ . | safeHTML }}</p>{{ end }}
+          <div class="about-tags">
+            {{- range $h.about.tags }}<span class="tag">{{ . }}</span>{{ end }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="posts">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="sec-eyebrow"><span class="dot"></span>NOTES · 最新笔记</div>
+        <h2>正在写的，<br />和最近写过的。</h2>
+        <p class="sec-desc">想到什么写什么，先写出来再谈质量。</p>
+      </div>
+      <div class="posts-grid rv">
+        {{- range $posts }}
+        <a class="post-card" href="{{ .RelPermalink }}">
+          <div class="post-meta"><time>{{ .Date.Format "2006-01-02" }}</time><span>{{ .ReadingTime }} 分钟</span></div>
+          <h3>{{ .Title }}</h3>
+          <p>{{ .Summary }}</p>
+          {{- with .Params.tags }}<div class="post-tags">{{ range . }}<span>#{{ . }}</span>{{ end }}</div>{{ end }}
+          <span class="post-more">阅读全文 →</span>
+        </a>
+        {{- end }}
+      </div>
+      <div class="posts-more rv"><a href="{{ "/posts/" | relURL }}" class="btn-ghost">全部文章 →</a></div>
+    </div>
+  </section>
+
+  <section class="sec metrics">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="sec-eyebrow"><span class="dot"></span>BY THE NUMBERS · 持续记录</div>
+        <h2>写下去，<br />本身就是答案。</h2>
+      </div>
+      <div class="metric-grid rv">
+        <div class="metric"><div class="num" data-count="{{ len site.RegularPages }}">0</div><div class="label">文章</div><div class="src">/posts/</div></div>
+        <div class="metric"><div class="num" data-count="{{ $words }}">0</div><div class="label">总字数</div><div class="src">含代码注释</div></div>
+        <div class="metric"><div class="num" data-count="{{ len $songs }}">0</div><div class="label">首歌常驻</div><div class="src">写作B站歌单</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="focus">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="sec-eyebrow"><span class="dot"></span>FOCUS · 专注</div>
+        <h2>几件长期<br />都在做的事。</h2>
+        <p class="sec-desc">不追逐每一个新花样，把少数几件事做长。</p>
+      </div>
+      <div class="focus-list rv">
+        {{- range $h.focus }}
+        <a class="focus-item" href="{{ .url }}" {{ if .external }}target="_blank" rel="noopener noreferrer"{{ end }}>
+          <div class="focus-num">{{ .num }}</div>
+          <div class="focus-body"><h3>{{ .title }}</h3><p>{{ .desc }}</p></div>
+          <div class="focus-arrow" aria-hidden="true">→</div>
+        </a>
+        {{- end }}
+      </div>
+    </div>
+  </section>
+
+  {{- if $songs }}
+  <section class="sec" id="music">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="sec-eyebrow"><span class="dot"></span>SOUNDTRACK · 音乐</div>
+        <h2>写代码时<br />循环的那几张。</h2>
+        <p class="sec-desc">右下角播放器常驻，点了就播。</p>
+      </div>
+      <div class="music-grid rv">
+        {{- range $songs }}
+        <div class="track">
+          <img src="{{ .cover | absURL }}" alt="{{ .title }} 封面" loading="lazy" />
+          <div class="track-name">{{ .title }}</div>
+          <div class="track-artist">{{ .artist }}</div>
+        </div>
+        {{- end }}
+      </div>
+    </div>
+  </section>
+  {{- end }}
+
+  <section class="sec" id="friends">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="sec-eyebrow"><span class="dot"></span>FRIENDS · 推荐</div>
+        <h2>常去串门的<br />一些网站。</h2>
+      </div>
+      <div class="friends-grid rv">
+        {{- range $h.friends }}
+        <a class="friend-card" href="{{ .url }}" target="_blank" rel="noopener noreferrer">
+          <h3>{{ .name }}<span class="arr">↗</span></h3>
+          <p>{{ .desc }}</p>
+        </a>
+        {{- end }}
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <span>{{ $h.footer.line }}</span>
+    <span class="footer-links">
+      <a href="{{ "/posts/" | relURL }}">文章</a>
+      <a href="{{ "/tags/" | relURL }}">标签</a>
+      <a href="https://github.com/xiaoheizi112" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </span>
+  </div>
+</footer>
+
+<script src="{{ "js/home.js" | relURL }}"></script>
+{{- partial "extend_footer.html" . }}
+</body>
+</html>
