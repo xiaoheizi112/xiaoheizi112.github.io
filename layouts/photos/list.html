@@ -1,5 +1,5 @@
 {{- $h := hugo.Data.home -}}
-{{- $photos := sort hugo.Data.photos "date" "desc" -}}
+{{- $photos := sort (default slice hugo.Data.photos) "date" "desc" -}}
 <!doctype html>
 <html lang="{{ site.Language.Locale }}">
 <head>

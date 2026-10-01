@@ -1,6 +1,6 @@
 {{- $h := hugo.Data.home -}}
 {{- $songs := hugo.Data.music -}}
-{{- $photos := first 6 (sort hugo.Data.photos "date" "desc") -}}
+{{- $photos := first 6 (sort (default slice hugo.Data.photos) "date" "desc") -}}
 {{- $posts := first 6 site.RegularPages -}}
 {{- $words := 0 -}}
 {{- range site.RegularPages -}}{{- $words = add $words .WordCount -}}{{- end -}}
