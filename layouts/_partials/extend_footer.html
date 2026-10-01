@@ -7,7 +7,7 @@
 <div id="aplayer-float"></div>
 <script src="{{ "lib/aplayer/APlayer.min.js" | absURL }}"></script>
 <script>
-new APlayer({
+window.player = new APlayer({
   container: document.getElementById('aplayer-float'),
   fixed: true,
   loop: 'all',
