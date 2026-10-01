@@ -1,0 +1,68 @@
+# ============================================================
+# 首页内容配置 —— 改这里就够了，不用碰模板和 CSS
+# ============================================================
+
+brand:
+  cn: "慢公子"
+  en: "GONGZI"          # 品牌旁边的小字英文/拼音
+
+hero:
+  eyebrow: "个人主页 · FIELD NOTES"
+  line1: "慢慢写，"
+  line2: "只写想起来的那一句。"   # 这一行会显示成强调色
+  sub: >-
+    懒是主要驱动力。这里堆放想法、代码残骸和一个薛之谦歌单。
+    更新频率随机，但写的每一句都是真的。
+  cta_primary: "开始阅读"
+  cta_secondary: "先听一首"
+
+# 关于板块。头像位显示一个汉字（mark），想换图片的话以后再说
+about:
+  mark: "慢"
+  since: "EST. 2026 · 线上某处"
+  paragraphs:
+    - >-
+      我是<span class="em">慢公子</span>。人如其名，干什么都慢，
+      懒是主要驱动力。开这个站不是为了输出干货，是给自己找个地方堆放想法——
+      省得散落在各个聊天窗口里过期。
+    - >-
+      这里没有「颠覆」「革命性」的口号。更新频率取决于我什么时候
+      突然想说点什么，可能一周三篇，可能一年零篇。
+    - >-
+      相信<span class="em">能把复杂的事拆到每天能用的一块</span>，
+      就已经赢了大部分空想。
+  tags: ["摸鱼开发", "随笔", "自动化", "薛之谦", "想一出是一出"]
+
+# 专注方向 / 项目。external: true 会新开标签页
+focus:
+  - num: "01"
+    title: "随笔与碎碎念"
+    desc: "不追热点。只写自己真的想过、踩过坑的东西。"
+    url: "/posts/"
+    external: false
+  - num: "02"
+    title: "代码残骸"
+    desc: "写出来能跑的脚本和小工具，跑不起来的过程也算。"
+    url: "https://github.com/xiaoheizi112"
+    external: true
+  - num: "03"
+    title: "歌单"
+    desc: "写作B站歌单常驻，薛之谦含量超标。"
+    url: "#music"
+    external: false
+
+# 朋友网站 / 推荐。示例两条，删掉换成你自己的
+friends:
+  - name: "向阳乔木"
+    url: "https://www.qiaomu.ai/"
+    desc: "本页风格的灵感来源 · AI 实践笔记"
+  - name: "PaperMod"
+    url: "https://github.com/adityatelange/hugo-PaperMod"
+    desc: "博客文章页用的主题"
+
+# 数字板块的「起始年份」，文章数/字数/标签数是自动统计的
+stats:
+  since_year: 2026
+
+footer:
+  line: "慢公子 · 想起来才更新"
