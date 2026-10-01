@@ -1,27 +1,28 @@
 # Music Playlist - 慢公子的小站
 # Format: title | artist | file_path (relative to /music/)
+# 全部来自 Kevin MacLeod (incompetech.com)，许可 CC-BY 4.0（署名即可免费使用，含商用）
 
-- title: "动物世界"
-  artist: "薛之谦"
-  url: "music/dongwushijie.mp3"
-  cover: "music/covers/dongwushijie.jpg"
-
-- title: "你还要我怎样"
-  artist: "薛之谦"
-  url: "music/nihaiyaowozenyang.mp3"
+- title: "Life of Riley"
+  artist: "Kevin MacLeod"
+  url: "music/life-of-riley.mp3"
   cover: "music/covers/default.svg"
 
-- title: "像风一样"
-  artist: "薛之谦"
-  url: "music/xiangfengyiyang.mp3"
+- title: "Gymnopedie No. 1"
+  artist: "Kevin MacLeod"
+  url: "music/gymnopedie-no-1.mp3"
   cover: "music/covers/default.svg"
 
-- title: "演员"
-  artist: "薛之谦"
-  url: "music/yanyuan.mp3"
+- title: "Deliberate Thought"
+  artist: "Kevin MacLeod"
+  url: "music/deliberate-thought.mp3"
   cover: "music/covers/default.svg"
 
-- title: "高尚"
-  artist: "薛之谦"
-  url: "music/gaoshang.mp3"
+- title: "Wholesome"
+  artist: "Kevin MacLeod"
+  url: "music/wholesome.mp3"
+  cover: "music/covers/default.svg"
+
+- title: "Carefree"
+  artist: "Kevin MacLeod"
+  url: "music/carefree.mp3"
   cover: "music/covers/default.svg"
