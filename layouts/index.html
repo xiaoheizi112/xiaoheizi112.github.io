@@ -1,5 +1,6 @@
 {{- $h := hugo.Data.home -}}
 {{- $songs := hugo.Data.music -}}
+{{- $photos := first 6 (sort hugo.Data.photos "date" "desc") -}}
 {{- $posts := first 6 site.RegularPages -}}
 {{- $words := 0 -}}
 {{- range site.RegularPages -}}{{- $words = add $words .WordCount -}}{{- end -}}
@@ -33,6 +34,7 @@
       <a href="#about">关于</a>
       <a href="#posts">笔记</a>
       {{- if $songs }}<a href="#music">音乐</a>{{ end }}
+      {{- if $photos }}<a href="/photos/">相册</a>{{ end }}
       <a href="#focus">方向</a>
       <a href="#friends">推荐</a>
     </div>
@@ -163,6 +165,23 @@
         </div>
         {{- end }}
       </div>
+    </div>
+  </section>
+  {{- end }}
+
+  {{- if $photos }}
+  <section class="sec" id="photos">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="sec-eyebrow"><span class="dot"></span>PHOTOS · 相册</div>
+        <h2>生活的<br />证据们。</h2>
+      </div>
+      <div class="photos-strip rv">
+        {{- range $photos }}
+        <a class="strip-item" href="/photos/"><img src="{{ .src | relURL }}" alt="{{ .caption | default .place }}" loading="lazy" /></a>
+        {{- end }}
+      </div>
+      <div class="posts-more"><a href="/photos/" class="btn-ghost">全部照片 →</a></div>
     </div>
   </section>
   {{- end }}
