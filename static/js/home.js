@@ -25,4 +25,12 @@
     }
   }, { threshold: 0.5 });
   document.querySelectorAll("[data-count]").forEach((el) => co.observe(el));
+
+  // 音乐卡片点击 → 转发给右下角 APlayer 对应曲目（模拟其列表项点击，走官方逻辑）
+  document.querySelectorAll("#music .track").forEach((el, i) => {
+    el.addEventListener("click", () => {
+      const li = document.querySelectorAll(".aplayer-list li")[i];
+      if (li) li.click();
+    });
+  });
 })();

@@ -147,7 +147,7 @@ h2 { font: 600 clamp(1.7rem, 3.6vw, 2.6rem)/1.35 var(--font-display); margin-top
 /* ---------- 音乐 ---------- */
 #music { background: var(--bg-2); }
 .music-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; }
-.track { padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--bg); transition: all 200ms var(--ease); }
+.track { padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--bg); transition: all 200ms var(--ease); cursor: pointer; }
 .track:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
 .track img { aspect-ratio: 1; width: 100%; object-fit: cover; border-radius: 10px; }
 .track-name { margin-top: 12px; font: 600 14px var(--font-display); }
