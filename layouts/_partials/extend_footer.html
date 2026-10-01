@@ -1,5 +1,8 @@
 {{- $songs := hugo.Data.music }}
 {{- if $songs }}
+{{- /* 整个列表一次 jsonify + safeJS：逐字段 jsonify 会被 html/template 在 <script> 里二次转义，URL 带上字面引号导致播放失败 */ -}}
+{{- $list := slice }}
+{{- range $songs }}{{ $list = $list | append (dict "name" .title "artist" .artist "url" (.url | absURL) "cover" (.cover | absURL)) }}{{ end }}
 <link rel="stylesheet" href="{{ "lib/aplayer/APlayer.min.css" | absURL }}">
 <div id="aplayer-float"></div>
 <script src="{{ "lib/aplayer/APlayer.min.js" | absURL }}"></script>
@@ -14,11 +17,7 @@ new APlayer({
   mutex: true,
   listFolded: false,
   listMaxHeight: 280,
-  audio: [
-    {{- range $songs }}
-    { name: {{ .title | jsonify }}, artist: {{ .artist | jsonify }}, url: {{ .url | absURL | jsonify }}, cover: {{ .cover | absURL | jsonify }} },
-    {{- end }}
-  ]
+  audio: {{ $list | jsonify | safeJS }},
 });
 </script>
 {{- end }}
