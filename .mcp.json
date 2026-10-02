@@ -3,14 +3,6 @@
     "figma": {
       "type": "http",
       "url": "https://mcp.figma.com/mcp"
-    },
-    "magic": {
-      "type": "stdio",
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@mastergo/magic-mcp", "--token=REPLACE_WITH_YOUR_TOKEN"],
-      "env": {
-        "npm_config_registry": "https://registry.npmmirror.com"
-      }
     }
   }
 }

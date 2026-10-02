@@ -1,0 +1,49 @@
+{{- /* 覆盖 themes/PaperMod/layouts/_partials/toc.html：侧栏 sticky 目录（≥1100px），移动端隐藏 */ -}}
+{{- $toc := .TableOfContents | string -}}
+{{- if findRE "<li" $toc -}}
+<aside class="post-toc" id="post-toc" aria-label="目录">
+    <div class="post-toc-title">目录</div>
+    {{- $toc | safeHTML -}}
+</aside>
+<script>
+(function () {
+    function tocInit() {
+        if (window.__tocSpy) { window.__tocSpy.disconnect(); window.__tocSpy = null; }
+        var toc = document.getElementById('post-toc');
+        if (!toc || !toc.offsetParent) return; // 移动端 display:none 时不跑
+        var links = Array.prototype.slice.call(toc.querySelectorAll('a[href^="#"]'));
+        var map = {};
+        links.forEach(function (a) {
+            var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+            if (t) map[t.id] = a;
+        });
+        var targets = Object.keys(map).map(function (id) { return document.getElementById(id); });
+        if (!targets.length) return;
+        var setActive = function (a) {
+            toc.querySelectorAll('.active').forEach(function (el) { el.classList.remove('active'); });
+            if (a) a.classList.add('active');
+        };
+        // 自己接管点击：Turbo 对"同一个锚点第二次点击"（hash 不变）不响应，必须手动 scrollIntoView
+        toc.addEventListener('click', function (e) {
+            var a = e.target.closest('a[href^="#"]');
+            if (!a) return;
+            var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+            if (!t) return;
+            e.preventDefault();
+            t.scrollIntoView({ behavior: 'smooth' });
+            history.replaceState(null, '', a.getAttribute('href'));
+            setActive(a);
+        });
+        var spy = new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) { if (en.isIntersecting) setActive(map[en.target.id]); });
+        }, { rootMargin: '10% 0px -70% 0px' });
+        targets.forEach(function (t) { spy.observe(t); });
+        setActive(links[0]);
+        window.__tocSpy = spy;
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tocInit);
+    else tocInit();
+    document.addEventListener('turbo:load', tocInit);
+})();
+</script>
+{{- end -}}

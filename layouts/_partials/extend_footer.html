@@ -1,25 +1,57 @@
+{{- if hugo.IsServer }}
+{{- /* 本地测试水印：hugo server 才渲染，构建产物里没有——看到它就说明在 localhost，不会串到线上 */ -}}
+<div style="position:fixed;top:8px;right:8px;z-index:9999;padding:4px 10px;border-radius:99px;background:#262320;color:#f7f5f0;font:500 11px ui-monospace,Consolas,monospace;letter-spacing:.12em;opacity:.85;pointer-events:none">LOCAL 测试</div>
+{{- end }}
 {{- $songs := hugo.Data.music }}
 {{- if $songs }}
-{{- /* 整个列表一次 jsonify + safeJS：逐字段 jsonify 会被 html/template 在 <script> 里二次转义，URL 带上字面引号导致播放失败 */ -}}
-{{- $list := slice }}
-{{- /* relURL 而非 absURL：absURL 永远拼 baseURL，本地预览会去请求线上文件，新歌没上线就 404 */ -}}
-{{- range $songs }}{{ $list = $list | append (dict "name" .title "artist" .artist "url" (.url | relURL) "cover" (.cover | relURL)) }}{{ end }}
-<link rel="stylesheet" href="{{ "lib/aplayer/APlayer.min.css" | relURL }}">
-<div id="aplayer-float" data-turbo-permanent></div>
-<script src="{{ "lib/aplayer/APlayer.min.js" | relURL }}"></script>
-<script>
-/* Turbo 切页时播放器元素与 window 都不重载；缺 guard 会重复 new 出第二个播放器 */
-if (!window.player) window.player = new APlayer({
-  container: document.getElementById('aplayer-float'),
-  fixed: true,
-  loop: 'all',
-  order: 'list',
-  preload: 'metadata',
-  volume: 0.7,
-  mutex: true,
-  listFolded: false,
-  listMaxHeight: 280,
-  audio: {{ $list | jsonify | safeJS }},
-});
-</script>
+{{- /* 胶卷播放器：#tape 整体 data-turbo-permanent，跨页不断音；audio 必须放容器内一起被保留 */ -}}
+<link rel="stylesheet" href="{{ "css/tape.css" | relURL }}">
+<div id="tape" data-turbo-permanent>
+  <div class="tape-panel">
+    <div class="tape-now">
+      <img class="tape-cover" alt="" />
+      <div class="tape-meta"><div class="tape-title">挑一首</div><div class="tape-artist"></div></div>
+    </div>
+    <div class="tape-seek" role="slider" aria-label="播放进度" tabindex="0"><i></i></div>
+    <div class="tape-time"><span class="t-cur">0:00</span><span class="t-dur">0:00</span></div>
+    <div class="tape-ctrl">
+      <button type="button" class="tape-prev" aria-label="上一首"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zM18 6l-8.5 6L18 18z"/></svg></button>
+      <button type="button" class="tape-pp" aria-label="播放/暂停">
+        <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="i-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <button type="button" class="tape-next" aria-label="下一首"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z"/></svg></button>
+    </div>
+    <div class="tape-list">
+      {{- range $i, $e := $songs }}
+      <div class="tape-track" data-url="{{ $e.url | relURL }}" data-cover="{{ $e.cover | relURL }}" data-title="{{ $e.title }}" data-artist="{{ $e.artist }}">
+        <span class="tape-no">{{ printf "%02d" (add $i 1) }}</span>
+        <img src="{{ $e.cover | relURL }}" alt="" loading="lazy" />
+        <span class="tape-name">{{ $e.title }}</span>
+        <span class="tape-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+      {{- end }}
+    </div>
+  </div>
+  <button type="button" class="tape-reel-btn" aria-label="音乐播放器">
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <circle cx="24" cy="24" r="6" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <g fill="currentColor">
+        <circle cx="24" cy="11" r="3.4"/><circle cx="35.2" cy="17.5" r="3.4"/><circle cx="35.2" cy="30.5" r="3.4"/>
+        <circle cx="24" cy="37" r="3.4"/><circle cx="12.8" cy="30.5" r="3.4"/><circle cx="12.8" cy="17.5" r="3.4"/>
+      </g>
+    </svg>
+  </button>
+  <audio id="tape-audio" preload="metadata"></audio>
+</div>
+<script src="{{ "js/tape.js" | relURL }}"></script>
 {{- end }}
+<script>
+/* 返回顶部键图标统一：主题默认双折线，换成首页同款单箭头（Turbo 换页后重打） */
+(function () {
+  var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>';
+  function fix() { var a = document.getElementById("top-link"); if (a && a.innerHTML.indexOf("M12 19V5") < 0) a.innerHTML = ARROW; }
+  fix(); addEventListener("turbo:load", fix); addEventListener("turbo:render", fix);
+})();
+</script>

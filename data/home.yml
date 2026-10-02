@@ -8,61 +8,43 @@ brand:
 
 hero:
   eyebrow: "个人主页 · FIELD NOTES"
-  line1: "慢慢写，"
-  line2: "只写想起来的那一句。"   # 这一行会显示成强调色
+  line1: "想过的，"
+  line2: "写下来才算数。"   # 这一行会显示成强调色
   sub: >-
-    懒是主要驱动力。这里堆放想法、代码残骸和一个 XXXTentacion 歌单。
-    更新频率随机，但写的每一句都是真的。
+    记忆会偷偷改写过去，文字不会。所以记录、写作、把这座小站一点点搭起来——
+    不为给谁看，是给未来的自己留一个可以回查的地方。
   cta_primary: "开始阅读"
   cta_secondary: "先听一首"
 
 # 关于板块。头像位显示一个汉字（mark），想换图片的话以后再说
 about:
   mark: "慢"
-  since: "EST. 2026 · 线上某处"
+  since: "EST. 2026 · 山间有炊烟"
   paragraphs:
     - >-
-      我是<span class="em">慢公子</span>。人如其名，干什么都慢，
-      懒是主要驱动力。开这个站不是为了输出干货，是给自己找个地方堆放想法——
-      省得散落在各个聊天窗口里过期。
+      <span class="em">慢</span>，是一种态度。
+      <span class="em">公子</span>，是一种自嘲。
     - >-
-      这里没有「颠覆」「革命性」的口号。更新频率取决于我什么时候
-      突然想说点什么，可能一周三篇，可能一年零篇。
-    - >-
-      相信<span class="em">能把复杂的事拆到每天能用的一块</span>，
-      就已经赢了大部分空想。
-  tags: ["摸鱼开发", "随笔", "自动化", "XXXTENTACION", "想一出是一出"]
+      博客，是一块<span class="em">自留地</span>。
+      种什么，什么时候种，看天，看心情，看你来不来。
+  tags: ["笔记", "AI 编程", "自动化", "旅行随拍", "听歌"]
 
-# 专注方向 / 项目。external: true 会新开标签页
-focus:
-  - num: "01"
-    title: "随笔与碎碎念"
-    desc: "不追热点。只写自己真的想过、踩过坑的东西。"
-    url: "/posts/"
-    external: false
-  - num: "02"
-    title: "代码残骸"
-    desc: "写出来能跑的脚本和小工具，跑不起来的过程也算。"
+# 联系方式。带 url 的行会渲染成可点击链接，每行右侧都有复制按钮
+contact:
+  - key: "wechat"
+    label: "微信"
+    value: "hemoumoumou01"
+  - key: "qq"
+    label: "QQ"
+    value: "3866074912"
+  - key: "github"
+    label: "GitHub"
+    value: "https://github.com/xiaoheizi112"
     url: "https://github.com/xiaoheizi112"
-    external: true
-  - num: "03"
-    title: "歌单"
-    desc: "XXXTENTACION 常驻歌单，纪念一位二十岁的歌手。"
-    url: "#music"
-    external: false
 
-# 朋友网站 / 推荐。示例两条，删掉换成你自己的
-friends:
-  - name: "向阳乔木"
-    url: "https://www.qiaomu.ai/"
-    desc: "本页风格的灵感来源 · AI 实践笔记"
-  - name: "PaperMod"
-    url: "https://github.com/adityatelange/hugo-PaperMod"
-    desc: "博客文章页用的主题"
-
-# 数字板块的「起始年份」，文章数/字数/标签数是自动统计的
+# since: 建站日期（首 commit 2026-09-21），首页第三张卡自动算运行天数
 stats:
-  since_year: 2026
+  since: "2026-09-21"
 
 footer:
   line: "慢公子 · 想起来才更新 ｜ 背景音乐：XXXTENTACION"

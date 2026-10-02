@@ -6,6 +6,7 @@
   date: "2023-09-30"
   place: "成都"
   caption: "熊猫抱着竹子加餐"
+  featured: true
 - src: "photos/2023/成都-img_20230930_152537.webp"
   date: "2023-09-30"
   place: "成都"
@@ -46,6 +47,7 @@
   date: "2024-04-05"
   place: "张家界"
   caption: "雾把峰林包了起来"
+  featured: true
 - src: "photos/2024/张家界-img_20240405_163807.webp"
   date: "2024-04-05"
   place: "张家界"
@@ -126,6 +128,7 @@
   date: "2026-02-16"
   place: "衡阳"
   caption: "田野间穿桥而过的火车"
+  featured: true
 - src: "photos/2026/衡阳-img_20260219_162414.webp"
   date: "2026-02-19"
   place: "衡阳"
@@ -154,6 +157,7 @@
   date: "2026-07-31"
   place: "惠州"
   caption: "晚霞掉进了海里"
+  featured: true
 - src: "photos/2026/惠州-img_20260912_162013.webp"
   date: "2026-09-12"
   place: "惠州"
@@ -162,6 +166,7 @@
   date: "2025-04-12"
   place: "浏阳"
   caption: "浏阳烟花炸开的一瞬"
+  featured: true
 - src: "photos/2026/惠州-mmexport1785018004538.webp"
   date: "2026-07-26"
   place: "惠州"
@@ -174,6 +179,7 @@
   date: "2026-09-03"
   place: "惠州"
   caption: "沙滩上画了头小猪"
+  featured: true
 - src: "photos/2026/惠州-wx_camera_1785141694453.webp"
   date: "2026-07-27"
   place: "惠州"

@@ -1,10 +1,14 @@
 {{- $h := hugo.Data.home -}}
 {{- $songs := hugo.Data.music -}}
-{{- $photos := first 6 (sort (default slice hugo.Data.photos) "date" "desc") -}}
+{{- /* 首页相册条：优先取 photos.yml 里 featured: true 的代表作，没标就退回最新 6 张 */ -}}
+{{- $allPhotos := sort (default slice hugo.Data.photos) "date" "desc" -}}
+{{- $photos := default (first 6 $allPhotos) (where $allPhotos "featured" true) -}}
+{{- /* src → 全量列表下标，相册条点击后跳 /photos/#pN 定位到那张图 */ -}}
+{{- $pidx := dict -}}{{- range $i, $p := $allPhotos }}{{- $pidx = merge $pidx (dict $p.src $i) -}}{{- end -}}
 {{- $posts := first 6 site.RegularPages -}}
 {{- $words := 0 -}}
 {{- range site.RegularPages -}}{{- $words = add $words .WordCount -}}{{- end -}}
-{{- $years := sub now.Year $h.stats.since_year -}}
+{{- $days := int (div (now.Sub (time $h.stats.since)).Hours 24) -}}
 <!doctype html>
 <html lang="{{ site.Language.Locale }}">
 <head>
@@ -25,6 +29,15 @@
   <script src="{{ "lib/turbo/turbo.umd.js" | relURL }}" defer></script>
 </head>
 <body>
+<canvas id="dot-lens" aria-hidden="true"></canvas>
+{{- /* 滚动长背景：五层主题氛围随板块交叉淡入，图标视差漂移 + hover 放大。字形用系统单色符号，零图片资源 */ -}}
+<div class="ambient" aria-hidden="true">
+  <div class="amb" data-for="morning"><i class="fl s1" style="--px:.05">☀</i><i class="fl s2" style="--px:.09">☁</i><i class="fl s2b" style="--px:.13">☀</i></div>
+  <div class="amb" data-for="ink"><i class="fl s3" style="--px:.06">✎</i><i class="fl s4" style="--px:.1">✎</i><i class="fl s4b" style="--px:.14">✎</i></div>
+  <div class="amb" data-for="sound"><i class="fl s5" style="--px:.07">♪</i><i class="fl s6" style="--px:.11">♫</i><i class="fl s6b" style="--px:.15">♩</i></div>
+  <div class="amb" data-for="sea"><i class="fl s7" style="--px:.05">〜</i><i class="fl s8" style="--px:.09">☁</i><i class="fl s8b" style="--px:.13">☀</i></div>
+  <div class="amb" data-for="hello"><i class="fl s9" style="--px:.06">✉</i><i class="fl s10" style="--px:.1">✈</i><i class="fl s10b" style="--px:.14">☏</i></div>
+</div>
 <a class="skip-link" href="#main">跳到主要内容</a>
 
 <nav class="nav" id="nav" aria-label="主导航">
@@ -38,8 +51,8 @@
       <a href="#posts">笔记</a>
       {{- if $songs }}<a href="#music">音乐</a>{{ end }}
       <a href="/photos/">相册</a>
-      <a href="#focus">方向</a>
-      <a href="#friends">推荐</a>
+      {{- with hugo.Data.products }}<a href="#products">产品</a>{{ end }}
+      <a href="#contact">联系</a>
     </div>
     <div class="nav-actions">
       {{- range site.Params.socialIcons }}
@@ -71,20 +84,60 @@
       <dl class="hero-stats" aria-label="站点快照">
         <div><dt data-count="{{ len site.RegularPages }}">0</dt><dd>篇笔记</dd></div>
         <div><dt data-count="{{ len site.Taxonomies.tags }}">0</dt><dd>个标签</dd></div>
-        <div><dt data-count="{{ $years }}">0</dt><dd>年更新</dd></div>
+        <div><dt data-count="{{ $days }}">0</dt><dd>天运行</dd></div>
       </dl>
     </div>
-    {{- range first 1 $photos }}
+    {{- /* Hero 明信片：手绘卡通插画内联 SVG，颜色全走 :root 令牌，零外部资源 */ -}}
     <figure class="hero-polaroid" aria-hidden="true">
-      <img src="{{ .src | relURL }}" alt="" loading="lazy" />
-      <svg class="postmark" viewBox="0 0 96 96" aria-hidden="true">
-        <circle cx="48" cy="48" r="44" fill="none" stroke="currentColor" stroke-width="2" />
-        <circle cx="48" cy="48" r="36" fill="none" stroke="currentColor" stroke-width="1" />
-        <text x="48" y="45" text-anchor="middle" font-size="12.5" fill="currentColor">{{ now.Format "2006.01.02" }}</text>
-        <text x="48" y="62" text-anchor="middle" font-size="11" letter-spacing="3" fill="currentColor">慢公子</text>
+      <svg class="polaroid-art" viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="320" height="400" rx="3" fill="var(--bg-2)" />
+        {{- /* 简笔风景：太阳、云、飞鸟、双层山丘 + 一棵小树 */ -}}
+        <g stroke="var(--accent)" stroke-width="5" stroke-linecap="round">
+          <line x1="110" y1="120" x2="122" y2="120" />
+          <line x1="98" y1="98" x2="106.8" y2="89.8" />
+          <line x1="70" y1="88" x2="70" y2="76" />
+          <line x1="42" y1="98" x2="33.2" y2="89.8" />
+          <line x1="30" y1="120" x2="18" y2="120" />
+          <line x1="42" y1="142" x2="33.2" y2="150.2" />
+          <line x1="98" y1="142" x2="106.8" y2="150.2" />
+          <line x1="70" y1="152" x2="70" y2="164" />
+        </g>
+        <circle cx="70" cy="120" r="42" fill="var(--accent)" opacity=".08" />
+        <circle cx="70" cy="120" r="30" fill="var(--accent)" />
+        <g fill="var(--bg)">
+          <circle cx="146" cy="74" r="13" /><circle cx="166" cy="64" r="17" /><circle cx="186" cy="76" r="11" />
+          <rect x="140" y="68" width="54" height="18" rx="9" />
+        </g>
+        {{- /* 飞鸟：挪进太阳与云之间的空域，两只一前一后、由大到小做远近感 */ -}}
+        <path d="M126 112 q7-9 14 0 q7-9 14 0" fill="none" stroke="var(--ink-2)" stroke-width="2.2" stroke-linecap="round" />
+        <path d="M158 132 q5.5-7 11 0 q5.5-7 11 0" fill="none" stroke="var(--ink-2)" stroke-width="1.8" stroke-linecap="round" opacity=".75" />
+        <path d="M-6 252 Q 80 176 190 220 Q 270 248 334 210 L 334 252 L -6 252 Z" fill="var(--bg-3)" />
+        <path d="M-6 252 Q 110 206 220 244 Q 290 262 334 246 L 334 252 L -6 252 Z" fill="var(--accent)" opacity=".16" />
+        <rect x="157" y="216" width="6" height="22" fill="var(--ink-3)" />
+        <circle cx="160" cy="205" r="15" fill="var(--accent-deep)" />
+        <line x1="16" y1="252" x2="304" y2="252" stroke="var(--border)" />
+        {{- /* 右上角邮票（虚线圆点啃边做齿孔）+ 波浪邮销线 */ -}}
+        <rect x="232" y="34" width="54" height="64" fill="var(--bg)" stroke="var(--accent)" stroke-width="1.5" />
+        <rect x="232" y="34" width="54" height="64" fill="none" stroke="var(--bg-2)" stroke-width="8" stroke-dasharray="0.1 8.5" stroke-linecap="round" />
+        <circle cx="259" cy="56" r="9" fill="var(--accent)" opacity=".8" />
+        <path d="M238 78 q10-12 22-4 q8 5 18 0" fill="none" stroke="var(--ink-2)" stroke-width="2" />
+        <text x="259" y="93" text-anchor="middle" font-size="7.5" letter-spacing="2" fill="var(--ink-3)" font-family="var(--font-mono)">POST</text>
+        {{- /* 邮销线最后画：压在邮票左缘上，像真盖销 */ -}}
+        <g stroke="var(--ink-2)" stroke-width="2" fill="none" opacity=".65">
+          <path d="M196 46 q10-7 20 0 t20 0 t20 0" />
+          <path d="M196 58 q10-7 20 0 t20 0 t20 0" />
+          <path d="M196 70 q10-7 20 0 t20 0 t20 0" />
+          <path d="M196 82 q10-7 20 0 t20 0 t20 0" />
+        </g>
+        {{- /* 左下手写寄语横线 + 右下 mono 日期 */ -}}
+        <g fill="none" stroke="var(--ink-3)" stroke-width="2.5" stroke-linecap="round" opacity=".8">
+          <path d="M26 302 q13-5 26 0 t26 0 t26 0 t26 0 t26 0" />
+          <path d="M26 328 q13-5 26 0 t26 0 t26 0 t26 0" />
+          <path d="M26 354 q13-5 26 0 t26 0 t26 0" />
+        </g>
+        <text x="294" y="352" text-anchor="end" font-size="16" letter-spacing="1" fill="var(--ink-3)" font-family="var(--font-mono)">{{ now.Format "2006.01.02" }}</text>
       </svg>
     </figure>
-    {{- end }}
   </div>
   <div class="hero-scroll" aria-hidden="true"><span>SCROLL</span><span class="line"></span></div>
 </header>
@@ -94,12 +147,91 @@
     <div class="wrap">
       <div class="about-grid">
         <div class="about-portrait rv">
-          <div class="portrait-mark">{{ $h.about.mark }}</div>
+          {{- /* 慢生活卡通插画：太阳、云、飞鸟、双层山丘、炊烟小屋、树、蜿蜒小路，颜色全走令牌 */ -}}
+          <svg class="about-art" viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="ab-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--bg)" /><stop offset="1" stop-color="var(--bg-2)" />
+              </linearGradient>
+              <linearGradient id="ab-hill1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--bg-3)" /><stop offset="1" stop-color="var(--bg-2)" />
+              </linearGradient>
+              <linearGradient id="ab-hill2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--accent)" stop-opacity=".22" /><stop offset="1" stop-color="var(--accent)" stop-opacity=".10" />
+              </linearGradient>
+              <radialGradient id="ab-sunglow">
+                <stop offset=".5" stop-color="var(--accent)" stop-opacity=".26" /><stop offset="1" stop-color="var(--accent)" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="320" height="400" rx="18" fill="url(#ab-sky)" />
+            {{- /* 太阳 + 光晕环 */ -}}
+            {{- /* 太阳：柔光晕（径向渐变，不再是硬圈"表盘感"）+ 实心盘 + 八道均匀光芒 */ -}}
+            <circle cx="242" cy="84" r="54" fill="url(#ab-sunglow)" />
+            <circle cx="242" cy="84" r="26" fill="var(--accent)" />
+            <g stroke="var(--accent)" stroke-width="3" stroke-linecap="round" opacity=".55">
+              <line x1="242" y1="52" x2="242" y2="44" /><line x1="265" y1="61" x2="270" y2="56" />
+              <line x1="274" y1="84" x2="282" y2="84" /><line x1="265" y1="107" x2="270" y2="112" />
+              <line x1="242" y1="116" x2="242" y2="124" /><line x1="219" y1="107" x2="214" y2="112" />
+              <line x1="210" y1="84" x2="202" y2="84" /><line x1="219" y1="61" x2="214" y2="56" />
+            </g>
+            {{- /* 双层云 */ -}}
+            <g fill="var(--bg)" opacity=".95">
+              <circle cx="72" cy="66" r="16" /><circle cx="94" cy="56" r="21" /><circle cx="116" cy="68" r="13" />
+              <rect x="62" y="62" width="66" height="19" rx="9.5" />
+            </g>
+            <g fill="var(--bg)" opacity=".6">
+              <circle cx="150" cy="128" r="10" /><circle cx="164" cy="122" r="13" /><rect x="144" y="124" width="32" height="11" rx="5.5" />
+            </g>
+            {{- /* 三只飞鸟 */ -}}
+            <g stroke="var(--ink-2)" stroke-width="2" fill="none" stroke-linecap="round" opacity=".65">
+              <path d="M138 100 q6-8 12 0 q6-8 12 0" />
+              <path d="M176 116 q5-6 10 0 q5-6 10 0" />
+              <path d="M120 132 q4-5 8 0 q4-5 8 0" />
+            </g>
+            {{- /* 三层山丘，由远及近 */ -}}
+            <path d="M-6 250 Q 60 190 140 222 Q 220 252 334 206 L 334 400 L -6 400 Z" fill="url(#ab-hill1)" />
+            <path d="M-6 296 Q 90 240 190 278 Q 262 302 334 282 L 334 400 L -6 400 Z" fill="url(#ab-hill2)" />
+            <path d="M-6 352 Q 120 316 230 344 Q 292 358 334 346 L 334 400 L -6 400 Z" fill="var(--accent)" opacity=".14" />
+            {{- /* 小屋：墙/顶/门/十字窗/烟囱炊烟 */ -}}
+            <rect x="116" y="228" width="9" height="20" fill="var(--ink-3)" />
+            <path d="M122 222 q8-9 0-18 q-8-9 0-18" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" opacity=".45" />
+            <rect x="62" y="248" width="70" height="50" rx="2" fill="var(--bg)" stroke="var(--ink-3)" stroke-width="2.5" />
+            <path d="M54 250 L97 214 L140 250 Z" fill="var(--accent)" />
+            <rect x="86" y="272" width="21" height="26" rx="1.5" fill="var(--accent-deep)" opacity=".6" />
+            <circle cx="103" cy="286" r="1.6" fill="var(--bg)" />
+            <rect x="68" y="260" width="13" height="13" rx="1.5" fill="var(--bg-2)" stroke="var(--ink-3)" stroke-width="2" />
+            <line x1="74.5" y1="260" x2="74.5" y2="273" stroke="var(--ink-3)" stroke-width="1.5" />
+            <line x1="68" y1="266.5" x2="81" y2="266.5" stroke="var(--ink-3)" stroke-width="1.5" />
+            {{- /* 栅栏 */ -}}
+            <g stroke="var(--ink-3)" stroke-width="2.5" stroke-linecap="round" opacity=".6">
+              <line x1="146" y1="284" x2="146" y2="300" /><line x1="158" y1="284" x2="158" y2="300" /><line x1="170" y1="284" x2="170" y2="300" />
+              <line x1="142" y1="289" x2="174" y2="289" /><line x1="142" y1="296" x2="174" y2="296" />
+            </g>
+            {{- /* 三团树冠的大树 + 树影 */ -}}
+            <ellipse cx="222" cy="304" rx="26" ry="5" fill="var(--ink-3)" opacity=".14" />
+            <rect x="218" y="262" width="7" height="42" rx="2" fill="var(--ink-3)" />
+            {{- /* 树冠：实心同色、两两相交足够深，无缝隙无叠色暗印 */ -}}
+            <g fill="var(--accent-deep)">
+              <circle cx="210" cy="252" r="16" /><circle cx="234" cy="256" r="14" /><circle cx="222" cy="237" r="17" />
+            </g>
+            {{- /* 灌木两丛 */ -}}
+            <g fill="var(--accent)" opacity=".4">
+              <circle cx="38" cy="344" r="9" /><circle cx="50" cy="348" r="7" />
+              <circle cx="286" cy="356" r="8" /><circle cx="297" cy="360" r="6" />
+            </g>
+            {{- /* 蜿蜒回家的小路（虚线脚印感） */ -}}
+            <path d="M120 400 Q 118 352 110 324 Q 104 306 97 300" fill="none" stroke="var(--ink-3)" stroke-width="3.5" stroke-dasharray="1 10" stroke-linecap="round" opacity=".5" />
+            {{- /* 前景草丛 */ -}}
+            <g stroke="var(--accent-deep)" stroke-width="2" stroke-linecap="round" opacity=".45" fill="none">
+              <path d="M22 384 v-10 M28 384 v-14 M34 384 v-9" />
+              <path d="M252 392 v-10 M258 392 v-13 M264 392 v-8" />
+            </g>
+          </svg>
           <span class="portrait-tag">{{ $h.about.since }}</span>
         </div>
         <div class="about-body rv">
           <div class="sec-eyebrow"><span class="dot"></span>ABOUT · 关于</div>
-          <h2>不追风口，<br />只写真的想过的事。</h2>
+          <h2>关于我</h2>
           {{- range $h.about.paragraphs }}<p>{{ . | safeHTML }}</p>{{ end }}
           <div class="about-tags">
             {{- range $h.about.tags }}<span class="tag">{{ . }}</span>{{ end }}
@@ -112,16 +244,17 @@
   <section class="sec" id="posts">
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>NOTES · 最新笔记</div>
-        <h2>正在写的，<br />和最近写过的。</h2>
-        <p class="sec-desc">想到什么写什么，先写出来再谈质量。</p>
+        <div class="sec-eyebrow"><span class="dot"></span>NOTES · 学习笔记</div>
+        <h2>学习笔记</h2>
+        <p class="sec-desc">上课听过、夜里啃过的，都整理成笔记放在这里。</p>
       </div>
       <div class="posts-grid rv">
         {{- range $posts }}
         <a class="post-card" href="{{ .RelPermalink }}">
           <div class="post-meta"><time>{{ .Date.Format "2006-01-02" }}</time><span>{{ .ReadingTime }} 分钟</span></div>
           <h3>{{ .Title }}</h3>
-          <p>{{ .Summary }}</p>
+          {{- /* Summary 是整段渲染后的 HTML（含 h1/h2/嵌套 p/a），塞进 <p> 会破版；先 plainify 成纯文本再截断 */ -}}
+          <p>{{ strings.Truncate 90 (.Summary | plainify | htmlUnescape) }}</p>
           {{- with .Params.tags }}<div class="post-tags">{{ range . }}<span>#{{ . }}</span>{{ end }}</div>{{ end }}
           <span class="post-more">阅读全文 →</span>
         </a>
@@ -135,31 +268,12 @@
     <div class="wrap">
       <div class="sec-head rv">
         <div class="sec-eyebrow"><span class="dot"></span>BY THE NUMBERS · 持续记录</div>
-        <h2>写下去，<br />本身就是答案。</h2>
+        <h2>记录数据</h2>
       </div>
       <div class="metric-grid rv">
-        <div class="metric"><div class="num" data-count="{{ len site.RegularPages }}">0</div><div class="label">文章</div><div class="src">/posts/</div></div>
-        <div class="metric"><div class="num" data-count="{{ $words }}">0</div><div class="label">总字数</div><div class="src">含代码注释</div></div>
-        <div class="metric"><div class="num" data-count="{{ len $songs }}">0</div><div class="label">首歌常驻</div><div class="src">写作B站歌单</div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="focus">
-    <div class="wrap">
-      <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>FOCUS · 专注</div>
-        <h2>几件长期<br />都在做的事。</h2>
-        <p class="sec-desc">不追逐每一个新花样，把少数几件事做长。</p>
-      </div>
-      <div class="focus-list rv">
-        {{- range $h.focus }}
-        <a class="focus-item" href="{{ .url }}" {{ if .external }}target="_blank" rel="noopener noreferrer"{{ end }}>
-          <div class="focus-num">{{ .num }}</div>
-          <div class="focus-body"><h3>{{ .title }}</h3><p>{{ .desc }}</p></div>
-          <div class="focus-arrow" aria-hidden="true">→</div>
-        </a>
-        {{- end }}
+        <div class="metric"><div class="num" data-count="{{ len site.RegularPages }}">0</div><div class="label">文章</div><div class="src">Articles</div></div>
+        <div class="metric"><div class="num" data-count="{{ $words }}">0</div><div class="label">总字数</div><div class="src">Total words</div></div>
+        <div class="metric"><div class="num" data-count="{{ len $songs }}">0</div><div class="label">首歌常驻</div><div class="src">Songs on rotation</div></div>
       </div>
     </div>
   </section>
@@ -169,15 +283,16 @@
     <div class="wrap">
       <div class="sec-head rv">
         <div class="sec-eyebrow"><span class="dot"></span>SOUNDTRACK · 音乐</div>
-        <h2>想听的<br />音乐。</h2>
+        <h2>常驻歌单</h2>
       </div>
       <div class="music-layout rv">
         <div class="artist-card">
+          <span class="artist-tag">歌手介绍</span>
           <div class="artist-memorial">IN MEMORIAM</div>
           <div class="artist-name">XXXTENTACION</div>
           <div class="artist-years">1998.1.18 — 2018.6.18</div>
-          <p>本名 Jahseh Onfroy，美国歌手。失眠、难过、温柔，他都原样写进歌里，从不遮掩。2018 年 6 月，他在自己二十岁的这一年离开，最后一句没能唱完。</p>
-          <p class="artist-quote">把这些歌放上本站，是我能想到的最安静的纪念——<br />你来读字，也顺便听听他。</p>
+          <p>本名 Jahseh Dwayne Ricardo Onfroy，1998 年生于美国佛罗里达州劳德希尔，说唱歌手、创作人。他把失眠、愤怒和脆弱原样写进歌里，风格横跨情绪说唱、摇滚与不插电，是「情绪说唱」浪潮里最有影响力的人之一。</p>
+          <p class="artist-quote">代表作《SAD!》《Jocelyn Flores》《Moonlight》。2018 年 6 月 18 日，他在迈阿密遭枪击身亡，年仅 20 岁——《SAD!》在他身后登顶 Billboard 单曲榜。</p>
         </div>
         <ol class="tracklist">
           {{- range $i, $e := $songs }}
@@ -201,11 +316,11 @@
     <div class="wrap">
       <div class="sec-head rv">
         <div class="sec-eyebrow"><span class="dot"></span>PHOTOS · 相册</div>
-        <h2>生活的<br />证据们。</h2>
+        <h2>相册</h2>
       </div>
       <div class="photos-strip rv">
         {{- range $photos }}
-        <a class="strip-item" href="/photos/"><img src="{{ .src | relURL }}" alt="{{ .caption | default .place }}" loading="lazy" /></a>
+        <a class="strip-item" href="/photos/#p-{{ index $pidx .src }}"><img src="{{ .src | relURL }}" alt="{{ .caption | default .place }}" loading="lazy" /><span class="strip-cap">{{ .caption | default .place }}</span></a>
         {{- end }}
       </div>
       <div class="posts-more"><a href="/photos/" class="btn-ghost">全部照片 →</a></div>
@@ -213,18 +328,57 @@
   </section>
   {{- end }}
 
-  <section class="sec" id="friends">
+  {{- with hugo.Data.products }}
+  <section class="sec" id="products">
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>FRIENDS · 推荐</div>
-        <h2>常去串门的<br />一些网站。</h2>
+        <div class="sec-eyebrow"><span class="dot"></span>PRODUCTS · 产品</div>
+        <h2>产品</h2>
+        <p class="sec-desc">自己捣鼓出来的，和用过之后觉得值得推荐的。</p>
       </div>
-      <div class="friends-grid rv">
-        {{- range $h.friends }}
-        <a class="friend-card" href="{{ .url }}" target="_blank" rel="noopener noreferrer">
-          <h3>{{ .name }}<span class="arr">↗</span></h3>
-          <p>{{ .desc }}</p>
-        </a>
+      <div class="prod-grid rv">
+        {{- range . }}
+        <div class="prod-card">
+          <span class="prod-badge{{ if eq .kind "self" }} self{{ end }}">{{ if eq .kind "self" }}自己做{{ else }}推荐{{ end }}</span>
+          <div class="prod-name">{{ .name }}</div>
+          <p class="prod-desc">{{ .desc }}</p>
+        </div>
+        {{- end }}
+      </div>
+    </div>
+  </section>
+  {{- end }}
+
+  <section class="sec" id="contact">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="sec-eyebrow"><span class="dot"></span>CONTACT · 联系</div>
+        <h2>联系方式</h2>
+        <p class="sec-desc">点右侧按钮即可复制，欢迎来聊。</p>
+      </div>
+      <div class="contact-grid rv">
+        {{- range $h.contact }}
+        <div class="contact-card{{ if .url }} wide{{ end }}">
+          <span class="contact-icon" aria-hidden="true">
+            {{- if eq .key "wechat" }}
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg>
+            {{- else if eq .key "github" }}
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.9 9.6.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.7.1-.7.1-.7 1 0 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 2.9.8.1-.7.4-1.1.7-1.4-2.2-.3-4.6-1.1-4.6-5a3.9 3.9 0 0 1 1-2.7c-.1-.3-.5-1.3.1-2.7 0 0 .9-.3 2.8 1a9.5 9.5 0 0 1 5.1 0c1.9-1.3 2.8-1 2.8-1 .6 1.4.2 2.4.1 2.7a3.9 3.9 0 0 1 1 2.7c0 3.9-2.4 4.7-4.6 5 .4.3.8 1 .8 2.1v3.1c0 .3.2.6.8.5A10.1 10.1 0 0 0 22 12.2C22 6.6 17.5 2 12 2Z"/></svg>
+            {{- else }}
+            {{- /* QQ 企鹅轮廓（Iconify mingcute:qq-line，MIT）——simple-icons 已下架 QQ，用第三方绘制版 */ -}}
+            <svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M4.5 17c.368-2.21 1.28-4.148 1.733-5.016c.169-.321.267-.675.267-1.038V8.5a5.5 5.5 0 1 1 11 0v2.446c0 .363.098.717.267 1.038c.454.868 1.365 2.806 1.733 5.016M6.389 14l-.056 1.01a5.676 5.676 0 1 0 11.334 0L17.611 14"/><path fill="currentColor" d="M12 21.09c0 .502-.5.909-2 .909s-4 .048-4-.454C6 20.636 8.857 20 9.857 20S12 20.588 12 21.09m0 0c0 .502.5.909 2 .909s4 .048 4-.454C18 20.636 15.143 20 14.143 20S12 20.588 12 21.09"/></svg>
+            {{- end }}
+          </span>
+          <span class="contact-info">
+            <span class="contact-label">{{ .label }}</span>
+            {{- if .url }}
+            <a class="contact-value" href="{{ .url }}" target="_blank" rel="noopener noreferrer">{{ .value }}</a>
+            {{- else }}
+            <span class="contact-value">{{ .value }}</span>
+            {{- end }}
+          </span>
+          <button class="copy-btn" type="button" data-copy="{{ .value }}" aria-label="复制{{ .label }}">复制</button>
+        </div>
         {{- end }}
       </div>
     </div>
@@ -241,6 +395,10 @@
     </span>
   </div>
 </footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="返回顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>
+</button>
 
 <script src="{{ "js/home.js" | relURL }}"></script>
 {{- partial "extend_footer.html" . }}

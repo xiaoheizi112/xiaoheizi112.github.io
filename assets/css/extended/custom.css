@@ -68,6 +68,28 @@ body::before {
 /* 标签页/面包屑等胶囊元素贴首页圆角 */
 .terms-tags a, .post-tags a, .tag { border-radius: 99px; }
 
+/* ============ 标签页美化：白卡胶囊 + 计数徽标 + hover 浮起描金 ============ */
+.terms-tags { display: flex; flex-wrap: wrap; gap: 12px; }
+.terms-tags li { margin: 0; }
+.terms-tags a {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px; background: var(--entry); border: 1px solid var(--border);
+  font: 500 14.5px var(--font-cn); color: var(--primary); text-decoration: none;
+  box-shadow: 0 4px 14px -8px rgba(38, 35, 32, 0.18);
+  transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1), border-color 220ms, color 220ms, box-shadow 220ms;
+}
+.terms-tags a:hover {
+  transform: translateY(-3px); border-color: var(--paper-accent); color: var(--paper-accent-deep);
+  box-shadow: 0 12px 24px -10px rgba(38, 35, 32, 0.25);
+}
+/* 计数：从飘着的角标改成 mono 小徽标 */
+.terms-tags a sup {
+  position: static; font: 500 11px var(--font-mono); line-height: 1.7;
+  color: var(--paper-accent-deep); background: rgba(122, 104, 73, 0.1);
+  border-radius: 99px; padding: 0 8px; margin: 0;
+}
+:root[data-theme="dark"] .terms-tags a sup { color: #cdb98f; background: rgba(205, 185, 143, 0.14); }
+
 /* ============ 分页页码:底部居中 ============ */
 nav.pagination {
   justify-content: center;
@@ -101,6 +123,10 @@ nav.pagination .next:hover {
   transform: translateY(-1px);
 }
 
+/* 主题给 .next 加了 margin-inline-start:auto，把 » 顶到最右、翻页时忽左忽右；归零后整排稳定居中 */
+nav.pagination .next,
+nav.pagination .prev { margin-inline-start: 0; }
+
 nav.pagination .page-number.active {
   background: var(--paper-accent);
   border-color: var(--paper-accent);
@@ -123,3 +149,108 @@ body::after {
     radial-gradient(circle at 86% 14%, transparent 30px, rgba(122,104,73,.05) 31px, rgba(122,104,73,.05) 33px, transparent 34px),
     radial-gradient(circle at 7% 72%, transparent 52px, rgba(122,104,73,.06) 53px, rgba(122,104,73,.06) 57px, transparent 58px);
 }
+
+/* ============ 滚动条：与首页 home.css 同款 ============ */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(38, 35, 32, 0.2);
+  border: 3px solid transparent;
+  border-radius: 99px;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: rgba(38, 35, 32, 0.35); }
+html { scrollbar-width: thin; scrollbar-color: rgba(38, 35, 32, 0.2) transparent; }
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb { background-color: rgba(239, 235, 226, 0.18); }
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background-color: rgba(239, 235, 226, 0.3); }
+:root[data-theme="dark"] html, :root[data-theme="dark"] { scrollbar-color: rgba(239, 235, 226, 0.18) transparent; }
+
+/* ============ 头部 brand：与首页 .brand 同款（覆盖 _partials/header.html） ============ */
+.logo a.site-brand { display: inline-flex; align-items: center; gap: 10px; }
+.site-brand .brand-mark {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--paper-ink); color: var(--paper-bg);
+  display: grid; place-items: center;
+  font: 600 15px var(--font-display);
+}
+.site-brand .brand-name { font: 600 17px var(--font-display); letter-spacing: 0.01em; line-height: 1.15; }
+.site-brand .brand-name .en {
+  display: block; font: 500 9px var(--font-mono);
+  letter-spacing: 0.3em; color: var(--paper-ink-3); margin-top: -3px;
+}
+:root[data-theme="dark"] .site-brand .brand-mark { background: var(--paper-bg-2); color: var(--paper-ink); }
+:root[data-theme="dark"] .site-brand .brand-name .en { color: var(--paper-ink-2); }
+
+/* ============ 文章页侧栏目录（覆盖 _partials/toc.html） ============ */
+.post-toc { display: none; }
+@media (min-width: 1100px) {
+  .post-toc {
+    display: block; position: fixed; top: 88px; left: 20px; z-index: 5;
+    width: min(240px, calc((100vw - var(--main-width)) / 2 - 32px));
+    max-height: calc(100vh - 140px); overflow: auto;
+    font-size: 13px;
+  }
+}
+.post-toc-title {
+  font: 600 15px var(--font-display); letter-spacing: 0.08em;
+  color: var(--paper-ink-2); margin: 0 0 12px 2px;
+}
+.post-toc #TableOfContents ul { margin: 0; padding: 0; list-style: none; }
+.post-toc #TableOfContents > ul > li { margin: 0 0 2px; }
+.post-toc #TableOfContents ul ul { margin: 2px 0 6px; padding-left: 12px; }
+.post-toc #TableOfContents a {
+  display: block; padding: 3px 8px 3px 10px;
+  border-left: 2px solid var(--border);
+  color: var(--paper-ink-2); text-decoration: none; line-height: 1.45;
+  transition: color 200ms cubic-bezier(0.23, 1, 0.32, 1), border-color 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.post-toc #TableOfContents a:hover { color: var(--paper-accent-deep); }
+.post-toc #TableOfContents a.active {
+  color: var(--paper-accent-deep); border-left-color: var(--paper-accent);
+  font-weight: 600;
+}
+:root[data-theme="dark"] .post-toc #TableOfContents a.active { color: #cdb98f; }
+
+/* ============ 文章页阅读进度条（extend_head.html 内联脚本驱动宽度） ============ */
+#read-progress {
+  position: fixed; top: 0; left: 0; z-index: 100;
+  height: 3px; width: 0;
+  background: linear-gradient(90deg, var(--paper-accent), var(--paper-accent-deep));
+  transition: width 120ms linear;
+}
+
+/* ============ 文章页图片默认居中 ============ */
+.post-content img { display: block; margin-inline: auto; }
+.post-content figure { margin-inline: auto; }
+.post-content figure img { margin-inline: auto; }
+
+/* ============ 文章页顶栏：滚动时吸顶常驻（主题默认 static，会随页滚走） ============ */
+.header {
+  position: sticky; top: 0; z-index: 60;
+  background: color-mix(in srgb, var(--theme) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* 文章页 meta 行（日期·时长·字数·作者）：左对齐，别居中/散开 */
+.post-header .post-meta { display: block; text-align: left; }
+
+/* ============ 返回顶部键：与首页 .to-top 统一规格（40px 圆钮、right 26 / bottom 88、单箭头图标由 extend_footer 脚本换成同款） ============ */
+.top-link {
+  right: 26px; bottom: 88px;
+  width: 40px; height: 40px; padding: 0; border-radius: 50%;
+  background: var(--code-bg); border: 1px solid var(--border); color: var(--secondary);
+  display: grid; place-items: center;
+  box-shadow: 0 8px 20px -8px rgba(38, 35, 32, 0.25);
+  transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1), color 260ms, border-color 260ms, visibility .3s, opacity .3s cubic-bezier(0.4, 0, 1, 1);
+}
+.top-link svg { width: 18px; height: 18px; filter: none; }
+.top-link:hover { color: var(--paper-accent); border-color: var(--paper-accent); transform: translateY(-3px); }
+:root[data-theme="dark"] .top-link { box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.5); }
+
+/* 胶卷播放器样式在 static/css/tape.css（extend_footer 全站引入，首页也生效） */
+
+/* ============ 纸飞机光标：致美化 PaperPlane 包原生 32px 帧，与首页同款 ============ */
+body { cursor: url("/cursors/plane.png") 2 2, auto; }
+a, button, label, summary, .menu-item a, .logo a { cursor: url("/cursors/link.png") 2 2, pointer; }
+input, textarea, select, [contenteditable="true"] { cursor: url("/cursors/text.png") 16 16, text; }

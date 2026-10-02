@@ -6,12 +6,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#F7F5F0" />
+  {{- /* 本页改动频繁（播放器等），禁 Turbo 缓存防陈旧快照把 #tape 删掉 */ -}}
+  <meta name="turbo-cache-control" content="no-cache" />
   <meta name="color-scheme" content="light" />
   <title>相册 · {{ site.Title }}</title>
   <meta name="description" content="生活与旅行的照片。" />
   <link rel="preconnect" href="https://fonts.loli.net" />
   <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
+  <link rel="stylesheet" href="{{ "css/photos-page.css" | relURL }}" />
 </head>
 <body class="page-photos">
 <nav class="nav scrolled" id="nav">
@@ -29,7 +32,7 @@
 
 <header class="page-head">
   <p class="sec-eyebrow"><span class="dot"></span>PHOTOS · 相册</p>
-  <h1>生活的<br />证据们。</h1>
+  <h1>把日子<br />存进光里。</h1>
   <p class="sec-desc">走过的地方、路过的天气。共 {{ len $photos }} 张。</p>
 </header>
 
@@ -50,34 +53,42 @@
       {{- $yc := 0 }}{{ range $photos }}{{ if eq (substr .date 0 4) $y }}{{ $yc = add $yc 1 }}{{ end }}{{ end }}
   <section class="year-sec"><h2 class="year-head" data-year>{{ $y }}<span class="cnt">{{ $yc }} 张</span></h2><div class="masonry">
     {{- end }}
-    <figure class="photo-item rv" data-place="{{ $p.place }}">
-      <img src="{{ $p.src | relURL }}" alt="{{ $p.caption | default $p.place }}" loading="lazy" data-lb="{{ $i }}" />
+    {{- $wh := default slice (index (default dict hugo.Data.photo_dims) $p.src) }}
+    <figure class="photo-item" id="p-{{ $i }}" data-place="{{ $p.place }}">
+      <img src="{{ $p.src | relURL }}" alt="{{ $p.caption | default $p.place }}"
+           {{ with $wh }}width="{{ index . 0 }}" height="{{ index . 1 }}"{{ end }}
+           loading="{{ if lt $i 6 }}eager{{ else }}lazy{{ end }}" data-lb="{{ $i }}" />
     </figure>
   {{- end }}</div></section>
-  <div id="lightbox" hidden>
-    <button class="lb-close" aria-label="关闭">✕</button>
-    <button class="lb-prev" aria-label="上一张">←</button>
-    <img class="lb-img" alt="" />
-    <button class="lb-next" aria-label="下一张">→</button>
-  </div>
   {{- else }}
   <p class="empty">还没有照片。跑 <code>python scripts/add_photos.py --place 某地 照片.jpg</code> 导入第一批。</p>
   {{- end }}
 </main>
 
+<div id="lightbox" hidden role="dialog" aria-modal="true" aria-label="照片查看器">
+  <button class="lb-close" aria-label="关闭">✕</button>
+  <button class="lb-prev" aria-label="上一张">←</button>
+  <img class="lb-img" alt="" />
+  <button class="lb-next" aria-label="下一张">→</button>
+</div>
+
 <footer class="footer">
   <div class="wrap footer-inner"><span>{{ $h.footer.line }}</span></div>
 </footer>
-<script src="{{ "js/lightbox.js" | relURL }}"></script>
+<button class="to-top" id="to-top" type="button" aria-label="返回顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7"/></svg>
+</button>
 <script>
-/* 地点筛选：隐藏不匹配的图与空年份段 */
-document.querySelectorAll(".chip").forEach((ch) => ch.addEventListener("click", () => {
-  const f = ch.dataset.f;
-  document.querySelectorAll(".chip").forEach((c) => c.classList.toggle("on", c === ch));
-  document.querySelectorAll(".photo-item").forEach((p) => { p.hidden = !!f && p.dataset.place !== f; });
-  document.querySelectorAll(".year-sec").forEach((s) => { s.hidden = [...s.querySelectorAll(".photo-item")].every((p) => p.hidden); });
-}));
+(function () {
+  var b = document.getElementById("to-top");
+  var chk = function () { b.classList.toggle("show", scrollY > innerHeight * .8); };
+  addEventListener("scroll", chk, { passive: true }); chk();
+  b.addEventListener("click", function () { scrollTo({ top: 0, behavior: "smooth" }); });
+})();
 </script>
-<script src="{{ "js/home.js" | relURL }}"></script>
+<script src="{{ "js/photos-page.js" | relURL }}"></script>
+<script src="{{ "js/lightbox.js" | relURL }}"></script>
+{{- /* 胶卷播放器 + 水印：与首页同款，缺了它 Turbo 进本页会把 permanent 的 #tape 整个移除，音乐断掉 */ -}}
+{{ partial "extend_footer.html" . }}
 </body>
 </html>
