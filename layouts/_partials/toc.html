@@ -10,7 +10,7 @@
     function tocInit() {
         if (window.__tocSpy) { window.__tocSpy.disconnect(); window.__tocSpy = null; }
         var toc = document.getElementById('post-toc');
-        if (!toc || !toc.offsetParent) return; // 移动端 display:none 时不跑
+        if (!toc || !toc.clientWidth) return; // 移动端 display:none 时不跑（别用 offsetParent：fixed 定位下恒为 null）
         var links = Array.prototype.slice.call(toc.querySelectorAll('a[href^="#"]'));
         var map = {};
         links.forEach(function (a) {
@@ -23,14 +23,27 @@
             toc.querySelectorAll('.active').forEach(function (el) { el.classList.remove('active'); });
             if (a) a.classList.add('active');
         };
-        // 自己接管点击：Turbo 对"同一个锚点第二次点击"（hash 不变）不响应，必须手动 scrollIntoView
+        // 自己接管点击：Turbo 对"同一个锚点第二次点击"（hash 不变）不响应，必须手动 scrollIntoView。
+        // 图片虽有宽高兜底，字体/极端慢网下布局仍可能微漂——滚动停稳后追校几轮；用户滚轮一碰立即交还。
+        var TOP = 84, cal = null;
+        function goTo(t) {
+            if (cal) clearInterval(cal);
+            t.scrollIntoView({ behavior: 'smooth' });
+            var tries = 0;
+            cal = setInterval(function () {
+                var d = t.getBoundingClientRect().top - TOP;
+                if (Math.abs(d) < 6 || ++tries > 12) { clearInterval(cal); cal = null; return; }
+                scrollTo({ top: scrollY + d, behavior: 'smooth' });
+            }, 350);
+        }
+        addEventListener('wheel', function () { if (cal) { clearInterval(cal); cal = null; } }, { passive: true });
         toc.addEventListener('click', function (e) {
             var a = e.target.closest('a[href^="#"]');
             if (!a) return;
             var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
             if (!t) return;
             e.preventDefault();
-            t.scrollIntoView({ behavior: 'smooth' });
+            goTo(t);
             history.replaceState(null, '', a.getAttribute('href'));
             setActive(a);
         });

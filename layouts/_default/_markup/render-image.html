@@ -1,0 +1,10 @@
+{{- /* 图片渲染钩子：从 static 读真实宽高写进属性。
+       浏览器据此预留占位，懒加载图到位时不再撑高布局——治"点目录/锚点滚偏"的根。 */ -}}
+{{- $src := .Destination -}}
+{{- $attrs := "" -}}
+{{- if and (hasPrefix $src "/") (fileExists (printf "static%s" $src)) -}}
+  {{- with imageConfig (printf "static%s" $src) -}}
+    {{- $attrs = printf ` width="%d" height="%d"` .Width .Height -}}
+  {{- end -}}
+{{- end -}}
+<img src="{{ $src | safeURL }}" alt="{{ .Text }}" loading="lazy" decoding="async"{{ with .Title }} title="{{ . }}"{{ end }}{{ $attrs | safeHTMLAttr }} />
