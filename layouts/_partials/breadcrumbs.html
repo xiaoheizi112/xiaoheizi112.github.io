@@ -1,0 +1,22 @@
+{{- /* 覆盖 themes/PaperMod/layouts/_partials/breadcrumbs.html：给 chevron SVG 补显式 width/height，
+       防止主题 CSS 生效前按 SVG 默认尺寸(300x150)闪现巨大符号（Turbo 换页时尤其明显） */ -}}
+{{- if (.Param "ShowBreadCrumbs") -}}
+<nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    {{- $ancestors := .Ancestors.Reverse -}}
+    {{- range $i, $bc := $ancestors }}
+        {{- if eq $i 0 }}
+            <a href="{{ $bc.RelPermalink }}">{{ i18n "home" | default "Home" }}</a>
+        {{- else }}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="{{ $bc.RelPermalink }}">{{ $bc.Title }}</a>
+        {{- end }}
+    {{- end }}
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+{{- end -}}

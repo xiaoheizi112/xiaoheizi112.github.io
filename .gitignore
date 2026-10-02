@@ -13,3 +13,4 @@ Myresource/
 _server.log
 scripts/_captions_once.py
 scripts/_replace_once.py
+__pycache__/

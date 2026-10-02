@@ -12,6 +12,7 @@ pagerSize = 8
 
 [params]
 env = 'production'
+dateFormat = '2006年1月2日'
 description = '一个很懒的人的博客,想起来才更新。'
 author = '慢公子'
 defaultTheme = 'auto'
@@ -23,6 +24,9 @@ ShowCodeCopyButtons = true
 ShowShareButtons = false
 ShowToc = true
 TocOpen = false
+
+[params.assets]
+favicon = "favicon.svg"
 
 [params.homeInfoParams]
 Title = '慢公子的小站'
@@ -62,3 +66,8 @@ lineNos = false
 style = 'monokai'
 [markup.goldmark.renderer]
 unsafe = true
+
+[markup.tableOfContents]
+startLevel = 2
+endLevel = 4
+ordered = false

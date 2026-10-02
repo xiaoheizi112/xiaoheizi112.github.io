@@ -1,0 +1,14 @@
+# 产品板块数据：kind: self = 自己做的 / rec = 推荐的
+# 内容待定 —— 想清楚一个就改一条，卡片会自动出现在首页「产品」区
+- kind: self
+  name: 产品名待定
+  desc: 待定：它是什么、解决什么问题、给谁用。
+- kind: self
+  name: 产品名待定
+  desc: 待定：填完这条就能看出排版效果。
+- kind: rec
+  name: 产品名待定
+  desc: 待定：为什么值得推荐。
+- kind: rec
+  name: 产品名待定
+  desc: 待定：一句话安利。

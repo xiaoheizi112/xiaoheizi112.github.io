@@ -3,3 +3,28 @@
 <link rel="preconnect" href="https://fonts.loli.net" />
 <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
 <script src="{{ "lib/turbo/turbo.umd.js" | absURL }}" defer></script>
+{{- /* 关键内联样式：主题 CSS 生效前（Turbo 换页/首帧）先约束主题模板里没写尺寸的 SVG，防巨大符号闪现 */ -}}
+<style>
+#top-link { visibility: hidden; }
+#top-link:not(.hidden) { visibility: visible; }
+#top-link svg { width: 24px; height: 24px; }
+.breadcrumbs svg { width: 16px; height: 16px; }
+#read-progress { position: fixed; top: 0; left: 0; z-index: 100; height: 3px; width: 0; background: #7a6849; }
+</style>
+{{- /* 阅读进度条：挂在 documentElement 上，Turbo 换 body 不丢；非文章页自动归零 */ -}}
+<script>
+(() => {
+  const bar = document.createElement("div");
+  bar.id = "read-progress";
+  document.documentElement.appendChild(bar);
+  const upd = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const on = !!document.querySelector(".post-content");
+    bar.style.width = (on && max > 0 ? Math.min(scrollY / max, 1) * 100 : 0) + "%";
+  };
+  addEventListener("scroll", upd, { passive: true });
+  addEventListener("resize", upd);
+  addEventListener("turbo:load", upd);
+  upd();
+})();
+</script>
