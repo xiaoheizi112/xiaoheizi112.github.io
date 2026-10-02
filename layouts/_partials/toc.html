@@ -24,19 +24,31 @@
             if (a) a.classList.add('active');
         };
         // 自己接管点击：Turbo 对"同一个锚点第二次点击"（hash 不变）不响应，必须手动 scrollIntoView。
-        // 图片虽有宽高兜底，字体/极端慢网下布局仍可能微漂——滚动停稳后追校几轮；用户滚轮一碰立即交还。
-        var TOP = 84, cal = null;
-        function goTo(t) {
-            if (cal) clearInterval(cal);
-            t.scrollIntoView({ behavior: 'smooth' });
-            var tries = 0;
-            cal = setInterval(function () {
-                var d = t.getBoundingClientRect().top - TOP;
-                if (Math.abs(d) < 6 || ++tries > 12) { clearInterval(cal); cal = null; return; }
+        // 滚动全程交给浏览器原生动画，不中途抢方向盘；只在"停稳"后测一次，偏差大才轻补一段（最多 2 次）。
+        // 用户滚轮/触摸一动立即交还控制权；已到页底滚不动了就认了，不空转。
+        var TOP = 84, act = null;
+        function arm() {
+            if (!act) return;
+            clearTimeout(act.timer);
+            act.timer = setTimeout(function () {
+                var d = act.t.getBoundingClientRect().top - TOP;
+                var maxS = document.documentElement.scrollHeight - innerHeight;
+                if (Math.abs(d) < 8 || act.fixes >= 2 || (d > 0 && scrollY >= maxS - 2)) { act = null; return; }
+                act.fixes++;
                 scrollTo({ top: scrollY + d, behavior: 'smooth' });
-            }, 350);
+                arm();
+            }, 250);
         }
-        addEventListener('wheel', function () { if (cal) { clearInterval(cal); cal = null; } }, { passive: true });
+        function bail() { if (act) { clearTimeout(act.timer); act = null; } }
+        function goTo(t) {
+            bail();
+            act = { t: t, fixes: 0 };
+            t.scrollIntoView({ behavior: 'smooth' });
+            arm();
+        }
+        addEventListener('scroll', function () { if (act) arm(); }, { passive: true });
+        addEventListener('wheel', bail, { passive: true });
+        addEventListener('touchstart', bail, { passive: true });
         toc.addEventListener('click', function (e) {
             var a = e.target.closest('a[href^="#"]');
             if (!a) return;
