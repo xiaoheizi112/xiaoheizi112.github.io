@@ -219,6 +219,9 @@ html { scrollbar-width: thin; scrollbar-color: rgba(38, 35, 32, 0.2) transparent
   transition: width 120ms linear;
 }
 
+/* 标题锚点让出吸顶头部高度（与 toc.html 的 TOP=84 一致） */
+.post-content :is(h1, h2, h3, h4, h5) { scroll-margin-top: 84px; }
+
 /* ============ 文章页图片默认居中 ============ */
 .post-content img { display: block; margin-inline: auto; }
 .post-content figure { margin-inline: auto; }
