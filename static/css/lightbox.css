@@ -1,0 +1,37 @@
+/* 图片灯箱通用样式：照片墙 img[data-lb] 与文章正文 .post-content img 共用
+   （由 static/js/lightbox.js 驱动，经 extend_footer 全站加载，规则单一来源）。
+   原分散在 home.css / photos-page.css，已移到这里。 */
+#lightbox { position: fixed; inset: 0; z-index: 200; background: rgba(20,18,16,.92); display: grid; place-items: center; }
+#lightbox[hidden] { display: none; }
+.lb-img { max-width: 92vw; max-height: 86vh; border-radius: 8px; }
+#lightbox button { position: absolute; background: none; border: none; color: rgba(247,245,240,.8); font-size: 26px; padding: 14px; transition: color 150ms; cursor: pointer; }
+#lightbox button:hover { color: #fff; }
+.lb-close { top: 14px; right: 18px; }
+.lb-prev { left: 12px; top: 50%; transform: translateY(-50%); }
+.lb-next { right: 12px; top: 50%; transform: translateY(-50%); }
+
+/* 背景淡入（display 切换时重触发动画） */
+#lightbox:not([hidden]) { animation: lb-in 200ms var(--ease, cubic-bezier(0.23,1,0.32,1)); }
+@keyframes lb-in { from { opacity: 0; } }
+
+/* 切换时换图：轻 fade + 微缩 */
+.lb-img.lb-swap { animation: lb-swap 220ms var(--ease, cubic-bezier(0.23,1,0.32,1)); }
+@keyframes lb-swap { from { opacity: 0; transform: scale(0.97); } }
+
+/* View Transitions：只让被命名(lb)的图做形态过渡，整页 root 不交叉淡化 */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-group(lb) {
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease, cubic-bezier(0.23,1,0.32,1));
+}
+::view-transition-old(lb),
+::view-transition-new(lb) { animation: none; }
+
+/* 可点图片给指针反馈（与全站自定义光标统一） */
+img[data-lb] { cursor: url("/cursors/link.png") 2 2, zoom-in; }
+
+@media (prefers-reduced-motion: reduce) {
+  #lightbox:not([hidden]), .lb-img.lb-swap { animation: none; }
+  ::view-transition-group(lb) { animation-duration: 0s; }
+}

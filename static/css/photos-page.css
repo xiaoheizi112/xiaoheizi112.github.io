@@ -24,26 +24,7 @@
   outline-offset: 3px;
 }
 
-/* lightbox 背景淡入（display 切换时重触发动画） */
-#lightbox:not([hidden]) { animation: lb-in 200ms var(--ease); }
-@keyframes lb-in { from { opacity: 0; } }
-
-/* 开→关切换时换图：轻 fade + 微缩 */
-.lb-img.lb-swap { animation: lb-swap 220ms var(--ease); }
-@keyframes lb-swap { from { opacity: 0; transform: scale(0.97); } }
-
-/* View Transitions：被命名(lb)的图做形态过渡，整页 root 不交叉淡化 */
-::view-transition-old(root),
-::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-::view-transition-group(lb) {
-  animation-duration: 300ms;
-  animation-timing-function: var(--ease);
-}
-::view-transition-old(lb),
-::view-transition-new(lb) { animation: none; }
-
+/* lightbox 相关规则（淡入/换图/VT/reduced-motion）已收进 static/css/lightbox.css */
 @media (prefers-reduced-motion: reduce) {
   .page-photos .photo-item { opacity: 1; transform: none; transition: none; }
-  #lightbox:not([hidden]), .lb-img.lb-swap { animation: none; }
-  ::view-transition-group(lb) { animation-duration: 0s; }
 }
