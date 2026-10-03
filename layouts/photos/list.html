@@ -65,13 +65,6 @@
   {{- end }}
 </main>
 
-<div id="lightbox" hidden role="dialog" aria-modal="true" aria-label="照片查看器">
-  <button class="lb-close" aria-label="关闭">✕</button>
-  <button class="lb-prev" aria-label="上一张">←</button>
-  <img class="lb-img" alt="" />
-  <button class="lb-next" aria-label="下一张">→</button>
-</div>
-
 <footer class="footer">
   <div class="wrap footer-inner"><span>{{ $h.footer.line }}</span></div>
 </footer>
@@ -87,7 +80,7 @@
 })();
 </script>
 <script src="{{ "js/photos-page.js" | relURL }}"></script>
-<script src="{{ "js/lightbox.js" | relURL }}"></script>
+{{- /* lightbox.css/js 与遮罩 DOM 已收进 extend_footer + lightbox.js 懒建 */ -}}
 {{- /* 胶卷播放器 + 水印：与首页同款，缺了它 Turbo 进本页会把 permanent 的 #tape 整个移除，音乐断掉 */ -}}
 {{ partial "extend_footer.html" . }}
 </body>

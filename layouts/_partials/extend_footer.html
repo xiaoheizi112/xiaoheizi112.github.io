@@ -55,3 +55,6 @@
   fix(); addEventListener("turbo:load", fix); addEventListener("turbo:render", fix);
 })();
 </script>
+{{- /* 图片灯箱（照片墙 img[data-lb] + 文章正文图共用），全站挂载点；监听委托在 document，Turbo 换 body 不影响 */ -}}
+<link rel="stylesheet" href="{{ "css/lightbox.css" | relURL }}" />
+<script src="{{ "js/lightbox.js" | relURL }}"></script>

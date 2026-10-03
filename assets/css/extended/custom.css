@@ -223,7 +223,7 @@ html { scrollbar-width: thin; scrollbar-color: rgba(38, 35, 32, 0.2) transparent
 .post-content :is(h1, h2, h3, h4, h5) { scroll-margin-top: 84px; }
 
 /* ============ 文章页图片默认居中 ============ */
-.post-content img { display: block; margin-inline: auto; }
+.post-content img { display: block; margin-inline: auto; cursor: url("/cursors/link.png") 2 2, zoom-in; }
 .post-content figure { margin-inline: auto; }
 .post-content figure img { margin-inline: auto; }
 
