@@ -3,6 +3,7 @@ title = 'C++/Qt 网课学习笔记（社长嵌入式）'
 date = '2026-10-02'
 tags = ['Qt', 'C++']
 draft = false
+images = ["images/og/qt-cpp-course-notes.png"]
 +++
 
 > 课程来自B站up主：社长_嵌入式，开课日期：2025-06-25。

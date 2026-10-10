@@ -3,6 +3,7 @@ title = '周旋课程学习补充笔记'
 date = '2026-10-01'
 tags = ['机器视觉']
 draft = false
+images = ["images/og/zhouxuan-course-notes.png"]
 +++
 
 # 作为程序员面对AI的两大护城河：

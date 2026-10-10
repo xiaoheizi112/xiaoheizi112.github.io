@@ -3,6 +3,7 @@ title = '大漠专栏'
 date = '2026-10-01'
 tags = ['易语言']
 draft = false
+images = ["images/og/damo-plugin-column.png"]
 +++
 
 # 绑定大漠（注册）：

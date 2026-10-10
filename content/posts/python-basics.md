@@ -3,6 +3,7 @@ title = 'Python 基础'
 date = '2026-10-01'
 tags = ['Python']
 draft = false
+images = ["images/og/python-basics.png"]
 +++
 
 # python基础常识：

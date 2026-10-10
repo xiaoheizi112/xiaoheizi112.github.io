@@ -3,6 +3,7 @@ title = '招聘面试注意事项'
 date = '2026-10-01'
 tags = ['职场']
 draft = false
+images = ["images/og/job-interview-notes.png"]
 +++
 
 一张白板导图的 markdown 版（原图在最底部）。

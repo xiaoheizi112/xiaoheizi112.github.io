@@ -3,6 +3,7 @@ title = '图色游戏脚本学习思路'
 date = '2026-10-01'
 tags = ['易语言']
 draft = false
+images = ["images/og/game-script-thinking.png"]
 +++
 
 # 学习计划安排：

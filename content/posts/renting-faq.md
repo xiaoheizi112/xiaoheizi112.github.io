@@ -3,6 +3,7 @@ title = '租房疑难解答'
 date = '2026-10-01'
 tags = ['生活']
 draft = false
+images = ["images/og/renting-faq.png"]
 +++
 
 # 租房需求：

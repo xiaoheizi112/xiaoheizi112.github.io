@@ -3,6 +3,13 @@
 <link rel="preconnect" href="https://fonts.loli.net" />
 <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
 <script src="{{ "lib/turbo/turbo.umd.js" | absURL }}" defer></script>
+{{- /* RSS 自动发现：文章页无自带 feed，逐级回退到所属 section / 站点首页 feed */ -}}
+{{- $feed := .OutputFormats.Get "rss" }}
+{{- if not $feed }}{{ $feed = .Parent.OutputFormats.Get "rss" }}{{ end }}
+{{- if not $feed }}{{ $feed = site.Home.OutputFormats.Get "rss" }}{{ end }}
+{{- with $feed }}
+<link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}" />
+{{- end }}
 {{- /* 关键内联样式：主题 CSS 生效前（Turbo 换页/首帧）先约束主题模板里没写尺寸的 SVG，防巨大符号闪现 */ -}}
 <style>
 #top-link { visibility: hidden; }

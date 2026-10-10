@@ -3,6 +3,7 @@ title = '周旋专属'
 date = '2026-10-01'
 tags = ['机器视觉']
 draft = false
+images = ["images/og/zhouxuan-career.png"]
 +++
 
 # 入行方向选择

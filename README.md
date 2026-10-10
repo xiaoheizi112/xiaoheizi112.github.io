@@ -9,9 +9,10 @@
 - **学习笔记** —— 上课听过、夜里啃过的知识，全部整理成文：Python、Qt/QML、机器视觉、PLC、易语言……每篇自动生成侧栏目录，点哪跳哪
 - **照片墙** —— 瀑布流展示，入库自动压缩、转正、抹除 GPS，只留画面不留隐私
 - **歌手电台** —— 首页放一位喜欢的歌手和一张循环播放的歌单，配图是手写的山间炊烟插画
-- **关于 / 归档** —— 个人介绍与全量文章时间线
+- **归档 / 搜索** —— 全量文章时间线（按年月分组），以及纯前端站内搜索
+- **关于** —— 个人介绍
 
-全站细节：自定义鼠标指针、深浅色双主题、正文图片点开大图、代码块一键复制、移动端自适应。
+全站细节：自定义鼠标指针、深浅色双主题、正文图片点开大图、代码块一键复制、每篇文章自带 OG 分享卡片、RSS 订阅、移动端自适应（含可折叠目录）。
 
 ## 怎么做的
 
@@ -21,6 +22,8 @@
 |---|---|
 | 首页 | 独立手写单页（`layouts/index.html`），不走主题 |
 | 文章/归档/关于 | [Hugo](https://gohugo.io/) extended v0.166 + [PaperMod](https://github.com/adityatelange/hugo-PaperMod) 主题（submodule），覆盖全放项目侧 `layouts/_partials`、`layouts/_default`、`assets/css/extended/`，不动主题本体 |
+| 分享卡片 | 每篇文章构建一张品牌 OG 图（`scripts/gen_og_cards.py`），写入 frontmatter 的 `images` |
+| 搜索 | PaperMod 内置 fastsearch（`content/search.md` + 首页 JSON 输出） |
 | 图片 | 构建时自动写入真实宽高（`render-image` 钩子），懒加载不撑动版面，目录点击落点精准 |
 | 部署 | 推 `main` 即触发 [GitHub Actions](.github/workflows/deploy.yml) 构建发布，约 1–2 分钟生效；线上产物只在 CI 生成 |
 

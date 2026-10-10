@@ -17,13 +17,19 @@
 | 项目侧文件 | 改了什么 |
 |---|---|
 | `layouts/list.html` | 底部翻页换成编号页码条（保留箭头 + aria-label） |
+| `layouts/archives.html` | 覆盖主题归档页：按年月分组、月份中文、暖纸风格自绘 |
 | `layouts/_partials/header.html` | logo 区改成与首页同款 brand（慢字方块 + 慢公子/GONGZI） |
 | `layouts/_partials/footer.html` | Turbo 兼容三修（脚本包 IIFE、跳过 #post-toc 锚点、code-copy 防重复） |
-| `layouts/_partials/toc.html` | 侧栏 sticky 目录（≥1100px），自带走点补正 |
+| `layouts/_partials/toc.html` | 侧栏 sticky 目录（≥1100px）+ 移动端可折叠目录，两套共用滚动高亮 |
 | `layouts/_partials/breadcrumbs.html` | 给 chevron SVG 补显式 width/height 防巨大符号闪现 |
-| `layouts/_partials/extend_head.html` | 首页同款字体 + Turbo + 阅读进度条（新增文件，非覆盖） |
+| `layouts/_partials/extend_head.html` | 首页同款字体 + Turbo + RSS 自动发现 + 阅读进度条（新增文件，非覆盖） |
 | `layouts/_partials/extend_footer.html` | 播放器 + 灯箱挂载点（新增文件，非覆盖） |
 | `layouts/_default/_markup/render-image.html` | 从 static 读真实宽高写进 img（防懒加载撑动版面） |
+
+## 生成脚本（内容变更后按需重跑）
+
+- `scripts/gen_og_cards.py` —— 为每篇文章生成品牌 OG 分享图（`static/images/og/`）并写入 frontmatter `images` 参数。**新增文章后重跑**，否则该篇分享时回退到 `hugo.toml` 的全站兜底图 `site.Params.images`
+- `scripts/gen_photo_thumbs.py` / `scripts/gen_photo_dims.py` —— 照片入库后生成缩略图与宽高缓存（见 README「加照片」）
 
 ## 工作方式
 

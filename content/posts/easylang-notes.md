@@ -3,6 +3,7 @@ title = '易语言学习笔记（从零开始的易世界生活）'
 date = '2026-10-01'
 tags = ['易语言']
 draft = false
+images = ["images/og/easylang-notes.png"]
 +++
 
 未解决的问题难题：

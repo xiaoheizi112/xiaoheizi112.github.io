@@ -3,6 +3,7 @@ title = 'Qt/QML 网易云音乐桌面前端课程学习笔记'
 date = '2026-10-02'
 tags = ['Qt', 'QML']
 draft = false
+images = ["images/og/qml-course-notes.png"]
 +++
 
 > 课程来自B站up主：25号底片编程，打卡日期：2025/8/19

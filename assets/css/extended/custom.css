@@ -211,6 +211,85 @@ html { scrollbar-width: thin; scrollbar-color: rgba(38, 35, 32, 0.2) transparent
 }
 :root[data-theme="dark"] .post-toc #TableOfContents a.active { color: #cdb98f; }
 
+/* ============ 移动端顶部可折叠目录（<1100px，桌面侧栏在此断开） ============ */
+.post-toc-mobile { display: none; }
+@media (max-width: 1099.98px) {
+  .post-toc-mobile {
+    display: block;
+    margin: 18px 0 4px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--entry);
+    overflow: hidden;
+  }
+  .post-toc-mobile > summary {
+    list-style: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 16px;
+    font: 600 15px var(--font-display); color: var(--paper-ink-2);
+  }
+  .post-toc-mobile > summary::-webkit-details-marker { display: none; }
+  /* 展开箭头：summary 右侧，靠 details[open] 旋转 */
+  .post-toc-mobile > summary::after {
+    content: ""; width: 8px; height: 8px; margin-left: 10px;
+    border-right: 2px solid var(--paper-ink-3); border-bottom: 2px solid var(--paper-ink-3);
+    transform: rotate(45deg); transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .post-toc-mobile[open] > summary::after { transform: rotate(-135deg); }
+  .post-toc-mobile-count {
+    margin-left: auto; margin-right: 12px;
+    font: 500 11px var(--font-mono); color: var(--paper-accent-deep);
+    background: rgba(122, 104, 73, 0.1); border-radius: 99px; padding: 2px 9px;
+  }
+  :root[data-theme="dark"] .post-toc-mobile-count { color: #cdb98f; background: rgba(205, 185, 143, 0.14); }
+  .post-toc-mobile-body {
+    padding: 4px 14px 14px;
+    border-top: 1px solid var(--border);
+    max-height: 60vh; overflow: auto;
+  }
+  .post-toc-mobile-body #TableOfContents ul { margin: 0; padding: 0; list-style: none; }
+  .post-toc-mobile-body #TableOfContents > ul > li { margin: 0; }
+  .post-toc-mobile-body #TableOfContents ul ul { padding-left: 14px; }
+  .post-toc-mobile-body #TableOfContents a {
+    display: block; padding: 7px 4px;
+    color: var(--paper-ink-2); text-decoration: none; font-size: 14px; line-height: 1.5;
+    border-bottom: 1px solid var(--border-soft, rgba(38,35,32,.06));
+  }
+  .post-toc-mobile-body #TableOfContents a.active { color: var(--paper-accent-deep); font-weight: 600; }
+  :root[data-theme="dark"] .post-toc-mobile-body #TableOfContents a.active { color: #cdb98f; }
+}
+
+/* ============ 归档页（layouts/archives.html，暖纸风格自绘） ============ */
+.arc { margin-top: 8px; }
+.arc-year { margin-top: 44px; }
+.arc-year-head {
+  display: flex; align-items: baseline; gap: 14px;
+  margin: 0 0 6px; padding-bottom: 12px;
+  border-bottom: 2px solid var(--border);
+}
+.arc-year-num { font: 600 30px var(--font-display); color: var(--primary); letter-spacing: 0.02em; }
+.arc-year-count { font: 500 12px var(--font-mono); color: var(--paper-accent-deep); background: rgba(122,104,73,.1); border-radius: 99px; padding: 3px 11px; }
+:root[data-theme="dark"] .arc-year-count { color: #cdb98f; background: rgba(205,185,143,.14); }
+.arc-month { display: grid; grid-template-columns: 96px 1fr; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+.arc-month:last-child { border-bottom: none; }
+.arc-month-head { font: 600 15px var(--font-display); color: var(--paper-ink-2); padding-top: 5px; }
+.arc-list { list-style: none; margin: 0; padding: 0; }
+.arc-item { margin: 0; }
+.arc-link {
+  display: flex; align-items: baseline; gap: 14px;
+  padding: 9px 12px; border-radius: 9px; text-decoration: none;
+  transition: background 180ms cubic-bezier(0.23,1,0.32,1), transform 180ms cubic-bezier(0.23,1,0.32,1);
+}
+.arc-link:hover { background: var(--entry); transform: translateX(4px); }
+.arc-date { flex: none; width: 52px; font: 500 12.5px var(--font-mono); color: var(--paper-ink-3); }
+.arc-title { font-size: 15.5px; color: var(--primary); line-height: 1.5; }
+.arc-link:hover .arc-title { color: var(--paper-accent-deep); }
+:root[data-theme="dark"] .arc-link:hover .arc-title { color: #cdb98f; }
+@media (max-width: 640px) {
+  .arc-month { grid-template-columns: 1fr; gap: 6px; }
+  .arc-month-head { padding-top: 0; }
+  .arc-date { width: 44px; }
+}
+
 /* ============ 文章页阅读进度条（extend_head.html 内联脚本驱动宽度） ============ */
 #read-progress {
   position: fixed; top: 0; left: 0; z-index: 100;

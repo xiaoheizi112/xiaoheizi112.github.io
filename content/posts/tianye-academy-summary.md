@@ -3,6 +3,7 @@ title = '天野学院第六期模拟班课程学后总结'
 date = '2026-10-01'
 tags = ['易语言']
 draft = false
+images = ["images/og/tianye-academy-summary.png"]
 +++
 
 图片顺序一般为：窗口界面\-\>界面设置（属性）\-\>代码\-\>其他

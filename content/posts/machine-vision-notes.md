@@ -3,6 +3,7 @@ title = '机器视觉（《嘲风机器入行手册》学习笔记）'
 date = '2026-10-01'
 tags = ['机器视觉']
 draft = false
+images = ["images/og/machine-vision-notes.png"]
 +++
 
 > 周旋机器视觉网：www\.roundvision\.cc

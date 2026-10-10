@@ -3,6 +3,7 @@ title = '龙门项目学习笔记'
 date = '2026-10-01'
 tags = ['机器视觉']
 draft = false
+images = ["images/og/longmen-project-notes.png"]
 +++
 
 # 封装：面向对象

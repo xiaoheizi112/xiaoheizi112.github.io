@@ -1,27 +1,35 @@
-{{- /* 覆盖 themes/PaperMod/layouts/_partials/toc.html：侧栏 sticky 目录（≥1100px），移动端隐藏 */ -}}
+{{- /* 覆盖 themes/PaperMod/layouts/_partials/toc.html：桌面侧栏 sticky 目录（≥1100px）
+       + 移动端顶部可折叠目录（<1100px），两套共用同一份滚动高亮脚本。 */ -}}
 {{- $toc := .TableOfContents | string -}}
 {{- if findRE "<li" $toc -}}
 <aside class="post-toc" id="post-toc" aria-label="目录">
     <div class="post-toc-title">目录</div>
     {{- $toc | safeHTML -}}
 </aside>
+<details class="post-toc-mobile">
+    <summary>目录<span class="post-toc-mobile-count">{{ len (findRE "<li" $toc) }} 节</span></summary>
+    <div class="post-toc-mobile-body">{{ $toc | safeHTML }}</div>
+</details>
 <script>
 (function () {
     function tocInit() {
         if (window.__tocSpy) { window.__tocSpy.disconnect(); window.__tocSpy = null; }
-        var toc = document.getElementById('post-toc');
-        if (!toc || !toc.clientWidth) return; // 移动端 display:none 时不跑（别用 offsetParent：fixed 定位下恒为 null）
-        var links = Array.prototype.slice.call(toc.querySelectorAll('a[href^="#"]'));
-        var map = {};
-        links.forEach(function (a) {
-            var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
-            if (t) map[t.id] = a;
+        // 两套目录容器：桌面 aside 与移动 details。按可见性各取其一（另一套被 CSS 隐藏）
+        var boxes = [document.querySelector('.post-toc'), document.querySelector('.post-toc-mobile')]
+            .filter(function (el) { return el && el.clientWidth; });
+        if (!boxes.length) return;
+        var map = {}; // id -> [links]，同一目标在两套目录里各有一条
+        boxes.forEach(function (box) {
+            box.querySelectorAll('a[href^="#"]').forEach(function (a) {
+                var id = decodeURIComponent(a.getAttribute('href').slice(1));
+                if (document.getElementById(id)) (map[id] = map[id] || []).push(a);
+            });
         });
         var targets = Object.keys(map).map(function (id) { return document.getElementById(id); });
         if (!targets.length) return;
-        var setActive = function (a) {
-            toc.querySelectorAll('.active').forEach(function (el) { el.classList.remove('active'); });
-            if (a) a.classList.add('active');
+        var setActive = function (id) {
+            document.querySelectorAll('.post-toc .active, .post-toc-mobile-body .active').forEach(function (el) { el.classList.remove('active'); });
+            (map[id] || []).forEach(function (a) { a.classList.add('active'); });
         };
         // 自己接管点击：Turbo 对"同一个锚点第二次点击"（hash 不变）不响应，必须手动 scrollIntoView。
         // 滚动全程交给浏览器原生动画，不中途抢方向盘；只在"停稳"后测一次，偏差大才轻补一段（最多 2 次）。
@@ -49,21 +57,25 @@
         addEventListener('scroll', function () { if (act) arm(); }, { passive: true });
         addEventListener('wheel', bail, { passive: true });
         addEventListener('touchstart', bail, { passive: true });
-        toc.addEventListener('click', function (e) {
-            var a = e.target.closest('a[href^="#"]');
-            if (!a) return;
-            var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
-            if (!t) return;
-            e.preventDefault();
-            goTo(t);
-            history.replaceState(null, '', a.getAttribute('href'));
-            setActive(a);
+        boxes.forEach(function (box) {
+            box.addEventListener('click', function (e) {
+                var a = e.target.closest('a[href^="#"]');
+                if (!a) return;
+                var id = decodeURIComponent(a.getAttribute('href').slice(1));
+                var t = document.getElementById(id);
+                if (!t) return;
+                e.preventDefault();
+                goTo(t);
+                history.replaceState(null, '', a.getAttribute('href'));
+                setActive(id);
+                var det = a.closest('details'); if (det) det.open = false; // 移动端跳转后收起
+            });
         });
         var spy = new IntersectionObserver(function (entries) {
-            entries.forEach(function (en) { if (en.isIntersecting) setActive(map[en.target.id]); });
+            entries.forEach(function (en) { if (en.isIntersecting) setActive(en.target.id); });
         }, { rootMargin: '10% 0px -70% 0px' });
         targets.forEach(function (t) { spy.observe(t); });
-        setActive(links[0]);
+        setActive(targets[0].id);
         window.__tocSpy = spy;
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tocInit);

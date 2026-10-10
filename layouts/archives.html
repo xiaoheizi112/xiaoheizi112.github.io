@@ -1,0 +1,43 @@
+{{- /* 归档页：项目侧自绘，贴合暖纸风格（主题默认版月份是英文，与全站不搭）。
+       按年 → 月分组，月份用中文，条目紧跟 post_meta。 */ -}}
+{{- define "main" }}
+
+<header class="page-header">
+  <h1>{{ .Title }}</h1>
+  {{- with .Description }}<div class="post-description">{{ . }}</div>{{ end }}
+</header>
+
+{{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- with .Content }}<div class="post-content md-content">{{ . }}</div>{{ end }}
+
+<div class="arc">
+  {{- range $pages.GroupByPublishDate "2006" }}
+  {{- if ne .Key "0001" }}
+  <section class="arc-year">
+    <h2 class="arc-year-head">
+      <span class="arc-year-num">{{ .Key }}</span>
+      <span class="arc-year-count">{{ len .Pages }} 篇</span>
+    </h2>
+    {{- range .Pages.GroupByDate "1月" }}
+    <div class="arc-month">
+      <div class="arc-month-head">{{ .Key }}</div>
+      <ul class="arc-list">
+        {{- range .Pages }}
+        {{- if eq .Kind "page" }}
+        <li class="arc-item">
+          <a class="arc-link" href="{{ .RelPermalink }}">
+            <time class="arc-date">{{ .Date.Format "01-02" }}</time>
+            <span class="arc-title">{{ .Title }}</span>
+          </a>
+        </li>
+        {{- end }}
+        {{- end }}
+      </ul>
+    </div>
+    {{- end }}
+  </section>
+  {{- end }}
+  {{- end }}
+</div>
+
+{{- end }}{{/* end main */}}

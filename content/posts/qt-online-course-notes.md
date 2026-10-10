@@ -3,6 +3,7 @@ title = '大丙学编程 Qt 网课学习笔记'
 date = '2026-10-01'
 tags = ['Qt']
 draft = false
+images = ["images/og/qt-online-course-notes.png"]
 +++
 
 对照视频学习，笔记总结的很全面，适合用于复习和巩固：

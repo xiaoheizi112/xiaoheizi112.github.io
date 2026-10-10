@@ -7,6 +7,10 @@ enableEmoji = true
 enableRobotsTXT = true
 theme = 'PaperMod'
 
+# 站内搜索（PaperMod 内置 fastsearch）：首页额外产出 index.json 供前端检索
+[outputs]
+home = ['HTML', 'RSS', 'JSON']
+
 [pagination]
 pagerSize = 8
 
@@ -24,6 +28,10 @@ ShowCodeCopyButtons = true
 ShowShareButtons = false
 ShowToc = true
 TocOpen = false
+
+# 全站兜底 OG 图：文章用各自 frontmatter 的 images 参数（scripts/gen_og_cards.py 生成），
+# 其余页面（列表/标签/归档等）回退到这张
+images = ["images/og-cover.png"]
 
 [params.assets]
 favicon = "favicon.svg"
@@ -43,10 +51,20 @@ name = '文章'
 url = '/posts/'
 weight = 10
 [[menu.main]]
+identifier = 'archives'
+name = '归档'
+url = '/archives/'
+weight = 15
+[[menu.main]]
 identifier = 'tags'
 name = '标签'
 url = '/tags/'
 weight = 20
+[[menu.main]]
+identifier = 'search'
+name = '搜索'
+url = '/search/'
+weight = 22
 [[menu.main]]
 identifier = 'photos'
 name = '相册'

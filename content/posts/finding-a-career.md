@@ -3,6 +3,7 @@ title = '如何寻找职业'
 date = '2026-10-01'
 tags = ['职场']
 draft = false
+images = ["images/og/finding-a-career.png"]
 +++
 
 ## 自我了解（总结规律）

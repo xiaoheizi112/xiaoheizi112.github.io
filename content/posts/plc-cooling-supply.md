@@ -3,6 +3,7 @@ title = '基于PLC的厂房空调冷却水恒压供水系统设计'
 date = '2026-10-02'
 tags = ['PLC', '毕业设计']
 draft = false
+images = ["images/og/plc-cooling-supply.png"]
 +++
 
 ## 摘要

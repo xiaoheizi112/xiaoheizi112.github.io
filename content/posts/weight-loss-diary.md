@@ -3,6 +3,7 @@ title = '减肥'
 date = '2026-10-01'
 tags = ['生活']
 draft = false
+images = ["images/og/weight-loss-diary.png"]
 +++
 
 # 减肥：
