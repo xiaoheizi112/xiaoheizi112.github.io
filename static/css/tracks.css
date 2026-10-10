@@ -1,0 +1,46 @@
+/* 学习路线页（layouts/tracks/list.html）：复用 home.css 令牌，与首页/相册页同款暖纸风。 */
+
+.page-tracks .page-head { max-width: 1120px; margin: 0 auto; padding: 140px 32px 40px; position: relative; z-index: 2; }
+.page-tracks .page-head h1 { font: 600 clamp(2rem, 5vw, 3.4rem)/1.3 var(--font-display); margin: 16px 0 12px; }
+.page-tracks .page-head .sec-desc { max-width: 560px; }
+
+#main { padding-bottom: 60px; }
+
+.track-sec { margin-top: 56px; padding-top: 8px; }
+.track-sec + .track-sec { border-top: 1px dashed var(--border); }
+
+.track-head { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 24px; }
+.track-idx {
+  flex: none; width: 56px; height: 56px; border-radius: 14px;
+  display: grid; place-items: center;
+  background: var(--bg-2); border: 1px solid var(--border);
+  font: 600 22px var(--font-mono); color: var(--accent-deep);
+}
+.track-title { font: 600 clamp(1.4rem, 3vw, 1.9rem)/1.3 var(--font-display); margin: 4px 0 6px; }
+.track-tagline { color: var(--ink-2); font-size: 15px; }
+
+/* 路线步骤：左侧一条竖线串起编号圆点，像一条路 */
+.steps { list-style: none; margin: 0; padding: 0 0 0 27px; position: relative; }
+.steps::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--border); border-radius: 2px; }
+.step { position: relative; display: flex; gap: 16px; padding: 12px 0; }
+.step-no {
+  position: absolute; left: -27px; top: 14px;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--bg); border: 1px solid var(--border);
+  font: 500 12px var(--font-mono); color: var(--ink-2); z-index: 1;
+}
+.step-body { flex: 1; padding: 12px 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); transition: transform 200ms var(--ease), box-shadow 200ms var(--ease), border-color 200ms var(--ease); }
+.step:hover .step-body { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--ink-3); }
+.step-title { font: 600 16.5px var(--font-display); color: var(--ink); }
+.step:hover .step-title { color: var(--accent-deep); }
+.step-note { font-size: 13.5px; line-height: 1.7; color: var(--ink-2); margin: 6px 0 0; }
+.step-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font: 12px var(--font-mono); color: var(--ink-3); }
+.step-tags { color: var(--accent); }
+
+:root[data-theme="dark"] .step:hover .step-title { color: #cdb98f; }
+
+@media (max-width: 640px) {
+  .track-head { gap: 14px; }
+  .track-idx { width: 46px; height: 46px; font-size: 18px; }
+}

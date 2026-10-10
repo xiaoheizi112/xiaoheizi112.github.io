@@ -58,3 +58,25 @@
 {{- /* 图片灯箱（照片墙 img[data-lb] + 文章正文图共用），全站挂载点；监听委托在 document，Turbo 换 body 不影响 */ -}}
 <link rel="stylesheet" href="{{ "css/lightbox.css" | relURL }}" />
 <script src="{{ "js/lightbox.js" | relURL }}"></script>
+<script>
+/* 深浅色切换：写 pref-theme（全站共用），html[data-theme] 由 CSS 变量响应。
+   .theme-btn 只出现在首页/相册页手写导航；PaperMod 侧用主题自带的 #theme-toggle。 */
+(function () {
+  function bind() {
+    var b = document.querySelector(".theme-btn");
+    if (!b || b.__bound) return;
+    b.__bound = true;
+    var sync = function () { b.classList.toggle("dark", document.documentElement.dataset.theme === "dark"); };
+    sync();
+    b.addEventListener("click", function () {
+      var dark = document.documentElement.dataset.theme === "dark";
+      document.documentElement.dataset.theme = dark ? "light" : "dark";
+      try { localStorage.setItem("pref-theme", dark ? "light" : "dark"); } catch (e) {}
+      sync();
+    });
+  }
+  bind();
+  addEventListener("turbo:load", bind);
+  addEventListener("turbo:render", bind);
+})();
+</script>

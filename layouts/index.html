@@ -15,7 +15,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#F7F5F0" />
-  <meta name="color-scheme" content="light" />
+  <meta name="color-scheme" content="light dark" />
+  {{- /* 主题初始化：与文章页共用同一个 pref-theme（localStorage），无偏好时跟随系统。
+       放在最前、body 之前，避免暗色用户首帧闪白 */ -}}
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("pref-theme"); } catch (e) {}
+      var dark = t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    })();
+  </script>
   {{- /* 渐进增强标记：仅当脚本可用时才隐藏待进场的板块，脚本失效则内容照常可见。
        若 home.js 未能加载/执行（内联脚本先加了 .js 但没接上观察器），超时兜底强制显示 */ -}}
   <script>
@@ -75,9 +85,11 @@
     <div class="nav-links">
       <a href="#about">关于</a>
       <a href="#posts">笔记</a>
+      <a href="/tracks/">路线</a>
       {{- if $songs }}<a href="#music">音乐</a>{{ end }}
       <a href="/photos/">相册</a>
       {{- with hugo.Data.products }}<a href="#products">产品</a>{{ end }}
+      <a href="/now/">现在</a>
       <a href="#contact">联系</a>
     </div>
     <div class="nav-actions">
@@ -91,6 +103,10 @@
         </svg>
       </a>
       {{- end }}
+      <button class="icon-action theme-btn" type="button" data-tip="深浅色" aria-label="切换深浅色主题">
+        <svg class="tb-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="tb-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+      </button>
     </div>
   </div>
 </nav>

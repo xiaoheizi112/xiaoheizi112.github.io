@@ -1,0 +1,121 @@
+{{- /* 学习路线页：读 data/tracks.yml，把文章按主题串成有序路线。
+       独立于 PaperMod（与首页/相册页同款手写风格），复用 home.css 的设计令牌与导航。 */ -}}
+{{- $h := hugo.Data.home -}}
+<!doctype html>
+<html lang="{{ site.Language.Locale }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F7F5F0" />
+  <meta name="color-scheme" content="light dark" />
+  {{- /* 主题初始化：与全站共用 pref-theme */ -}}
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("pref-theme"); } catch (e) {}
+      var dark = t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    })();
+  </script>
+  <title>学习路线 · {{ site.Title }}</title>
+  <meta name="description" content="把散落的学习笔记按主题串成有顺序的路线。" />
+  <link rel="canonical" href="{{ .Permalink }}" />
+  {{- $ogimg := "images/og-cover.png" | absURL }}
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{ site.Title }}" />
+  <meta property="og:title" content="学习路线 · {{ site.Title }}" />
+  <meta property="og:description" content="把散落的学习笔记按主题串成有顺序的路线。" />
+  <meta property="og:url" content="{{ .Permalink }}" />
+  <meta property="og:image" content="{{ $ogimg }}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="学习路线 · {{ site.Title }}" />
+  <meta name="twitter:description" content="把散落的学习笔记按主题串成有顺序的路线。" />
+  <meta name="twitter:image" content="{{ $ogimg }}" />
+  <link rel="preconnect" href="https://fonts.loli.net" />
+  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
+  <link rel="stylesheet" href="{{ "css/tracks.css" | relURL }}" />
+</head>
+<body class="page-tracks">
+<nav class="nav scrolled" id="nav">
+  <div class="nav-inner">
+    <a href="{{ "/" | relURL }}" class="brand">
+      <span class="brand-mark" aria-hidden="true">{{ $h.about.mark }}</span>
+      <span class="brand-name">{{ $h.brand.cn }}<span class="en">{{ $h.brand.en }}</span></span>
+    </a>
+    <div class="nav-links" style="display:flex">
+      <a href="{{ "/" | relURL }}#home">首页</a>
+      <a href="{{ "/posts/" | relURL }}">笔记</a>
+      <a href="{{ "/archives/" | relURL }}">归档</a>
+    </div>
+    <div class="nav-actions">
+      <button class="icon-action theme-btn" type="button" data-tip="深浅色" aria-label="切换深浅色主题">
+        <svg class="tb-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="tb-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<header class="page-head">
+  <p class="sec-eyebrow"><span class="dot"></span>TRACKS · 学习路线</p>
+  <h1>顺着一条线，<br />把笔记读成一条路。</h1>
+  <p class="sec-desc">课是一节节听的，笔记是一篇篇写的。这里把它们按主题串起来，给后来的人一条不迷路的走法。</p>
+</header>
+
+<main class="wrap" id="main">
+  {{- range $i, $t := hugo.Data.tracks }}
+  <section class="track-sec">
+    <div class="track-head">
+      <span class="track-idx">{{ printf "%02d" (add $i 1) }}</span>
+      <div>
+        <h2 class="track-title">{{ $t.title }}</h2>
+        <p class="track-tagline">{{ $t.tagline }}</p>
+      </div>
+    </div>
+    <ol class="steps">
+      {{- range $j, $s := $t.steps }}
+      {{- $page := site.GetPage (printf "/posts/%s" $s.slug) }}
+      {{- with $page }}
+      <li class="step">
+        <span class="step-no">{{ add $j 1 }}</span>
+        <div class="step-body">
+          <a class="step-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+          {{- with $s.note }}<p class="step-note">{{ . }}</p>{{ end }}
+          <div class="step-meta"><time>{{ .Date.Format "2006-01-02" }}</time><span>{{ .ReadingTime }} 分钟</span>{{ with .Params.tags }}<span class="step-tags">{{ range . }}#{{ . }} {{ end }}</span>{{ end }}</div>
+        </div>
+      </li>
+      {{- end }}
+      {{- end }}
+    </ol>
+  </section>
+  {{- end }}
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <span>{{ $h.footer.line }}</span>
+    <span class="footer-links">
+      <a href="{{ "/posts/" | relURL }}">文章</a>
+      <a href="{{ "/archives/" | relURL }}">归档</a>
+      <a href="https://github.com/xiaoheizi112" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </span>
+  </div>
+</footer>
+<button class="to-top" id="to-top" type="button" aria-label="返回顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>
+</button>
+<script>
+(function () {
+  var b = document.getElementById("to-top");
+  var chk = function () { b.classList.toggle("show", scrollY > innerHeight * .8); };
+  addEventListener("scroll", chk, { passive: true }); chk();
+  b.addEventListener("click", function () { scrollTo({ top: 0, behavior: "smooth" }); });
+})();
+</script>
+{{ partial "extend_footer.html" . }}
+</body>
+</html>

@@ -23,13 +23,26 @@
 | `layouts/_partials/toc.html` | 侧栏 sticky 目录（≥1100px）+ 移动端可折叠目录，两套共用滚动高亮 |
 | `layouts/_partials/breadcrumbs.html` | 给 chevron SVG 补显式 width/height 防巨大符号闪现 |
 | `layouts/_partials/extend_head.html` | 首页同款字体 + Turbo + RSS 自动发现 + 阅读进度条（新增文件，非覆盖） |
-| `layouts/_partials/extend_footer.html` | 播放器 + 灯箱挂载点（新增文件，非覆盖） |
+| `layouts/_partials/extend_footer.html` | 播放器 + 灯箱 + 深浅色切换挂载点（新增文件，非覆盖） |
 | `layouts/_default/_markup/render-image.html` | 从 static 读真实宽高写进 img（防懒加载撑动版面） |
+
+## 独立手写页（不走 PaperMod，复用 home.css 令牌）
+
+- `layouts/index.html` —— 首页单页
+- `layouts/photos/list.html` + `static/css/photos-page.css` —— 相册瀑布流
+- `layouts/tracks/list.html` + `static/css/tracks.css` —— 学习路线（读 `data/tracks.yml`）
+- 深色模式：这三页都在 `<head>` 最前内联 `dataset.theme` 初始化脚本，读同一个 `localStorage.pref-theme`（与 PaperMod 侧共用），无偏好则跟随系统。暗色变量定义在 `home.css` 的 `:root[data-theme="dark"]`。
+- 首页/相册页导航的 `.theme-btn` 切换逻辑在 `extend_footer.html`；PaperMod 文章页用主题自带 `#theme-toggle`。
 
 ## 生成脚本（内容变更后按需重跑）
 
 - `scripts/gen_og_cards.py` —— 为每篇文章生成品牌 OG 分享图（`static/images/og/`）并写入 frontmatter `images` 参数。**新增文章后重跑**，否则该篇分享时回退到 `hugo.toml` 的全站兜底图 `site.Params.images`
 - `scripts/gen_photo_thumbs.py` / `scripts/gen_photo_dims.py` —— 照片入库后生成缩略图与宽高缓存（见 README「加照片」）
+- `scripts/fix_image_alts.py` —— 把正文里无意义的图片 alt（截图 / image.png / 图）批量换成「文章标题 + 序号」
+
+## 待启用
+
+- **giscus 评论**：配置在 `hugo.toml [params.giscus]`（`enable = false`），partial 在 `layouts/_partials/comments.html`。启用需先在仓库 Settings → Features 勾选 Discussions，再到 giscus.app 生成 repo-id/category-id 回填
 
 ## 工作方式
 

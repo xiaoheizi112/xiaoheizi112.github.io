@@ -206,7 +206,7 @@ def Myfunction(startNum,endNum):
     return result
 ```
 
-![image\.png](/posts/python-basics/image_17.png)
+![Python 基础 配图 1](/posts/python-basics/image_17.png)
 
 ## 列表（list）：
 
@@ -1090,19 +1090,19 @@ print("2")
 
 1\.选择项目文件。
 
-![image\.png](/posts/python-basics/image_5.png)
+![Python 基础 配图 2](/posts/python-basics/image_5.png)
 
 2\.打开项目文件，在根文件夹右键单击选择新建python文件。
 
-![image\.png](/posts/python-basics/image_2.png)
+![Python 基础 配图 3](/posts/python-basics/image_2.png)
 
 3\.自定义模块命名，然后在里面写需要的相关函数。
 
-![image\.png](/posts/python-basics/image_15.png)
+![Python 基础 配图 4](/posts/python-basics/image_15.png)
 
 4\.同文件夹下可直接通过import直接调用模块使用。
 
-![image\.png](/posts/python-basics/image_7.png)
+![Python 基础 配图 5](/posts/python-basics/image_7.png)
 
 ## 模块类别详解：
 
@@ -1169,9 +1169,9 @@ main.py              # 外部主程序
 
 创建教程：
 
-![image\.png](/posts/python-basics/image_11.png)
+![Python 基础 配图 6](/posts/python-basics/image_11.png)
 
-![image\.png](/posts/python-basics/image.png)
+![Python 基础 配图 7](/posts/python-basics/image.png)
 
 ### 包和库的关系：
 
@@ -1230,9 +1230,9 @@ pip config unset global.index-url
 
 ### 在pycharm安装：
 
-![image\.png](/posts/python-basics/image_1.png)
+![Python 基础 配图 8](/posts/python-basics/image_1.png)
 
-![image\.png](/posts/python-basics/image_12.png)
+![Python 基础 配图 9](/posts/python-basics/image_12.png)
 
 ## 类和对象：
 
@@ -2168,25 +2168,25 @@ python帮助手册网址：https://docs\.python\.org/zh\-cn/3/index\.html
 
 首先打开解释器，点击加号搜索pyinstaller，然后点击下载即可。
 
-![image\.png](/posts/python-basics/image_3.png)
+![Python 基础 配图 10](/posts/python-basics/image_3.png)
 
-![image\.png](/posts/python-basics/image_10.png)
+![Python 基础 配图 11](/posts/python-basics/image_10.png)
 
 
 
-![image\.png](/posts/python-basics/image_14.png)
+![Python 基础 配图 12](/posts/python-basics/image_14.png)
 
 打包：
 
 在终端里输入：installer \-D 打包名称，之后按下回车会在当前文件夹生成build文件夹和dist文件夹，其中dist文件夹当中就是打包好的程序。
 
-![image\.png](/posts/python-basics/image_9.png)
+![Python 基础 配图 13](/posts/python-basics/image_9.png)
 
-![image\.png](/posts/python-basics/image_16.png)
+![Python 基础 配图 14](/posts/python-basics/image_16.png)
 
-![image\.png](/posts/python-basics/image_6.png)
+![Python 基础 配图 15](/posts/python-basics/image_6.png)
 
-![image\.png](/posts/python-basics/image_8.png)
+![Python 基础 配图 16](/posts/python-basics/image_8.png)
 
 ## 键鼠自动化、热键注册：
 
@@ -2196,9 +2196,9 @@ python帮助手册网址：https://docs\.python\.org/zh\-cn/3/index\.html
 
 使用前提：首先安装两个包：pyautogui和keyboard。
 
-![image\.png](/posts/python-basics/image_4.png)
+![Python 基础 配图 17](/posts/python-basics/image_4.png)
 
-![image\.png](/posts/python-basics/image_13.png)
+![Python 基础 配图 18](/posts/python-basics/image_13.png)
 
 ## pyautogui：
 

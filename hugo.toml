@@ -33,6 +33,18 @@ TocOpen = false
 # 其余页面（列表/标签/归档等）回退到这张
 images = ["images/og-cover.png"]
 
+# 文章评论（giscus，GitHub Discussions 驱动）。启用步骤见 layouts/_partials/comments.html 头注释：
+#   1. 仓库 Settings → Features 勾选 Discussions
+#   2. 装 giscus app，去 giscus.app 选仓库/类别，生成 repo-id 与 category-id
+#   3. 填下面字段并把 enable 改成 true
+[params.giscus]
+enable = false
+repo = "xiaoheizi112/xiaoheizi112.github.io"
+repoId = ""
+category = "Announcements"
+categoryId = ""
+mapping = "pathname"
+
 [params.assets]
 favicon = "favicon.svg"
 
@@ -50,6 +62,11 @@ identifier = 'posts'
 name = '文章'
 url = '/posts/'
 weight = 10
+[[menu.main]]
+identifier = 'tracks'
+name = '路线'
+url = '/tracks/'
+weight = 12
 [[menu.main]]
 identifier = 'archives'
 name = '归档'
@@ -75,6 +92,11 @@ identifier = 'about'
 name = '关于'
 url = '/about/'
 weight = 30
+[[menu.main]]
+identifier = 'now'
+name = '现在'
+url = '/now/'
+weight = 35
 
 [markup]
 [markup.highlight]

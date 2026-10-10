@@ -106,7 +106,7 @@ images = ["images/og/easylang-notes.png"]
 
 ## 10、如何理解变量循环？
 
-![image\.png](/posts/easylang-notes/image_1.png)
+![易语言学习笔记（从零开始的易世界生活） 配图 1](/posts/easylang-notes/image_1.png)
 
 ## 11、什么是本机IP、内网IP和外网IP？什么是端口？
 
@@ -156,7 +156,7 @@ images = ["images/og/easylang-notes.png"]
 
 ## 12、两种窗口启动方式选择
 
-![image\.png](/posts/easylang-notes/image_3.png)
+![易语言学习笔记（从零开始的易世界生活） 配图 2](/posts/easylang-notes/image_3.png)
 
 ## 13、什么是条件断点？
 
@@ -203,7 +203,7 @@ _启动窗口.边框 ＝ #无边框
 
 就是相当于给限制在里面的全局变量加了把互斥锁，同一时间只有一个线程能读取 / 修改它，避免数据竞争。
 
-![image\.png](/posts/easylang-notes/image_4.png)
+![易语言学习笔记（从零开始的易世界生活） 配图 3](/posts/easylang-notes/image_4.png)
 
 ## 18、为什么易语言通常在一些操作中加延时?
 
@@ -259,15 +259,15 @@ _启动窗口.边框 ＝ #无边框
 
 ## 3、整除是右斜杠“\\”，除法是左斜杠“/”。
 
-![image\.png](/posts/easylang-notes/image_5.png)
+![易语言学习笔记（从零开始的易世界生活） 配图 4](/posts/easylang-notes/image_5.png)
 
 ## 4、当窗口程序被隐藏起来但仍在后台执行时（其他功能无法使用），结束运行即可关闭所有正在执行的程序。
 
-![image\.png](/posts/easylang-notes/image_2.png)
+![易语言学习笔记（从零开始的易世界生活） 配图 5](/posts/easylang-notes/image_2.png)
 
 ## 5、把搜狗的动态组词打开即可输入更多拼音进行联想。
 
-![image\.png](/posts/easylang-notes/image.png)
+![易语言学习笔记（从零开始的易世界生活） 配图 6](/posts/easylang-notes/image.png)
 
 ## 6、ctrl\+N：插入子程序，ctrl\+L：插入新的局部变量
 

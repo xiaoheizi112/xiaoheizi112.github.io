@@ -192,7 +192,7 @@ QBtyeArray是对char\*做了一层浅层次的包装，而QString是对QBtyeArra
 
 将2个Label和2个LineEdit放在同一个Widget里面，在通过栅格布局Widget实现布局效果。
 
-![image\.png](/posts/qt-online-course-notes/image.png)
+![大丙学编程 Qt 网课学习笔记 配图 1](/posts/qt-online-course-notes/image.png)
 
 
 

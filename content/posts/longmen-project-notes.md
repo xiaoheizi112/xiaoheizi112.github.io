@@ -50,7 +50,7 @@ images = ["images/og/longmen-project-notes.png"]
 
 匿名函数就是没有固定名字的函数，只作为临时场景来使用，其本质就是简化版的函数。
 
-![image\.png](/posts/longmen-project-notes/image_6.png)
+![龙门项目学习笔记 配图 1](/posts/longmen-project-notes/image_6.png)
 
 ## Lambda表达式参数捕获
 
@@ -84,7 +84,7 @@ cmake是层级管理，每个文件夹下的子文件都有CMakelists文件。
 
 ## 使用教程：
 
-![image\.png](/posts/longmen-project-notes/image_2.png)
+![龙门项目学习笔记 配图 2](/posts/longmen-project-notes/image_2.png)
 
 # 设计模式
 
@@ -184,11 +184,11 @@ OpenCV可以分成四个学习阶段：
 
 新手小白下载**Windows**就好，里面是编译好的OpenCV库，而**Sources**是OpenCV源码，下载后需要手动编译。
 
-![image\.png](/posts/longmen-project-notes/image_4.png)
+![龙门项目学习笔记 配图 3](/posts/longmen-project-notes/image_4.png)
 
 打开下载后的文件，其中sources就是opencv的源码，build就是官方给的构建好的opencv库。
 
-![image\.png](/posts/longmen-project-notes/image_9.png)
+![龙门项目学习笔记 配图 4](/posts/longmen-project-notes/image_9.png)
 
 ### 配置环境变量：
 
@@ -198,11 +198,11 @@ vc15：对应 Visual Studio 2017（MSVC 19\.1）
 
 这里选vc15，VS2019同样适配。
 
-![image\.png](/posts/longmen-project-notes/image_8.png)
+![龙门项目学习笔记 配图 5](/posts/longmen-project-notes/image_8.png)
 
 bin：静态库存放文件。lib：动态库存放文件。手动添加到path路径当中，可直接在设置里搜**高级系统设置**。
 
-![image\.png](/posts/longmen-project-notes/image_3.png)
+![龙门项目学习笔记 配图 6](/posts/longmen-project-notes/image_3.png)
 
 配置完成后记得重启电脑。
 
@@ -216,7 +216,7 @@ VS编译：Win\+F5。
 
 使得VS能够完成对Opencv库的静态编译，能够找到函数声明（快递员知道有你这么号人）。
 
-![image\.png](/posts/longmen-project-notes/image_10.png)
+![龙门项目学习笔记 配图 7](/posts/longmen-project-notes/image_10.png)
 
 ### 2、Lib静态库路径配置：
 
@@ -228,7 +228,7 @@ VS编译：Win\+F5。
 
 `opencv_world460d.lib`：**Debug 版**（带 d 后缀），编译时禁用优化、包含完整调试信息、嵌入断言，仅适配项目的 Debug 模式。
 
-![image\.png](/posts/longmen-project-notes/image_13.png)
+![龙门项目学习笔记 配图 8](/posts/longmen-project-notes/image_13.png)
 
 ### 3、DLL动态库路径配置：
 
@@ -236,13 +236,13 @@ VS编译：Win\+F5。
 
 #### 方法一：
 
-![image\.png](/posts/longmen-project-notes/image_11.png)
+![龙门项目学习笔记 配图 9](/posts/longmen-project-notes/image_11.png)
 
 #### 方法二：
 
 在存放\.exe文件的文件夹当中直接添加所需动态库文件，当需要编译时会自动加载文件夹内的动态库。
 
-![image\.png](/posts/longmen-project-notes/image_5.png)
+![龙门项目学习笔记 配图 10](/posts/longmen-project-notes/image_5.png)
 
 #### 方法三：
 
@@ -254,11 +254,11 @@ VS编译：Win\+F5。
 
 ## Cmake如何找到cv库
 
-![image\.png](/posts/longmen-project-notes/image_1.png)
+![龙门项目学习笔记 配图 11](/posts/longmen-project-notes/image_1.png)
 
-![image\.png](/posts/longmen-project-notes/image_12.png)
+![龙门项目学习笔记 配图 12](/posts/longmen-project-notes/image_12.png)
 
-![image\.png](/posts/longmen-project-notes/image.png)
+![龙门项目学习笔记 配图 13](/posts/longmen-project-notes/image.png)
 
 ## OpenCV的Mat类
 
@@ -368,7 +368,7 @@ QT自己实现了工程管理文件，就是pro文件，pro文件其实就是一
 
 使用qmake配置opencv库，或者配置任何库，语法都是一样的，都是使用includepath命令配置头文件包含，然后使用Libs配置静态库和动态库路径。
 
-![image\.png](/posts/longmen-project-notes/image_7.png)
+![龙门项目学习笔记 配图 14](/posts/longmen-project-notes/image_7.png)
 
 
 

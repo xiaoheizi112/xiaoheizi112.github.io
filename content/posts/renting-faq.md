@@ -202,13 +202,13 @@ images = ["images/og/renting-faq.png"]
 
 ## 后期维权（第八步）：
 
-![image\.png](/posts/renting-faq/image_1.png)
+![租房疑难解答 配图 1](/posts/renting-faq/image_1.png)
 
-![image\.png](/posts/renting-faq/image.png)
+![租房疑难解答 配图 2](/posts/renting-faq/image.png)
 
-![image\.png](/posts/renting-faq/image_2.png)
+![租房疑难解答 配图 3](/posts/renting-faq/image_2.png)
 
-![image\.png](/posts/renting-faq/image_3.png)
+![租房疑难解答 配图 4](/posts/renting-faq/image_3.png)
 
 房租纠纷可以打12315，不过很麻烦，尽量还是私了为好。
 

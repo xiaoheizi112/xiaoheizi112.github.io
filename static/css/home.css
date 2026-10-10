@@ -17,6 +17,22 @@
   --font-display: "Space Grotesk", var(--font-cn), sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 }
+/* 深色（暖墨夜版）：与 PaperMod 侧 custom.css 的暗色同族，由 html[data-theme="dark"] 触发。
+   html 上的 data-theme 由 head 内联脚本按「本地偏好 → 系统偏好」决定，与文章页共用同一个 pref-theme */
+:root[data-theme="dark"] {
+  --bg: #1c1a17;
+  --bg-2: #232019;
+  --bg-3: #2a2620;
+  --ink: #efebe2;
+  --ink-2: #a39a8c;
+  --ink-3: #7d7568;
+  --accent: #cdb98f;
+  --accent-deep: #d8c8a2;
+  --border: rgba(239, 235, 226, 0.12);
+  --border-soft: rgba(239, 235, 226, 0.07);
+  --glass: rgba(28, 26, 23, 0.82);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 body {
@@ -65,6 +81,17 @@ body[data-theme="hello"] .amb[data-for="hello"] { opacity: 1; }
 .amb[data-for="sea"]::after { background: radial-gradient(80vw 55vh at 20% 95%, rgba(100,110,110,.16), transparent 70%); }
 .amb[data-for="hello"]::before { background: radial-gradient(65vw 55vh at 12% 85%, rgba(122,104,73,.26), transparent 70%); }
 .amb[data-for="hello"]::after { background: radial-gradient(55vw 45vh at 90% 15%, rgba(205,185,143,.30), transparent 70%); }
+/* 暗色下：氛围光晕整体压暗，改褐金微光，避免浅色光团糊在深底上 */
+:root[data-theme="dark"] .amb[data-for="morning"]::before { background: radial-gradient(70vw 60vh at 85% 5%, rgba(205,160,90,.13), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="morning"]::after { background: radial-gradient(55vw 45vh at 10% 90%, rgba(205,185,143,.08), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="ink"]::before { background: radial-gradient(65vw 65vh at 5% 35%, rgba(205,185,143,.10), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="ink"]::after { background: radial-gradient(50vw 45vh at 95% 80%, rgba(205,185,143,.07), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="sound"]::before { background: radial-gradient(75vw 55vh at 50% 100%, rgba(205,185,143,.11), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="sound"]::after { background: radial-gradient(55vw 45vh at 12% 8%, rgba(205,185,143,.09), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="sea"]::before { background: radial-gradient(70vw 50vh at 90% 10%, rgba(190,120,80,.12), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="sea"]::after { background: radial-gradient(80vw 55vh at 20% 95%, rgba(140,150,150,.08), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="hello"]::before { background: radial-gradient(65vw 55vh at 12% 85%, rgba(205,185,143,.11), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="hello"]::after { background: radial-gradient(55vw 45vh at 90% 15%, rgba(205,185,143,.09), transparent 70%); }
 .fl { position: absolute; font-style: normal; line-height: 1; color: var(--accent); opacity: .3; pointer-events: auto; transform: translateY(calc(var(--sy, 0) * var(--px) * -1px)); transition: scale 260ms var(--ease), opacity 260ms var(--ease); animation: bob 5.5s ease-in-out infinite alternate; }
 .fl:hover { scale: 1.35; opacity: .55; }
 @keyframes bob { to { translate: 0 -16px; } }
@@ -109,6 +136,10 @@ img { display: block; max-width: 100%; }
 .icon-action { position: relative; width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 10px; background: transparent; color: var(--ink-2); transition: all 150ms var(--ease); }
 .icon-action:hover { color: var(--ink); border-color: var(--ink-3); transform: translateY(-1px); }
 .icon-action svg { width: 18px; height: 18px; }
+/* 深浅色切换钮：默认显月亮（点它进暗色），暗色下显太阳 */
+.theme-btn .tb-sun { display: none; }
+.theme-btn.dark .tb-moon { display: none; }
+.theme-btn.dark .tb-sun { display: block; }
 .icon-action[data-tip]:hover::after { content: attr(data-tip); position: absolute; top: 110%; right: 0; font: 12px var(--font-cn); white-space: nowrap; background: var(--ink); color: var(--bg); padding: 4px 8px; border-radius: 6px; }
 
 /* ---------- Hero ---------- */
@@ -334,3 +365,35 @@ a.contact-value:hover { color: var(--accent); }
 body { cursor: url("/cursors/plane.png") 2 2, auto; }
 a, button, label, summary, [role="button"] { cursor: url("/cursors/link.png") 2 2, pointer; }
 input, textarea, select, [contenteditable="true"] { cursor: url("/cursors/text.png") 16 16, text; }
+
+/* ============ 深色模式修正：翻转那些写死浅色的地方 ============ */
+:root[data-theme="dark"] body {
+  background-image: radial-gradient(circle, rgba(239, 235, 226, 0.05) 1.1px, transparent 1.1px);
+}
+:root[data-theme="dark"] body::after {
+  background:
+    radial-gradient(circle at 86% 14%, transparent 37px, rgba(205, 185, 143, .07) 38px, rgba(205, 185, 143, .07) 41px, transparent 42px),
+    radial-gradient(circle at 86% 14%, transparent 30px, rgba(205, 185, 143, .05) 31px, rgba(205, 185, 143, .05) 33px, transparent 34px),
+    radial-gradient(circle at 7% 72%, transparent 52px, rgba(205, 185, 143, .05) 53px, rgba(205, 185, 143, .05) 57px, transparent 58px);
+}
+:root[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--bg); }
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(239, 235, 226, 0.18); border-color: var(--bg); }
+:root[data-theme="dark"] html { scrollbar-color: rgba(239, 235, 226, 0.18) transparent; }
+/* 便利贴第二张的固定浅杏黄 → 暗色下换深一档的暖褐 */
+:root[data-theme="dark"] .hero-stats div:nth-child(2) { background: #2c2619; }
+/* 歌手悼念卡：暗色下本就是深墨卡，保持固定深底、浅字，不要被变量翻转 */
+:root[data-theme="dark"] .artist-card { background: #141210; color: #efebe2; }
+:root[data-theme="dark"] .artist-card p { color: rgba(239, 235, 226, .82); }
+:root[data-theme="dark"] .artist-quote { color: #efebe2; border-top-color: rgba(239, 235, 226, .18); }
+:root[data-theme="dark"] .artist-years { color: rgba(239, 235, 226, .5); }
+:root[data-theme="dark"] .artist-memorial { color: var(--accent); }
+/* 拍立得/相册条的「白框」在暗色下改用纸色变量已是深底，胶带保持褐金半透明即可 */
+:root[data-theme="dark"] .hero-polaroid::before,
+:root[data-theme="dark"] .photo-item::before,
+:root[data-theme="dark"] .strip-item::before { background: rgba(205, 185, 143, 0.22); }
+/* 首页滚动氛围光晕：暗色下降低亮度，避免发灰 */
+:root[data-theme="dark"] .hero-orbit {
+  background:
+    radial-gradient(560px 560px at 78% 18%, rgba(205, 185, 143, .10), transparent 70%),
+    radial-gradient(420px 420px at 12% 82%, rgba(205, 185, 143, .08), transparent 70%);
+}

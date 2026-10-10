@@ -8,7 +8,16 @@
   <meta name="theme-color" content="#F7F5F0" />
   {{- /* 本页改动频繁（播放器等），禁 Turbo 缓存防陈旧快照把 #tape 删掉 */ -}}
   <meta name="turbo-cache-control" content="no-cache" />
-  <meta name="color-scheme" content="light" />
+  <meta name="color-scheme" content="light dark" />
+  {{- /* 主题初始化：与文章页共用 pref-theme，无偏好跟随系统；放最前防暗色用户首帧闪白 */ -}}
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("pref-theme"); } catch (e) {}
+      var dark = t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    })();
+  </script>
   {{- /* 渐进增强标记 + 首帧兜底：photos-page.js 没跑起来时照片不再全隐 */ -}}
   <script>
     document.documentElement.classList.add("js");
@@ -47,6 +56,12 @@
     <div class="nav-links" style="display:flex">
       <a href="{{ "/" | relURL }}#home">首页</a>
       <a href="{{ "/" | relURL }}#posts">笔记</a>
+    </div>
+    <div class="nav-actions">
+      <button class="icon-action theme-btn" type="button" data-tip="深浅色" aria-label="切换深浅色主题">
+        <svg class="tb-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="tb-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+      </button>
     </div>
   </div>
 </nav>

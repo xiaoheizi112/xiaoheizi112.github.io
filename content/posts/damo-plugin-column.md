@@ -12,19 +12,19 @@ images = ["images/og/damo-plugin-column.png"]
 
 2\.使用大漠类库生成工具选择在你想要用的版本大漠的路径生成Output文件夹，打开E文件夹复制obj\.txt的内容到新建的类模块当中，按照读我\.txt的步骤依次执行。
 
-![image\.png](/posts/damo-plugin-column/image_4.png)
+![大漠专栏 配图 1](/posts/damo-plugin-column/image_4.png)
 
 3\.把dm\.dll复制到程序目录当中后，主程序写好代码即可运行。
 
-![image\.png](/posts/damo-plugin-column/image_3.png)
+![大漠专栏 配图 2](/posts/damo-plugin-column/image_3.png)
 
 # 绑定大漠（免注册）：
 
 1\.延续注册的所有步骤后，打开不注册调用dm\.dll的方法的文件夹，将DmReg\.dll复制到程序目录下，按照说明文件一步步执行操作。
 
-![image\.png](/posts/damo-plugin-column/image_1.png)
+![大漠专栏 配图 3](/posts/damo-plugin-column/image_1.png)
 
-![image\.png](/posts/damo-plugin-column/image.png)
+![大漠专栏 配图 4](/posts/damo-plugin-column/image.png)
 
 ## 注意：
 
@@ -42,7 +42,7 @@ images = ["images/og/damo-plugin-column.png"]
 
 2\.绑定参数设置。
 
-![image\.png](/posts/damo-plugin-column/image_2.png)
+![大漠专栏 配图 5](/posts/damo-plugin-column/image_2.png)
 
 
 

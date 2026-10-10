@@ -1,0 +1,50 @@
+# 学习路线：把手头散落的学习笔记按主题串成有顺序的路线。
+# 每篇按 slug 引用 content/posts/<slug>.md，顺序即推荐阅读顺序。
+# 加一篇就往 steps 里加一行 slug；加一条路线就复制一块 track:。
+
+- id: qt-qml
+  title: Qt / QML 桌面开发
+  tagline: 从 C++ 基础到 QML 前端，跟着几套网课把桌面客户端啃下来。
+  steps:
+    - slug: qt-cpp-course-notes
+      note: 先过 C++/Qt 基础，明白信号槽、控件与事件循环
+    - slug: qt-online-course-notes
+      note: 换一套网课补充，看别人怎么组织工程
+    - slug: qml-course-notes
+      note: 转到 QML 声明式 UI，做一个网易云音乐风格的桌面端
+
+- id: machine-vision
+  title: 机器视觉入行
+  tagline: 面向制造业的视觉检测，从行业手册到实战项目。
+  steps:
+    - slug: machine-vision-notes
+      note: 先读《嘲风机器入行手册》，建立行业认知
+    - slug: longmen-project-notes
+      note: 进项目看真实代码，补 C++ 面向对象与封装
+    - slug: game-script-thinking
+      note: 触类旁通：图色识别类脚本的思路
+
+- id: easylang
+  title: 易语言与游戏脚本
+  tagline: 国产可视化编程到图色脚本，一条少有人走但能跑通的路。
+  steps:
+    - slug: easylang-notes
+      note: 从零上手易语言，记录踩过的坑
+    - slug: damo-plugin-column
+      note: 接入大漠插件做图色识别
+    - slug: game-script-thinking
+      note: 把识别与操作串成一套脚本思路
+
+- id: plc
+  title: PLC 与工控
+  tagline: 从毕业设计出发的工业控制实践。
+  steps:
+    - slug: plc-cooling-supply
+      note: 基于西门子 PLC 的恒压供水系统设计（含 PID 与 HMI）
+
+- id: python
+  title: Python 基础
+  tagline: 边用边学的 Python 常识与自动化小工具。
+  steps:
+    - slug: python-basics
+      note: 从 IDE 操作、语法到常用库的零散笔记
