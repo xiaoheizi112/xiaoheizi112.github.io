@@ -16,9 +16,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#F7F5F0" />
   <meta name="color-scheme" content="light" />
-  <title>{{ site.Title }}</title>
+  {{- /* 渐进增强标记：仅当脚本可用时才隐藏待进场的板块，脚本失效则内容照常可见。
+       若 home.js 未能加载/执行（内联脚本先加了 .js 但没接上观察器），超时兜底强制显示 */ -}}
+  <script>
+    document.documentElement.classList.add("js");
+    addEventListener("load", function () {
+      setTimeout(function () { if (!window.__homeReady) document.documentElement.classList.add("rv-fallback"); }, 1200);
+    });
+  </script>
+  <title>{{ site.Title }} · 学习笔记与生活随拍</title>
   <meta name="description" content="{{ site.Params.description }}" />
   <link rel="canonical" href="{{ .Permalink }}" />
+  {{- /* 社交分享卡片：首页是手写模板，不经过 PaperMod 的 opengraph 模板，需自备 */ -}}
+  {{- $ogimg := "images/og-cover.png" | absURL }}
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{ site.Title }}" />
+  <meta property="og:title" content="{{ site.Title }} · 学习笔记与生活随拍" />
+  <meta property="og:description" content="{{ site.Params.description }}" />
+  <meta property="og:url" content="{{ .Permalink }}" />
+  <meta property="og:image" content="{{ $ogimg }}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ site.Title }} · 学习笔记与生活随拍" />
+  <meta name="twitter:description" content="{{ site.Params.description }}" />
+  <meta name="twitter:image" content="{{ $ogimg }}" />
   {{- if site.Params.assets.favicon }}<link rel="icon" href="{{ site.Params.assets.favicon | relURL }}" />{{ end }}
   {{- /* 国内镜像 fonts.loli.net；被墙时备用地址 https://fonts.googleapis.com/css2?... 同路径 */ -}}
   <link rel="preconnect" href="https://fonts.loli.net" />
@@ -320,7 +343,9 @@
       </div>
       <div class="photos-strip rv">
         {{- range $photos }}
-        <a class="strip-item" href="/photos/#p-{{ index $pidx .src }}"><img src="{{ .src | relURL }}" alt="{{ .caption | default .place }}" loading="lazy" /><span class="strip-cap">{{ .caption | default .place }}</span></a>
+        {{- $thumb := strings.Replace .src "photos/" "photos/thumbs/" 1 }}
+        {{- $thumb = cond (fileExists (printf "static/%s" $thumb)) $thumb .src }}
+        <a class="strip-item" href="/photos/#p-{{ index $pidx .src }}"><img src="{{ $thumb | relURL }}" alt="{{ .caption | default .place }}" loading="lazy" /><span class="strip-cap">{{ .caption | default .place }}</span></a>
         {{- end }}
       </div>
       <div class="posts-more"><a href="/photos/" class="btn-ghost">全部照片 →</a></div>

@@ -9,6 +9,9 @@
   const canVT = () => document.startViewTransition && !reduce();
   let lb = null, img = null, cur = null, items = [], pos = 0;
 
+  // 网格缩略图带 data-full 时，灯箱显示原图（缩略图只用于网格省流量）
+  const fullSrc = (el) => el.dataset.full || el.src;
+
   // 成组：照片墙按可见项（年份筛选会 hidden 掉整卡），文章按正文顺序
   const group = (el) => el.dataset.lb !== undefined
     ? [...document.querySelectorAll("img[data-lb]")].filter(i => !i.closest(".photo-item")?.hidden)
@@ -17,12 +20,12 @@
   const setInert = (on) => { for (const n of document.body.children) if (n.nodeType === 1 && n !== lb) n.inert = on; };
   const preload = () => [-1, 1].forEach(d => {
     const nx = items[(pos + d + items.length) % items.length];
-    if (nx) new Image().src = nx.src;
+    if (nx) new Image().src = fullSrc(nx);
   });
   const step = (d) => {
     pos = (pos + d + items.length) % items.length;
     cur = items[pos];
-    img.src = cur.src;
+    img.src = fullSrc(cur);
     img.classList.remove("lb-swap"); void img.offsetWidth; img.classList.add("lb-swap");
     preload();
   };
@@ -46,7 +49,7 @@
   function open(el) {
     ensure();
     items = group(el); pos = Math.max(0, items.indexOf(el)); cur = el;
-    img.src = el.src;
+    img.src = fullSrc(el);
     lb.hidden = false;
     setInert(true);
     document.body.style.overflow = "hidden";

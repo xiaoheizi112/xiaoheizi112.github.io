@@ -26,6 +26,8 @@ def webp_dims(data: bytes):
 def main():
     out = []
     for p in sorted((ROOT / "static" / "photos").rglob("*.webp")):
+        if "thumbs" in p.relative_to(ROOT / "static" / "photos").parts:
+            continue  # 跳过缩略图，只登记原图宽高
         src = p.relative_to(ROOT / "static").as_posix()
         w, h = webp_dims(p.read_bytes()[:64])
         out.append(f'{src}: [{w}, {h}]')

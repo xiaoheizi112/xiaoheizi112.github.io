@@ -39,6 +39,8 @@
     el.style.transitionDelay = sibs.indexOf(el) * 90 + "ms";
   });
   document.querySelectorAll(".rv").forEach((el) => io.observe(el));
+  // .rv 观察器已接上，index.html 的首帧兜底脚本据此放弃强制显示
+  window.__homeReady = true;
 
   // 数字滚动：进入视口后 ~900ms 递增到 data-count 值
   const co = new IntersectionObserver((es) => {

@@ -74,7 +74,7 @@ Constant pressure water supply; PLC; Frequency converter;HMI
 
 本系统以西门子S7-1200型 PLC作为控制核心，主要由冷却水泵机组、变频器、压力传感器等组件构成。人机界面、上位机、变频器及组态软件等均通过通讯模块与 PLC实现信号交互。压力传感器把取水出口压力值转换成实时模拟电压信号，此信号接入PLC自带的模拟量输入端口通过A/D模块转换完成数据传输[<sup>\[13\]</sup>](#_Ref30499)。在恒压供水运行过程中，PLC通过RS485通讯扩展模块向变频器发送启动控制信号。供水管网的实时水压由压力传感器进行采集，其输出的模拟信号直接传输至PLC。PLC对接收到的压力信号与变频器状态信号进行实时数据处理，并与预设的初始值进行动态比较，进而输出精准的控制信号。该控制信号通过通讯模块反馈至变频器，实现对水泵转速的精确调节及运行状态的智能控制，确保管网压力稳定维持在设定值，从而为空调冷却水系统提供恒定的供水压力保障。恒压供水系统结构示意图如图3.1所示。
 
-![图](/images/plc-cooling-supply/image1.png)
+![图](/posts/plc-cooling-supply/image1.png)
 
 图3.1 恒压供水系统结构示意图
 
@@ -123,7 +123,7 @@ P<sub>2</sub> / P<sub>1</sub> = ( n<sub>2</sub> / n<sub>1</sub> )<sup>3</sup>　
 
 压力传感器和触摸屏的正负极接的是24V开关电源，开关KA10闭合时进水阀FV1打开。
 
-![图](/images/plc-cooling-supply/image2.png)
+![图](/posts/plc-cooling-supply/image2.png)
 
 图4.1 系统主电路图
 
@@ -131,7 +131,7 @@ P<sub>2</sub> / P<sub>1</sub> = ( n<sub>2</sub> / n<sub>1</sub> )<sup>3</sup>　
 
 PLC外部电源接线如图4.2所示，PLC本体的L+端子（主电源输入）和通讯模块的L+端子（通讯电源输入）接开关电源的24V+，PLC的M，1M，2M端子以及通讯模块的M端子通过并联接开关电源的24V-，分别给PLC的本体、PLC的输入输出量端子供电以及PLC的通讯模块供电，PLC的PE端子接PE地线，当发生内部绝缘击穿时，通过 PE 线将故障电流导入大地，触发断路器动作。
 
-![图](/images/plc-cooling-supply/image3.jpeg)
+![图](/posts/plc-cooling-supply/image3.jpeg)
 
 图4.2 PLC外部电源接线图
 
@@ -145,7 +145,7 @@ SB5是手动启动2号泵按钮，按下SB5手动启动2号泵信号通过I0.4�
 
 SB7是手动启动3号泵按钮，按下SB7手动启动3号泵信号通过I0.6输入至PLC，从Q0.4输出控制继电器线圈KA7，继电器线圈得电后控制常开触点接通KM6线圈，水泵电机M3通入工频电源，3号水泵电机M3开始启动并工频运行。
 
-![图](/images/plc-cooling-supply/image4.jpeg)
+![图](/posts/plc-cooling-supply/image4.jpeg)
 
 图4.3 PLC控制电路图
 
@@ -173,7 +173,7 @@ PLC从Q0.2输出控制继电器线圈KA5得电，KA5常开触点闭合，KM5线�
 
 通过之前的设计流量参数可得一台泵的流量至少要达到147m<sup>3</sup>/h，工作状态下压力设定为0.5Mpa，再加上实际工程中适当留 10%的裕量，可估计水泵所需扬程要大于50m，根据实际多方面因素考虑，我采用南方泵业的CDL150-30型号的轻型立式多级离心泵作为冷却水泵，如图4.4所示：
 
-![图](/images/plc-cooling-supply/image5.jpeg)
+![图](/posts/plc-cooling-supply/image5.jpeg)
 
 图4.4 冷却水泵
 
@@ -194,7 +194,7 @@ PLC从Q0.2输出控制继电器线圈KA5得电，KA5常开触点闭合，KM5线�
 
 PLC 控制器是系统的核心控制单元，负责逻辑运算、数据处理及设备协调控制。根据上述控制电路设计所得可选用西门子S7-1200 1214C DC/DC/DC型PLC，其集成14DI/10DO及2AI通道，支持0-10V模拟量输入，可直接连接压力传感器。支持 PROFINET通信、以太网通信，还可通过接入CM模块扩展RS485/RS232，支持Modbus RTU、USS协议。由于具备体积小、扩展性强、可靠性高等特点，能够满足厂房空调冷却水恒压供水系统的实时控制需求。如图4.5所示：
 
-![图](/images/plc-cooling-supply/image6.jpeg)
+![图](/posts/plc-cooling-supply/image6.jpeg)
 
 图4.5 西门子S7-1200
 
@@ -202,7 +202,7 @@ PLC 控制器是系统的核心控制单元，负责逻辑运算、数据处理�
 
 西门子CM1241（通讯模块）：支持Modbus RTU、USS协议、ASCII协议，由PLC供电，便于PLC和变频器通过RS485通讯连接，可显著提升系统的通信灵活性、稳定性和集成能力。如图4.6所示：
 
-![图](/images/plc-cooling-supply/image7.jpeg)
+![图](/posts/plc-cooling-supply/image7.jpeg)
 
 图4.6 西门子CM1241
 
@@ -210,7 +210,7 @@ PLC 控制器是系统的核心控制单元，负责逻辑运算、数据处理�
 
 根据恒压供水系统实际冷却水泵功率要求,本次设计选用为西门子MM430变频器的6SE6430-2UD33-7EB0型号，该型号适配380V三相输入电压，额定输出功率为37kW，符合水泵电机的功率需求。控制冷却水泵电机运行方式，支持多泵协同控制，满足系统“一拖二”的设计需求。其支持USS通讯协议，具备标配通讯接口RS485满足本次设计与西门子PLC S7-1200系列的通讯方式。如图4.7所示：
 
-![图](/images/plc-cooling-supply/image8.jpeg)
+![图](/posts/plc-cooling-supply/image8.jpeg)
 
 图4.7 变频器
 
@@ -218,7 +218,7 @@ PLC 控制器是系统的核心控制单元，负责逻辑运算、数据处理�
 
 压力传感器我选用的是E+H的PMP131型号压力传感器。PMP131压力传感器测量精度高，可达±0.25%，能准确测量冷却水系统压力。可靠性高，采用高品质传感器元件和先进封装技术，抗干扰能力和稳定性好。量程为0-10bar（0-1Mpa），满足本次设计压力检测需求。三线制类型，输出0 - 10V标准电压信号，与 PLC的模拟量输入模块兼容，防护等级高，可达IP65及以上，能适应恶劣工业环境。如图4.8所示：
 
-![图](/images/plc-cooling-supply/image9.jpeg)
+![图](/posts/plc-cooling-supply/image9.jpeg)
 
 图4.8 压力传感器
 
@@ -226,7 +226,7 @@ PLC 控制器是系统的核心控制单元，负责逻辑运算、数据处理�
 
 西门子 KTP700 Basic PN触摸屏是 SIMATIC HMI 系列中的一款7英寸二代精简面板，24V DC供电，支持TIA Portal软件中的WinCC Basic组态与编程。支持Profinet 以太网通信，拥有1个Profinet接口，能够与S7-1200等PLC直接通信，具备高性价比和可靠性能。如图4.9所示：
 
-![图](/images/plc-cooling-supply/image10.jpeg)
+![图](/posts/plc-cooling-supply/image10.jpeg)
 
 图4.9 触摸屏
 
@@ -322,41 +322,41 @@ PLC输入输出分配表详见表4.2，4.3。
 
 该系统有手动控制和自动控制的两种运行方式，可手自动切换，手动、自动的工作方式通过一转换开关来选择，在系统运行前需选择其中一种控制模式。模式选择流程图如图5.1所示。
 
-![图](/images/plc-cooling-supply/image11.png)
+![图](/posts/plc-cooling-supply/image11.png)
 
 图5.1 模式选择流程图
 
 在手动控制模式下，系统启动后可选择1号泵、2号泵和3号泵的工频运行启动，手动控制模式流程图如图5.2所示。
 
-![图](/images/plc-cooling-supply/image12.png)
+![图](/posts/plc-cooling-supply/image12.png)
 
 图5.2 手动控制模式流程图
 
 在自动控制模式下，按下启动按钮系统启动，1号泵在变频器的控制下以变频方式启动运行。当30s过后水管管网压力达到压力设定值时，1号泵在变频器的作用下维持变频运行，否则1号泵转为工频方式工作运行，2号泵在变频器的控制下以变频方式启动运行；当60s过后水管管网压力达到压力设定值时，1号泵维持工频运行，2号泵在变频器的作用下维持变频运行，否则2号泵转为工频运行，直到水管管网压力达到压力设定值后，1号泵维持工频运行，2号泵改为变频运行，以维持空调工作时的冷却水供水需求。PLC自动控制流程图如图5.3所示。
 
-![图](/images/plc-cooling-supply/image13.png)
+![图](/posts/plc-cooling-supply/image13.png)
 
 图5.3 PLC自动控制流程图
 
 在系统自动运行状态下，当1号泵或者2号泵故障时，3号泵作为备用泵以工频方式启动运行。当2台主用泵同时故障时，系统停止运行。故障状态下系统流程图如图5.4所示。
 
-![图](/images/plc-cooling-supply/image14.png)
+![图](/posts/plc-cooling-supply/image14.png)
 
 图5.4 故障状态下系统流程图
 
 每个设计模块都对应着不同的程序应用：PID控制块用于模拟变频器的PID控制；安全验证块用于HMI人机界面的登录画面；泵故障启停设置块用于冷却水泵的故障启停逻辑设置；初始化赋值块用于赋值给PID参数、压力设定值等基础参数赋值；控制时间块用于记录水泵的运行时长；模拟泵运行状态块用于模拟水泵实际运行的压力反馈，与压力设定值作参照；频率压力设定块，用于模拟实际情况下频率和压力的变化；手动启泵控制块用于手动控制状态下的操作；手自动切换块用于切换手自动模式；自动启泵控制块用于自动控制状态下的操作。程序设计模块包含如图5.5所示：
 
-![图](/images/plc-cooling-supply/image15.png)
+![图](/posts/plc-cooling-supply/image15.png)
 
 图5.5 程序设计模块
 
 手动控制模式下系统运行时，通过自锁程序设计可实现水泵一直运作。工作人员可根据实际情况通过独立控制按钮来启停1号泵、2号泵和3号泵。此模式主要用于设备调试阶段、系统出现故障以及日常检修维护过程中。手动启动各泵程序图如图5.6所示。
 
-![图](/images/plc-cooling-supply/image16.png)
+![图](/posts/plc-cooling-supply/image16.png)
 
 图5.6 手动启动各泵运行程序图
 
-![图](/images/plc-cooling-supply/image17.png)
+![图](/posts/plc-cooling-supply/image17.png)
 
 图5.7 延时计时程序图
 
@@ -364,51 +364,51 @@ PLC输入输出分配表详见表4.2，4.3。
 
 当反馈压力大于0.01且反馈压力小于等于压力设定值下限时，置位1号泵变频启动且计时器开始计时。如图5.8所示。
 
-![图](/images/plc-cooling-supply/image18.png)
+![图](/posts/plc-cooling-supply/image18.png)
 
 图5.8 1号泵启动计时程序图
 
 当系统自动模式下运行超过30s，反馈压力小于压力设定值下限且小于启动2号泵压力检测时，置位1号泵工频启动和2号泵变频启动，复位1号泵变频启动。当系统自动模式下运行超过60s，反馈压力依然小于压力设定值下限时，复位2号泵变频启动，置位2号泵工频启动，至此1号泵和2号泵以工频状态下持续运行，直至最终反馈压力达到压力设定值稳定在±0.02Mpa范围内时，复位2号泵工频启动 ，置位2号泵变频启动，以维持管道压力稳定，保持持续供水给冷凝器。如图5.9所示。
 
-![图](/images/plc-cooling-supply/image19.png)
+![图](/posts/plc-cooling-supply/image19.png)
 
-![图](/images/plc-cooling-supply/image20.png)
+![图](/posts/plc-cooling-supply/image20.png)
 
-![图](/images/plc-cooling-supply/image21.png)
+![图](/posts/plc-cooling-supply/image21.png)
 
-![图](/images/plc-cooling-supply/image22.png)
+![图](/posts/plc-cooling-supply/image22.png)
 
 图5.9 自动模式泵运行流程程序图
 
 当1号泵和2号泵同时故障，系统停止启动或停止运行；当3号泵故障，系统停止启动或停止运行。正常状态下按下启动按钮，系统启动运行，执行进水阀打开操作。正常状态下按下停止按钮，系统停止运行，执行进水阀关闭操作。当只有1号泵或者2号泵故障时，3号泵工频启动。当两台泵同时故障时，3号泵停止工作。泵故障程序图如图5.10所示。
 
-![图](/images/plc-cooling-supply/image23.png)
+![图](/posts/plc-cooling-supply/image23.png)
 
-![图](/images/plc-cooling-supply/image24.png)
+![图](/posts/plc-cooling-supply/image24.png)
 
-![图](/images/plc-cooling-supply/image25.png)
+![图](/posts/plc-cooling-supply/image25.png)
 
 图5.10 泵故障程序图
 
 通过管网上压力传感器把压力信号变成0-10V范围内的电流信号，先经过 NORM_X标准化指令转换为对应 0-27648的百分比，再通过SCALE_X缩放指令将量程 的分比转为实际压力值，从而获得反馈压力。压力传感器数据接收程序如图5.11所示。
 
-![图](/images/plc-cooling-supply/image26.png)
+![图](/posts/plc-cooling-supply/image26.png)
 
 图5.11 压力数据采集接收程序图
 
 将“控制输出”变量与276.48相乘传送到MD248中，MD248再通过CONV转换指令传到MD400中。MD400再通过CONV转换指令传到QW64中，转为变频器频率输出。变频器频率运行输出程序如图5.12所示。
 
-![图](/images/plc-cooling-supply/image27.png)
+![图](/posts/plc-cooling-supply/image27.png)
 
 图5.12 变频器频率输出程序图
 
 系统运行时，当手自动模式切换为“1”后，PID控制块和自动启泵控制块同时运行。自动模式启动控制块程序如图5.13所示。
 
-![图](/images/plc-cooling-supply/image28.png)
+![图](/posts/plc-cooling-supply/image28.png)
 
 图5.13自动模式启动控制块流程图
 
-![图](/images/plc-cooling-supply/image29.png)
+![图](/posts/plc-cooling-supply/image29.png)
 
 图5.14 PID控制块程序图
 
@@ -420,11 +420,11 @@ PID控制块程序如图5.14所示。PID控制块通过SCL语言程序编写，�
 
 HMI作为人机交互界面，通过连接PLC内部变量建立仿真画面进行演示，可模拟工作运行环境，直观反应动态效果进行演示。PLC内部变量如图5.15所示。
 
-![图](/images/plc-cooling-supply/image30.png)
+![图](/posts/plc-cooling-supply/image30.png)
 
-![图](/images/plc-cooling-supply/image31.png)
+![图](/posts/plc-cooling-supply/image31.png)
 
-![图](/images/plc-cooling-supply/image32.png)
+![图](/posts/plc-cooling-supply/image32.png)
 
 图5.15 PLC内部变量图
 
@@ -432,13 +432,13 @@ HMI作为人机交互界面，通过连接PLC内部变量建立仿真画面进�
 
 (1)主页面如图5.16所示。作为HMI的主页面，用于厂房空调冷却水恒压供水系统登录或者退出。
 
-![图](/images/plc-cooling-supply/image33.png)
+![图](/posts/plc-cooling-supply/image33.png)
 
 图5.16 HMI主页面
 
 (2)登录画面如图5.17所示。使用登录界面提供安全验证，登录成功进入操作界面，否则登录失败弹出提示信息。一定程度上保证了该系统的安全性，只有主用户才能登录使用。
 
-![图](/images/plc-cooling-supply/image34.png)
+![图](/posts/plc-cooling-supply/image34.png)
 
 图5.17 HMI的登录画面
 
@@ -448,11 +448,11 @@ HMI作为人机交互界面，通过连接PLC内部变量建立仿真画面进�
 
 下半部分：页面显示有五个小版块，依次是：自动控制设定版块、泵的运行时间版块、设备状态版块、压力PID参数版块以及系统控制版块，其中：自动控制设定：用于设定压力参数，用于用户直接调节压力设定值。泵的运行时间：每当一个主用泵启动运行时开始计时，用于记录泵的运行时间，可以手动清零。设备状态：可以操控手动控制模式下的主用泵的启停状态，还可手动控制模拟各泵故障，反映出泵的实际工作状态。压力PID参数版块：用于查看当前PID参数设置，根据综合因素考虑，本次设计使用的PID参数Kp、Ki、Kd分别为2、0.5和0.2。系统控制：用于系统手自动切换，当系统停止时，可选择“自动控制”或者“手动控制”更改，重新系统启动即可运行。
 
-![图](/images/plc-cooling-supply/image35.png)
+![图](/posts/plc-cooling-supply/image35.png)
 
 图5.18 HMI的操作界面
 
-![图](/images/plc-cooling-supply/image36.png)
+![图](/posts/plc-cooling-supply/image36.png)
 
 图5.19 自动运行画面
 
@@ -460,7 +460,7 @@ HMI作为人机交互界面，通过连接PLC内部变量建立仿真画面进�
 
 (5)手动运行画面如图5.20所示。系统控制设置为手动控制模式，系统启动后开始手动控制运行。
 
-![图](/images/plc-cooling-supply/image37.png)
+![图](/posts/plc-cooling-supply/image37.png)
 
 图5.20 手动运行画面
 
@@ -508,21 +508,21 @@ HMI作为人机交互界面，通过连接PLC内部变量建立仿真画面进�
 
 # 附页A 电气原理图
 
-![图](/images/plc-cooling-supply/image1.png)
+![图](/posts/plc-cooling-supply/image1.png)
 
-![图](/images/plc-cooling-supply/image2.png)
+![图](/posts/plc-cooling-supply/image2.png)
 
-![图](/images/plc-cooling-supply/image3.jpeg)
+![图](/posts/plc-cooling-supply/image3.jpeg)
 
-![图](/images/plc-cooling-supply/image38.jpeg)
+![图](/posts/plc-cooling-supply/image38.jpeg)
 
-![图](/images/plc-cooling-supply/image11.png)
+![图](/posts/plc-cooling-supply/image11.png)
 
-![图](/images/plc-cooling-supply/image12.png)
+![图](/posts/plc-cooling-supply/image12.png)
 
-![图](/images/plc-cooling-supply/image13.png)
+![图](/posts/plc-cooling-supply/image13.png)
 
-![图](/images/plc-cooling-supply/image14.png)
+![图](/posts/plc-cooling-supply/image14.png)
 
 # 附页B相关参数表格
 
@@ -612,72 +612,72 @@ MM430变频器主要参数设置功能表
 
 # 附页C 系统PLC程序
 
-![图](/images/plc-cooling-supply/image39.png)
+![图](/posts/plc-cooling-supply/image39.png)
 
-![图](/images/plc-cooling-supply/image40.png)
+![图](/posts/plc-cooling-supply/image40.png)
 
-![图](/images/plc-cooling-supply/image41.png)
+![图](/posts/plc-cooling-supply/image41.png)
 
-![图](/images/plc-cooling-supply/image29.png)
+![图](/posts/plc-cooling-supply/image29.png)
 
-![图](/images/plc-cooling-supply/image42.png)
+![图](/posts/plc-cooling-supply/image42.png)
 
-![图](/images/plc-cooling-supply/image43.png)
+![图](/posts/plc-cooling-supply/image43.png)
 
-![图](/images/plc-cooling-supply/image44.png)
+![图](/posts/plc-cooling-supply/image44.png)
 
-![图](/images/plc-cooling-supply/image45.png)
+![图](/posts/plc-cooling-supply/image45.png)
 
-![图](/images/plc-cooling-supply/image46.png)
+![图](/posts/plc-cooling-supply/image46.png)
 
-![图](/images/plc-cooling-supply/image47.png)
+![图](/posts/plc-cooling-supply/image47.png)
 
-![图](/images/plc-cooling-supply/image48.png)
+![图](/posts/plc-cooling-supply/image48.png)
 
-![图](/images/plc-cooling-supply/image49.png)
+![图](/posts/plc-cooling-supply/image49.png)
 
-![图](/images/plc-cooling-supply/image50.png)
+![图](/posts/plc-cooling-supply/image50.png)
 
-![图](/images/plc-cooling-supply/image51.png)
+![图](/posts/plc-cooling-supply/image51.png)
 
-![图](/images/plc-cooling-supply/image52.png)
+![图](/posts/plc-cooling-supply/image52.png)
 
-![图](/images/plc-cooling-supply/image53.png)
+![图](/posts/plc-cooling-supply/image53.png)
 
-![图](/images/plc-cooling-supply/image54.png)
+![图](/posts/plc-cooling-supply/image54.png)
 
-![图](/images/plc-cooling-supply/image55.png)
+![图](/posts/plc-cooling-supply/image55.png)
 
-![图](/images/plc-cooling-supply/image56.png)
+![图](/posts/plc-cooling-supply/image56.png)
 
-![图](/images/plc-cooling-supply/image57.png)
+![图](/posts/plc-cooling-supply/image57.png)
 
-![图](/images/plc-cooling-supply/image58.png)
+![图](/posts/plc-cooling-supply/image58.png)
 
-![图](/images/plc-cooling-supply/image59.png)
+![图](/posts/plc-cooling-supply/image59.png)
 
-![图](/images/plc-cooling-supply/image60.png)
+![图](/posts/plc-cooling-supply/image60.png)
 
-![图](/images/plc-cooling-supply/image61.png)
+![图](/posts/plc-cooling-supply/image61.png)
 
-![图](/images/plc-cooling-supply/image62.png)
+![图](/posts/plc-cooling-supply/image62.png)
 
-![图](/images/plc-cooling-supply/image63.png)
+![图](/posts/plc-cooling-supply/image63.png)
 
-![图](/images/plc-cooling-supply/image64.png)
+![图](/posts/plc-cooling-supply/image64.png)
 
-![图](/images/plc-cooling-supply/image65.png)
+![图](/posts/plc-cooling-supply/image65.png)
 
-![图](/images/plc-cooling-supply/image66.png)
+![图](/posts/plc-cooling-supply/image66.png)
 
 # 附页D 人机界面
 
-![图](/images/plc-cooling-supply/image33.png)
+![图](/posts/plc-cooling-supply/image33.png)
 
-![图](/images/plc-cooling-supply/image34.png)
+![图](/posts/plc-cooling-supply/image34.png)
 
-![图](/images/plc-cooling-supply/image35.png)
+![图](/posts/plc-cooling-supply/image35.png)
 
-![图](/images/plc-cooling-supply/image36.png)
+![图](/posts/plc-cooling-supply/image36.png)
 
-![图](/images/plc-cooling-supply/image37.png)
+![图](/posts/plc-cooling-supply/image37.png)

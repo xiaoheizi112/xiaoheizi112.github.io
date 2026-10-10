@@ -50,7 +50,12 @@ hugo server -D        # http://localhost:1313
 python scripts/add_photos.py <图片路径...>
 ```
 
-压缩 webp（最长边 1600px）、EXIF 转正、剥除全部元数据，存入 `static/photos/<年份>/` 并登记进 `data/photos.yml`。
+压缩 webp（最长边 1600px）、EXIF 转正、剥除全部元数据，存入 `static/photos/<年份>/` 并登记进 `data/photos.yml`。入库后再跑一步生成缩略图与尺寸缓存：
+
+```bash
+python scripts/gen_photo_thumbs.py   # 生成 static/photos/thumbs/ 缩略图（网格用，灯箱仍开原图）
+python scripts/gen_photo_dims.py     # 记录原图宽高 → data/photo_dims.yml（防懒加载撑动版面）
+```
 
 ## License
 

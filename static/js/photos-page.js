@@ -17,6 +17,8 @@
     });
   }, { threshold: 0.08 });
   items.forEach((el) => io.observe(el));
+  // 观察器已接上，相册页首帧兜底脚本据此放弃强制显示
+  window.__photosReady = true;
 
   // 进场结束后清掉 transition-delay，否则 hover 浮起也要等
   document.getElementById("main").addEventListener("transitionend", (e) => {

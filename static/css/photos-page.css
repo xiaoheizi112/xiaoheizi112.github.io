@@ -4,19 +4,23 @@
 /* 首页相册条 #pN 锚点跳转时给固定导航留出空间 */
 .page-photos .photo-item { scroll-margin-top: 88px; }
 
-/* 进场用独立类（不再走 home.js 的 .rv，便于按视觉顺序错峰） */
+/* 进场用独立类（不走 home.js 的 .rv，便于按视觉顺序错峰）。
+   默认可见，仅 <html>.js 时隐藏待进场——photos-page.js 失效不再整页空白 */
 .page-photos .photo-item {
-  opacity: 0;
-  transform: translateY(24px);
   transition:
     opacity 620ms var(--ease),
     transform 620ms var(--ease),
     rotate 200ms var(--ease),
     box-shadow 200ms var(--ease);
 }
+.js .page-photos .photo-item:not(.in) {
+  opacity: 0;
+  transform: translateY(24px);
+}
 .page-photos .photo-item.in { opacity: 1; transform: none; }
 /* 我的 .in 规则优先级压过 home.css 的 :hover，这里把浮起补回来 */
 .page-photos .photo-item.in:hover { transform: translateY(-4px); }
+.rv-fallback .page-photos .photo-item { opacity: 1 !important; transform: none !important; }
 
 /* 键盘可达：图片本身 role=button，聚焦画一圈点缀褐金 */
 .photo-item img:focus-visible {

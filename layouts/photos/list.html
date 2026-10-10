@@ -9,8 +9,29 @@
   {{- /* 本页改动频繁（播放器等），禁 Turbo 缓存防陈旧快照把 #tape 删掉 */ -}}
   <meta name="turbo-cache-control" content="no-cache" />
   <meta name="color-scheme" content="light" />
+  {{- /* 渐进增强标记 + 首帧兜底：photos-page.js 没跑起来时照片不再全隐 */ -}}
+  <script>
+    document.documentElement.classList.add("js");
+    addEventListener("load", function () {
+      setTimeout(function () { if (!window.__photosReady) document.documentElement.classList.add("rv-fallback"); }, 1200);
+    });
+  </script>
   <title>相册 · {{ site.Title }}</title>
   <meta name="description" content="生活与旅行的照片。" />
+  {{- $ogimg := "images/og-cover.png" | absURL }}
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{ site.Title }}" />
+  <meta property="og:title" content="相册 · {{ site.Title }}" />
+  <meta property="og:description" content="走过的地方、路过的天气。" />
+  <meta property="og:url" content="{{ .Permalink }}" />
+  <meta property="og:image" content="{{ $ogimg }}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="相册 · {{ site.Title }}" />
+  <meta name="twitter:description" content="走过的地方、路过的天气。" />
+  <meta name="twitter:image" content="{{ $ogimg }}" />
   <link rel="preconnect" href="https://fonts.loli.net" />
   <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
@@ -54,8 +75,13 @@
   <section class="year-sec"><h2 class="year-head" data-year>{{ $y }}<span class="cnt">{{ $yc }} 张</span></h2><div class="masonry">
     {{- end }}
     {{- $wh := default slice (index (default dict hugo.Data.photo_dims) $p.src) }}
+    {{- /* 网格用缩略图（static/photos/thumbs/），灯箱经 data-full 取原图。
+           缩略图缺失（忘了跑 gen_photo_thumbs.py）则退回原图，不会 404。
+           缩略图与原图等比缩放，共用同一组宽高，不会撑动瀑布流布局 */ -}}
+    {{- $thumb := strings.Replace $p.src "photos/" "photos/thumbs/" 1 }}
+    {{- $hasThumb := fileExists (printf "static/%s" $thumb) }}
     <figure class="photo-item" id="p-{{ $i }}" data-place="{{ $p.place }}">
-      <img src="{{ $p.src | relURL }}" alt="{{ $p.caption | default $p.place }}"
+      <img src="{{ (cond $hasThumb $thumb $p.src) | relURL }}"{{ if $hasThumb }} data-full="{{ $p.src | relURL }}"{{ end }} alt="{{ $p.caption | default $p.place }}"
            {{ with $wh }}width="{{ index . 0 }}" height="{{ index . 1 }}"{{ end }}
            loading="{{ if lt $i 6 }}eager{{ else }}lazy{{ end }}" data-lb="{{ $i }}" />
     </figure>
