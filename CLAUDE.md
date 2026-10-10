@@ -10,6 +10,21 @@
 - 新页面/组件沿用这套变量，不要另起配色；细节特征：纸张噪点纹理、圆角卡片 + 细边框、hover 微浮起、进场淡入、`cubic-bezier(0.23,1,0.32,1)` 缓动
 - 首页（`layouts/index.html` + `home.css`）独立于 PaperMod 主题；文章页等仍走 PaperMod，改 PaperMod 侧样式时用 `assets/css/` 覆盖，不动主题 submodule
 
+## 主题覆盖文件（升级 PaperMod 时必看）
+
+项目侧整份复制了 PaperMod 的以下文件（Hugo partial/模板覆盖机制要求整份，不能只放改动段）。升级主题前用 `git diff --no-index themes/PaperMod/<路径> <项目侧同路径>` 核对，把自己改动合并进新版：
+
+| 项目侧文件 | 改了什么 |
+|---|---|
+| `layouts/list.html` | 底部翻页换成编号页码条（保留箭头 + aria-label） |
+| `layouts/_partials/header.html` | logo 区改成与首页同款 brand（慢字方块 + 慢公子/GONGZI） |
+| `layouts/_partials/footer.html` | Turbo 兼容三修（脚本包 IIFE、跳过 #post-toc 锚点、code-copy 防重复） |
+| `layouts/_partials/toc.html` | 侧栏 sticky 目录（≥1100px），自带走点补正 |
+| `layouts/_partials/breadcrumbs.html` | 给 chevron SVG 补显式 width/height 防巨大符号闪现 |
+| `layouts/_partials/extend_head.html` | 首页同款字体 + Turbo + 阅读进度条（新增文件，非覆盖） |
+| `layouts/_partials/extend_footer.html` | 播放器 + 灯箱挂载点（新增文件，非覆盖） |
+| `layouts/_default/_markup/render-image.html` | 从 static 读真实宽高写进 img（防懒加载撑动版面） |
+
 ## 工作方式
 
 - 一次交代多个互不依赖的任务时，自动拆给多个子代理并发执行，不必先征求同意；派发时按文件划清地盘，各代理只改自己名下的文件，禁止跨区编辑，最后由主会话统一构建验收

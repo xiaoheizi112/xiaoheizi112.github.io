@@ -1,3 +1,8 @@
+{{- /* 覆盖 themes/PaperMod/layouts/list.html。
+     改动一处：底部翻页从「« 上一页 / 下一页 »」文本，换成编号页码条
+     （.prev/.next 只留箭头 + aria-label，中间插 range $paginator.Pagers 渲染页码）。
+     样式在 assets/css/extended/custom.css 的 nav.pagination 段。
+     升级主题时用 `git diff --no-index themes/PaperMod/layouts/list.html layouts/list.html` 核对本改动。 */ -}}
 {{- define "main" }}
 
 {{- if (and site.Params.profileMode.enabled .IsHome) }}
