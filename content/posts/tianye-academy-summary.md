@@ -3,6 +3,7 @@ title = '天野学院第六期模拟班课程学后总结'
 date = '2026-10-01'
 tags = ['易语言']
 draft = false
+description = "天野学院第六期模拟班课程学后总结：按「界面→设置→代码」的顺序整理函数与功能实现。"
 images = ["images/og/tianye-academy-summary.png"]
 +++
 

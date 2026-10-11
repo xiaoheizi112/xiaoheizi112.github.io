@@ -3,6 +3,7 @@ title = '大漠专栏'
 date = '2026-10-01'
 tags = ['易语言']
 draft = false
+description = "易语言接入大漠插件的注册与绑定流程：机器码登记、类库生成、按读我步骤操作，一步步记下来。"
 images = ["images/og/damo-plugin-column.png"]
 +++
 

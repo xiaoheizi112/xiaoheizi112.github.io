@@ -3,6 +3,7 @@ title = '周旋专属'
 date = '2026-10-01'
 tags = ['机器视觉']
 draft = false
+description = "入行方向的思考与市场调研：想做软开就去学软开，别把不相干的知识勉强缝合。"
 images = ["images/og/zhouxuan-career.png"]
 +++
 

@@ -6,11 +6,12 @@
     let root = document.getElementById("tape");
     // 陈旧 Turbo 缓存快照里没有 #tape 时，permanent 节点会被整个移除（播放器消失+断音）。
     // 用首次 boot 存的 HTML 备份自愈：重新插回节点和样式，再从 localStorage 恢复播放状态。
+    // 样式表按稳定 id/data-css 定位（文件名带指纹，不能靠 href 子串）。
     if (!root && window.__tapeHTML) {
       document.body.insertAdjacentHTML("beforeend", window.__tapeHTML);
       root = document.getElementById("tape");
-      if (root && !document.querySelector('link[href*="tape.css"]')) {
-        const l = document.createElement("link"); l.rel = "stylesheet"; l.href = window.__tapeCSS; document.head.appendChild(l);
+      if (root && !document.querySelector("#tape-css")) {
+        const l = document.createElement("link"); l.rel = "stylesheet"; l.id = "tape-css"; l.href = window.__tapeCSS; document.head.appendChild(l);
       }
     }
     if (!root || root.__tape) return; // 同一节点只绑一次，防 Turbo 保活时重复 toggle
@@ -18,7 +19,7 @@
     if (!window.__tapeHTML) {
       const c = root.cloneNode(true); c.classList.remove("playing", "open");
       window.__tapeHTML = c.outerHTML;
-      const lk = document.querySelector('link[href*="tape.css"]');
+      const lk = document.querySelector("#tape-css");
       if (lk) window.__tapeCSS = lk.getAttribute("href");
     }
     const audio = document.getElementById("tape-audio");

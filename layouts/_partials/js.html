@@ -1,0 +1,9 @@
+{{- /* 输出一个经 Hugo 管线处理的项目侧 JS：minify + fingerprint。
+       参数：path（assets 下相对路径，如 "lib/turbo/turbo.umd.js"）、defer（可选）。 */ -}}
+{{- $js := resources.Get .path -}}
+{{- if $js -}}
+  {{- $js = $js | minify | fingerprint "sha256" -}}
+  <script src="{{ $js.RelPermalink }}"{{ if .defer }} defer{{ end }} integrity="{{ $js.Data.Integrity }}" crossorigin="anonymous"></script>
+{{- else -}}
+  {{- warnf "js-pipeline: 找不到资源 %s" .path -}}
+{{- end -}}

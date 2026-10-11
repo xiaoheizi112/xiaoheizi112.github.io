@@ -3,6 +3,7 @@ title = '减肥'
 date = '2026-10-01'
 tags = ['生活']
 draft = false
+description = "一份不那么苦的减肥记录：从计划、饮食到执行，如实写下一个普通人的减脂过程。"
 images = ["images/og/weight-loss-diary.png"]
 +++
 

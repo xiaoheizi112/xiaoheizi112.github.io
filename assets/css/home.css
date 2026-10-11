@@ -397,3 +397,9 @@ input, textarea, select, [contenteditable="true"] { cursor: url("/cursors/text.p
     radial-gradient(560px 560px at 78% 18%, rgba(205, 185, 143, .10), transparent 70%),
     radial-gradient(420px 420px at 12% 82%, rgba(205, 185, 143, .08), transparent 70%);
 }
+
+/* ============ 404 页 ============ */
+.page-404 .nf { padding: 180px 32px 80px; max-width: 1120px; margin: 0 auto; position: relative; z-index: 2; }
+.nf-big { font: 600 clamp(2.4rem, 6vw, 4.2rem)/1.25 var(--font-display); margin: 16px 0 20px; }
+.nf-sub { color: var(--ink-2); font-size: 17px; max-width: 560px; }
+.nf-links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }

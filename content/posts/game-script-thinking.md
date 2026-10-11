@@ -3,6 +3,7 @@ title = '图色游戏脚本学习思路'
 date = '2026-10-01'
 tags = ['易语言']
 draft = false
+description = "图色游戏脚本的学习路线：按周拆到可落地的里程碑，从啃大漠函数说明书到攒出自己的能力对照表。"
 images = ["images/og/game-script-thinking.png"]
 +++
 

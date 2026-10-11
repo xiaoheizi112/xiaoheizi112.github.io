@@ -3,6 +3,7 @@ title = 'Python 基础'
 date = '2026-10-01'
 tags = ['Python']
 draft = false
+description = "Python 从零散常识到常用库的笔记：IDE 操作、语法要点、自动化小工具，边用边记的一本流水账。"
 images = ["images/og/python-basics.png"]
 +++
 

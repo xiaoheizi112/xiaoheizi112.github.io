@@ -3,6 +3,7 @@ title = 'Claude Code + Codex + Cursor：AI 组合学习'
 date = '2026-10-01'
 tags = ['AI工具']
 draft = false
+description = "把 Claude Code、Codex、Cursor 凑成一套 AI 编程组合的用法与命令速查，从尚硅谷教程里整理出的实操笔记。"
 images = ["images/og/ai-coding-suite.png"]
 +++
 

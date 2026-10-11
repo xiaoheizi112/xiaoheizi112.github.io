@@ -3,6 +3,7 @@ title = '如何寻找职业'
 date = '2026-10-01'
 tags = ['职场']
 draft = false
+description = "找职业的自我梳理：从观察自己的性格与行为入手总结规律，再落到接受现实、明确方向。"
 images = ["images/og/finding-a-career.png"]
 +++
 

@@ -3,6 +3,7 @@ title = '基于PLC的厂房空调冷却水恒压供水系统设计'
 date = '2026-10-02'
 tags = ['PLC', '毕业设计']
 draft = false
+description = "毕业设计：基于西门子 PLC 的厂房空调冷却水恒压供水系统，含 PID 调压、变频切换、HMI 与故障保护。"
 images = ["images/og/plc-cooling-supply.png"]
 +++
 

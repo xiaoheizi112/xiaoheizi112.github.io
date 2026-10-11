@@ -3,6 +3,7 @@ title = '机器视觉（《嘲风机器入行手册》学习笔记）'
 date = '2026-10-01'
 tags = ['机器视觉']
 draft = false
+description = "《嘲风机器视觉入行手册》的学习笔记：行业认知、常见检测方案与入行路径的梳理。"
 images = ["images/og/machine-vision-notes.png"]
 +++
 

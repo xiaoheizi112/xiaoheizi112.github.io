@@ -3,6 +3,7 @@ title = '租房疑难解答'
 date = '2026-10-01'
 tags = ['生活']
 draft = false
+description = "租房疑难解答：从户型配套、交通条件到合同与避坑，一份租房时要逐条对照的清单。"
 images = ["images/og/renting-faq.png"]
 +++
 

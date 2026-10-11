@@ -1,0 +1,10 @@
+{{- /* 输出一个经 Hugo 管线处理的项目侧 CSS：minify + fingerprint（缓存指纹）。
+       参数：path（assets 下相对路径，如 "css/home.css"）、media（可选）、id（可选，供 JS 稳定定位，不受指纹改名影响）。
+       用 partialCached 按路径缓存，避免多页重复打包。 */ -}}
+{{- $css := resources.Get .path -}}
+{{- if $css -}}
+  {{- $css = $css | minify | fingerprint "sha256" -}}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}"{{ with .media }} media="{{ . }}"{{ end }}{{ with .id }} id="{{ . }}" data-css="{{ . }}"{{ end }} integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">
+{{- else -}}
+  {{- warnf "css-pipeline: 找不到资源 %s" .path -}}
+{{- end -}}

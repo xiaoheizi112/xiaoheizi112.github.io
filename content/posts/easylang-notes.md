@@ -3,6 +3,7 @@ title = '易语言学习笔记（从零开始的易世界生活）'
 date = '2026-10-01'
 tags = ['易语言']
 draft = false
+description = "从零上手易语言的踩坑记录：调试能力弱、软件停止维护的老问题，以及一路用下来攒下的解决办法。"
 images = ["images/og/easylang-notes.png"]
 +++
 

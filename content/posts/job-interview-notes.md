@@ -3,6 +3,7 @@ title = '招聘面试注意事项'
 date = '2026-10-01'
 tags = ['职场']
 draft = false
+description = "校招与求职的注意事项整理：从获取招聘信息的渠道，到面试各环节的要点，一张白板导图的文字版。"
 images = ["images/og/job-interview-notes.png"]
 +++
 

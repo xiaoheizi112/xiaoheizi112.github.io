@@ -1,8 +1,11 @@
 {{- /* PaperMod 页面（文章/列表/标签等）补上首页同款字体，与 layouts/index.html 保持一致 */ -}}
 {{- /* 国内镜像 fonts.loli.net；被墙时备用地址 https://fonts.googleapis.com/css2?... 同路径 */ -}}
 <link rel="preconnect" href="https://fonts.loli.net" />
-<link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
-<script src="{{ "lib/turbo/turbo.umd.js" | absURL }}" defer></script>
+{{- /* 非阻塞加载字体：media=print 先不挡首屏渲染，onload 切回 all；无 JS 用 <noscript> 兜底 */ -}}
+<link rel="preload" as="style" href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" />
+<link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
+{{ partialCached "js.html" (dict "path" "lib/turbo/turbo.umd.js" "defer" true) "turbo" }}
 {{- /* RSS 自动发现：文章页无自带 feed，逐级回退到所属 section / 站点首页 feed */ -}}
 {{- $feed := .OutputFormats.Get "rss" }}
 {{- if not $feed }}{{ $feed = .Parent.OutputFormats.Get "rss" }}{{ end }}

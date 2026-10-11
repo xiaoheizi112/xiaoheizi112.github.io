@@ -5,7 +5,7 @@
 {{- $songs := hugo.Data.music }}
 {{- if $songs }}
 {{- /* 胶卷播放器：#tape 整体 data-turbo-permanent，跨页不断音；audio 必须放容器内一起被保留 */ -}}
-<link rel="stylesheet" href="{{ "css/tape.css" | relURL }}">
+{{ partialCached "css.html" (dict "path" "css/tape.css" "id" "tape-css") "tape.css" }}
 <div id="tape" data-turbo-permanent>
   <div class="tape-panel">
     <div class="tape-now">
@@ -56,7 +56,7 @@
 })();
 </script>
 {{- /* 图片灯箱（照片墙 img[data-lb] + 文章正文图共用），全站挂载点；监听委托在 document，Turbo 换 body 不影响 */ -}}
-<link rel="stylesheet" href="{{ "css/lightbox.css" | relURL }}" />
+{{ partialCached "css.html" (dict "path" "css/lightbox.css") "lightbox.css" }}
 <script src="{{ "js/lightbox.js" | relURL }}"></script>
 <script>
 /* 深浅色切换：写 pref-theme（全站共用），html[data-theme] 由 CSS 变量响应。

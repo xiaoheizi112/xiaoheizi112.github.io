@@ -3,6 +3,7 @@ title = 'C++/Qt 网课学习笔记（社长嵌入式）'
 date = '2026-10-02'
 tags = ['Qt', 'C++']
 draft = false
+description = "C++/Qt 网课全程笔记：从 Qt 概述、信号槽到控件与事件循环，按上课日期整理的学习记录。"
 images = ["images/og/qt-cpp-course-notes.png"]
 +++
 

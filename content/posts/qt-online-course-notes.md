@@ -3,6 +3,7 @@ title = '大丙学编程 Qt 网课学习笔记'
 date = '2026-10-01'
 tags = ['Qt']
 draft = false
+description = "大丙学编程 Qt 网课的复习补充：对照 subingwen.cn 的课程，把要点和易错处再梳理一遍。"
 images = ["images/og/qt-online-course-notes.png"]
 +++
 

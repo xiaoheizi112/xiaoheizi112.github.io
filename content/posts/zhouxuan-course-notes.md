@@ -3,6 +3,7 @@ title = '周旋课程学习补充笔记'
 date = '2026-10-01'
 tags = ['机器视觉']
 draft = false
+description = "周旋课程的学习补充笔记：把课堂内容里没讲透、需要自己补的地方逐条记下。"
 images = ["images/og/zhouxuan-course-notes.png"]
 +++
 

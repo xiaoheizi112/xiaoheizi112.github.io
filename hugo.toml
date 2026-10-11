@@ -7,6 +7,10 @@ enableEmoji = true
 enableRobotsTXT = true
 theme = 'PaperMod'
 
+# 只用标签，不用分类（避免 sitemap 里出现空的 /categories/）
+[taxonomies]
+tag = 'tags'
+
 # 站内搜索（PaperMod 内置 fastsearch）：首页额外产出 index.json 供前端检索
 [outputs]
 home = ['HTML', 'RSS', 'JSON']

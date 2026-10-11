@@ -42,9 +42,11 @@
   <meta name="twitter:description" content="走过的地方、路过的天气。" />
   <meta name="twitter:image" content="{{ $ogimg }}" />
   <link rel="preconnect" href="https://fonts.loli.net" />
-  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
-  <link rel="stylesheet" href="{{ "css/photos-page.css" | relURL }}" />
+  <link rel="preload" as="style" href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" />
+  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
+  {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
+  {{ partialCached "css.html" (dict "path" "css/photos-page.css") "photos-page.css" }}
 </head>
 <body class="page-photos">
 <nav class="nav scrolled" id="nav">

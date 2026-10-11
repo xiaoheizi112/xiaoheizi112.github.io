@@ -44,3 +44,7 @@
   .track-head { gap: 14px; }
   .track-idx { width: 46px; height: 46px; font-size: 18px; }
 }
+@media (prefers-reduced-motion: reduce) {
+  .step-body, .step:hover .step-body { transition: none; }
+  .step:hover .step-body { transform: none; }
+}

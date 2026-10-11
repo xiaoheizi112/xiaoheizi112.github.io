@@ -3,6 +3,7 @@ title = '龙门项目学习笔记'
 date = '2026-10-01'
 tags = ['机器视觉']
 draft = false
+description = "机器视觉项目里的 C++ 面向对象实践：struct 与 class 的区别、封装思路，以及项目里真实代码的拆解。"
 images = ["images/og/longmen-project-notes.png"]
 +++
 

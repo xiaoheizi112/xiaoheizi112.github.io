@@ -17,7 +17,7 @@
 
 ## 怎么做的
 
-纯静态站，无前端框架，风格令牌集中在 `static/css/home.css` 的 CSS 变量里。
+纯静态站，无前端框架，风格令牌集中在 `assets/css/home.css` 的 CSS 变量里（经 Hugo 管线压缩 + 指纹输出）。
 
 | 部分 | 实现 |
 |---|---|
@@ -31,9 +31,9 @@
 ```
 content/          文章、照片、关于页
 layouts/          首页 + 主题覆盖 + markdown 渲染钩子
-static/css/home.css  全站风格唯一来源（:root 变量）
+assets/css/home.css  全站风格唯一来源（:root 变量，走管线压缩指纹）
 data/home.yml     首页文案
-scripts/          照片入库管线
+scripts/          照片入库、OG 卡片等生成脚本
 ```
 
 ## 本地跑起来

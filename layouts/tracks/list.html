@@ -35,9 +35,11 @@
   <meta name="twitter:description" content="把散落的学习笔记按主题串成有顺序的路线。" />
   <meta name="twitter:image" content="{{ $ogimg }}" />
   <link rel="preconnect" href="https://fonts.loli.net" />
-  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
-  <link rel="stylesheet" href="{{ "css/tracks.css" | relURL }}" />
+  <link rel="preload" as="style" href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" />
+  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
+  {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
+  {{ partialCached "css.html" (dict "path" "css/tracks.css") "tracks.css" }}
 </head>
 <body class="page-tracks">
 <nav class="nav scrolled" id="nav">
@@ -85,7 +87,7 @@
         <div class="step-body">
           <a class="step-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
           {{- with $s.note }}<p class="step-note">{{ . }}</p>{{ end }}
-          <div class="step-meta"><time>{{ .Date.Format "2006-01-02" }}</time><span>{{ .ReadingTime }} 分钟</span>{{ with .Params.tags }}<span class="step-tags">{{ range . }}#{{ . }} {{ end }}</span>{{ end }}</div>
+          <div class="step-meta"><time>{{ .Date.Format site.Params.dateFormat }}</time><span>{{ .ReadingTime }} 分钟</span>{{ with .Params.tags }}<span class="step-tags">{{ range . }}#{{ . }} {{ end }}</span>{{ end }}</div>
         </div>
       </li>
       {{- end }}

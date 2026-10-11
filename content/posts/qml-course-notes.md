@@ -3,6 +3,7 @@ title = 'Qt/QML 网易云音乐桌面前端课程学习笔记'
 date = '2026-10-02'
 tags = ['Qt', 'QML']
 draft = false
+description = "跟着网易云音乐桌面端课程学 QML：从基本语法到完整做一个音乐播放器前端的全过程笔记。"
 images = ["images/og/qml-course-notes.png"]
 +++
 

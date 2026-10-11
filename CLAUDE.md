@@ -4,11 +4,12 @@
 
 整体参考 https://www.qiaomu.ai/ ——暖纸色调、极简、大留白的个人站风格。
 
-- 风格令牌以 [static/css/home.css](static/css/home.css) 的 `:root` CSS 变量为唯一来源：
+- 风格令牌以 [assets/css/home.css](assets/css/home.css) 的 `:root` CSS 变量为唯一来源：
   - 背景米白 `#f7f5f0`，文字深墨 `#262320`，点缀褐金 `#7a6849`
   - 字体：正文系统中文无衬线，标题 Space Grotesk，数字/标签 JetBrains Mono
 - 新页面/组件沿用这套变量，不要另起配色；细节特征：纸张噪点纹理、圆角卡片 + 细边框、hover 微浮起、进场淡入、`cubic-bezier(0.23,1,0.32,1)` 缓动
 - 首页（`layouts/index.html` + `home.css`）独立于 PaperMod 主题；文章页等仍走 PaperMod，改 PaperMod 侧样式时用 `assets/css/` 覆盖，不动主题 submodule
+- **项目侧 CSS/JS 都放在 `assets/`**（不走 `static/`），经 Hugo 管线 `minify | fingerprint` 输出（`partials/css.html`、`partials/js.html`）。文件名带指纹，凡是要用 JS 定位的样式表（如 `tape.css`）都在 partial 里传稳定 `id`，别用 `href` 子串匹配
 
 ## 主题覆盖文件（升级 PaperMod 时必看）
 
@@ -29,16 +30,26 @@
 ## 独立手写页（不走 PaperMod，复用 home.css 令牌）
 
 - `layouts/index.html` —— 首页单页
-- `layouts/photos/list.html` + `static/css/photos-page.css` —— 相册瀑布流
-- `layouts/tracks/list.html` + `static/css/tracks.css` —— 学习路线（读 `data/tracks.yml`）
-- 深色模式：这三页都在 `<head>` 最前内联 `dataset.theme` 初始化脚本，读同一个 `localStorage.pref-theme`（与 PaperMod 侧共用），无偏好则跟随系统。暗色变量定义在 `home.css` 的 `:root[data-theme="dark"]`。
-- 首页/相册页导航的 `.theme-btn` 切换逻辑在 `extend_footer.html`；PaperMod 文章页用主题自带 `#theme-toggle`。
+- `layouts/photos/list.html` + `assets/css/photos-page.css` —— 相册瀑布流
+- `layouts/tracks/list.html` + `assets/css/tracks.css` —— 学习路线（读 `data/tracks.yml`）
+- `layouts/404.html` —— 暖纸风 404 页（`buildFuture` 等无关）
+- 深色模式：这几页都在 `<head>` 最前内联 `dataset.theme` 初始化脚本，读同一个 `localStorage.pref-theme`（与 PaperMod 侧共用），无偏好则跟随系统。暗色变量定义在 `home.css` 的 `:root[data-theme="dark"]`。
+- 首页/相册/路线/404 导航的 `.theme-btn` 切换逻辑在 `extend_footer.html`；PaperMod 文章页用主题自带 `#theme-toggle`。
 
 ## 生成脚本（内容变更后按需重跑）
 
 - `scripts/gen_og_cards.py` —— 为每篇文章生成品牌 OG 分享图（`static/images/og/`）并写入 frontmatter `images` 参数。**新增文章后重跑**，否则该篇分享时回退到 `hugo.toml` 的全站兜底图 `site.Params.images`
 - `scripts/gen_photo_thumbs.py` / `scripts/gen_photo_dims.py` —— 照片入库后生成缩略图与宽高缓存（见 README「加照片」）
 - `scripts/fix_image_alts.py` —— 把正文里无意义的图片 alt（截图 / image.png / 图）批量换成「文章标题 + 序号」
+- `scripts/add_descriptions.py` —— 给文章补 frontmatter `description`（搜索摘要 / OG 描述用）
+
+## 新建文章
+
+```bash
+hugo new content/posts/文章名.md
+```
+
+`archetypes/default.md` 会自动填今天的日期（`{{ time.Now.Format "2006-01-02" }}`）——注意别用 `.Date.Format`，新版 Hugo 里 `.Date` 是字符串，没有 `.Format` 方法，会让 `hugo new` 报错。建完记得跑 `scripts/gen_og_cards.py` 生成该篇的分享图。
 
 ## 待启用
 

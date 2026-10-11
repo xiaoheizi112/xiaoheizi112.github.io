@@ -58,11 +58,14 @@
   {{- if site.Params.assets.favicon }}<link rel="icon" href="{{ site.Params.assets.favicon | relURL }}" />{{ end }}
   {{- /* 国内镜像 fonts.loli.net；被墙时备用地址 https://fonts.googleapis.com/css2?... 同路径 */ -}}
   <link rel="preconnect" href="https://fonts.loli.net" />
-  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" />
+  {{- /* 非阻塞加载字体：media=print 不挡首屏，onload 切回 all；无 JS 用 noscript 兜底 */ -}}
+  <link rel="preload" as="style" href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" />
+  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
   {{- /* 致敬语用的宋体子集：text= 只打包这句用到的十几个字，几十 KB */ -}}
   <link href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400&display=swap&text=%E6%8A%8A%E8%BF%99%E4%BA%9B%E6%AD%8C%E6%94%BE%E4%B8%8A%E6%9C%AC%E7%AB%99%EF%BC%8C%E6%98%AF%E6%88%91%E8%83%BD%E6%83%B3%E5%88%B0%E7%9A%84%E6%9C%80%E5%AE%89%E9%9D%99%E7%9A%84%E7%BA%AA%E5%BF%B5%E2%80%94%E2%80%94%E4%BD%A0%E6%9D%A5%E8%AF%BB%E5%AD%97%EF%BC%8C%E4%B9%9F%E9%A1%BA%E4%BE%BF%E5%90%AC%E5%90%AC%E4%BB%96%E3%80%82" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ "css/home.css" | relURL }}" />
-  <script src="{{ "lib/turbo/turbo.umd.js" | relURL }}" defer></script>
+  {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
+  {{ partialCached "js.html" (dict "path" "lib/turbo/turbo.umd.js" "defer" true) "turbo" }}
 </head>
 <body>
 <canvas id="dot-lens" aria-hidden="true"></canvas>
@@ -293,7 +296,7 @@
       <div class="posts-grid rv">
         {{- range $posts }}
         <a class="post-card" href="{{ .RelPermalink }}">
-          <div class="post-meta"><time>{{ .Date.Format "2006-01-02" }}</time><span>{{ .ReadingTime }} 分钟</span></div>
+          <div class="post-meta"><time>{{ .Date.Format site.Params.dateFormat }}</time><span>{{ .ReadingTime }} 分钟</span></div>
           <h3>{{ .Title }}</h3>
           {{- /* Summary 是整段渲染后的 HTML（含 h1/h2/嵌套 p/a），塞进 <p> 会破版；先 plainify 成纯文本再截断 */ -}}
           <p>{{ strings.Truncate 90 (.Summary | plainify | htmlUnescape) }}</p>
