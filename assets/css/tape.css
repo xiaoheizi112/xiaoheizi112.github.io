@@ -1,12 +1,12 @@
 /* 胶卷播放器样式：独立文件，首页和 PaperMod 文章页都经 extend_footer 引入。
    变量自带（--tp-*），不依赖 home.css / custom.css 的令牌，深浅色各一套。 */
 :root {
-  --tp-bg2: #efebe2; --tp-ink: #262320; --tp-ink2: #6e665b;
-  --tp-accent: #7a6849; --tp-accent-d: #5c4d33; --tp-border: #e3ded2; --tp-entry: #fffdf8;
+  --tp-bg2: #ecf5f9; --tp-ink: #2b3a42; --tp-ink2: #5b6c75;
+  --tp-accent: #3e9bd4; --tp-accent-d: #2c80b8; --tp-border: #dbe8ee; --tp-entry: #ffffff;
 }
 :root[data-theme="dark"] {
-  --tp-bg2: #2a2620; --tp-ink: #e8e3d8; --tp-ink2: #a39a8c;
-  --tp-accent: #cdb98f; --tp-accent-d: #cdb98f; --tp-border: #3a352e; --tp-entry: #262320;
+  --tp-bg2: #1e2f38; --tp-ink: #e6f0f4; --tp-ink2: #9db2bc;
+  --tp-accent: #5bb4e3; --tp-accent-d: #82c9ee; --tp-border: #22333c; --tp-entry: #16232b;
 }
 #tape { position: fixed; right: 18px; bottom: 18px; z-index: 150; }
 .tape-reel-btn {

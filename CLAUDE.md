@@ -2,12 +2,12 @@
 
 ## 网站风格
 
-整体参考 https://www.qiaomu.ai/ ——暖纸色调、极简、大留白的个人站风格。
+整体定调「晴空 + 暖阳」的生活感：休闲、清新、阳光、大留白的个人站风格。
 
 - 风格令牌以 [assets/css/home.css](assets/css/home.css) 的 `:root` CSS 变量为唯一来源：
-  - 背景米白 `#f7f5f0`，文字深墨 `#262320`，点缀褐金 `#7a6849`
+  - 背景晴空白 `#f7fbfc`，文字墨青灰 `#2b3a42`，主色晴空蓝 `#3e9bd4`，点缀暖阳黄 `#f5b740`，插画植被草绿 `#5cb073`
   - 字体：正文系统中文无衬线，标题 Space Grotesk，数字/标签 JetBrains Mono
-- 新页面/组件沿用这套变量，不要另起配色；细节特征：纸张噪点纹理、圆角卡片 + 细边框、hover 微浮起、进场淡入、`cubic-bezier(0.23,1,0.32,1)` 缓动
+- 新页面/组件沿用这套变量，不要另起配色；细节特征：清水点底纹、晴空/暖阳柔光、圆角卡片 + 细边框、hover 微浮起、进场淡入、`cubic-bezier(0.23,1,0.32,1)` 缓动
 - 首页（`layouts/index.html` + `home.css`）独立于 PaperMod 主题；文章页等仍走 PaperMod，改 PaperMod 侧样式时用 `assets/css/` 覆盖，不动主题 submodule
 - **项目侧 CSS/JS 都放在 `assets/`**（不走 `static/`），经 Hugo 管线 `minify | fingerprint` 输出（`partials/css.html`、`partials/js.html`）。文件名带指纹，凡是要用 JS 定位的样式表（如 `tape.css`）都在 partial 里传稳定 `id`，别用 `href` 子串匹配
 
@@ -18,7 +18,7 @@
 | 项目侧文件 | 改了什么 |
 |---|---|
 | `layouts/list.html` | 底部翻页换成编号页码条（保留箭头 + aria-label） |
-| `layouts/archives.html` | 覆盖主题归档页：按年月分组、月份中文、暖纸风格自绘 |
+| `layouts/archives.html` | 覆盖主题归档页：按年月分组、月份中文、晴空风格自绘 |
 | `layouts/_partials/header.html` | logo 区改成与首页同款 brand（慢字方块 + 慢公子/GONGZI） |
 | `layouts/_partials/footer.html` | Turbo 兼容三修（脚本包 IIFE、跳过 #post-toc 锚点、code-copy 防重复） |
 | `layouts/_partials/toc.html` | 侧栏 sticky 目录（≥1100px）+ 移动端可折叠目录，两套共用滚动高亮 |
@@ -32,7 +32,7 @@
 - `layouts/index.html` —— 首页单页
 - `layouts/photos/list.html` + `assets/css/photos-page.css` —— 相册瀑布流
 - `layouts/tracks/list.html` + `assets/css/tracks.css` —— 学习路线（读 `data/tracks.yml`）
-- `layouts/404.html` —— 暖纸风 404 页（`buildFuture` 等无关）
+- `layouts/404.html` —— 晴空风 404 页（`buildFuture` 等无关）
 - 深色模式：这几页都在 `<head>` 最前内联 `dataset.theme` 初始化脚本，读同一个 `localStorage.pref-theme`（与 PaperMod 侧共用），无偏好则跟随系统。暗色变量定义在 `home.css` 的 `:root[data-theme="dark"]`。
 - 首页/相册/路线/404 导航的 `.theme-btn` 切换逻辑在 `extend_footer.html`；PaperMod 文章页用主题自带 `#theme-toggle`。
 

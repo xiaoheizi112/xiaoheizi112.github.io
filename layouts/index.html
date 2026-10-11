@@ -14,7 +14,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#F7F5F0" />
+  <meta name="theme-color" content="#F7FBFC" />
   <meta name="color-scheme" content="light dark" />
   {{- /* 主题初始化：与文章页共用同一个 pref-theme（localStorage），无偏好时跟随系统。
        放在最前、body 之前，避免暗色用户首帧闪白 */ -}}
@@ -139,7 +139,7 @@
       <svg class="polaroid-art" viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg">
         <rect width="320" height="400" rx="3" fill="var(--bg-2)" />
         {{- /* 简笔风景：太阳、云、飞鸟、双层山丘 + 一棵小树 */ -}}
-        <g stroke="var(--accent)" stroke-width="5" stroke-linecap="round">
+        <g stroke="var(--sun)" stroke-width="5" stroke-linecap="round">
           <line x1="110" y1="120" x2="122" y2="120" />
           <line x1="98" y1="98" x2="106.8" y2="89.8" />
           <line x1="70" y1="88" x2="70" y2="76" />
@@ -149,8 +149,8 @@
           <line x1="98" y1="142" x2="106.8" y2="150.2" />
           <line x1="70" y1="152" x2="70" y2="164" />
         </g>
-        <circle cx="70" cy="120" r="42" fill="var(--accent)" opacity=".08" />
-        <circle cx="70" cy="120" r="30" fill="var(--accent)" />
+        <circle cx="70" cy="120" r="42" fill="var(--sun)" opacity=".12" />
+        <circle cx="70" cy="120" r="30" fill="var(--sun)" />
         <g fill="var(--bg)">
           <circle cx="146" cy="74" r="13" /><circle cx="166" cy="64" r="17" /><circle cx="186" cy="76" r="11" />
           <rect x="140" y="68" width="54" height="18" rx="9" />
@@ -159,14 +159,14 @@
         <path d="M126 112 q7-9 14 0 q7-9 14 0" fill="none" stroke="var(--ink-2)" stroke-width="2.2" stroke-linecap="round" />
         <path d="M158 132 q5.5-7 11 0 q5.5-7 11 0" fill="none" stroke="var(--ink-2)" stroke-width="1.8" stroke-linecap="round" opacity=".75" />
         <path d="M-6 252 Q 80 176 190 220 Q 270 248 334 210 L 334 252 L -6 252 Z" fill="var(--bg-3)" />
-        <path d="M-6 252 Q 110 206 220 244 Q 290 262 334 246 L 334 252 L -6 252 Z" fill="var(--accent)" opacity=".16" />
+        <path d="M-6 252 Q 110 206 220 244 Q 290 262 334 246 L 334 252 L -6 252 Z" fill="var(--sun)" opacity=".18" />
         <rect x="157" y="216" width="6" height="22" fill="var(--ink-3)" />
-        <circle cx="160" cy="205" r="15" fill="var(--accent-deep)" />
+        <circle cx="160" cy="205" r="15" fill="var(--grass-deep)" />
         <line x1="16" y1="252" x2="304" y2="252" stroke="var(--border)" />
         {{- /* 右上角邮票（虚线圆点啃边做齿孔）+ 波浪邮销线 */ -}}
-        <rect x="232" y="34" width="54" height="64" fill="var(--bg)" stroke="var(--accent)" stroke-width="1.5" />
+        <rect x="232" y="34" width="54" height="64" fill="var(--bg)" stroke="var(--sun)" stroke-width="1.5" />
         <rect x="232" y="34" width="54" height="64" fill="none" stroke="var(--bg-2)" stroke-width="8" stroke-dasharray="0.1 8.5" stroke-linecap="round" />
-        <circle cx="259" cy="56" r="9" fill="var(--accent)" opacity=".8" />
+        <circle cx="259" cy="56" r="9" fill="var(--sun)" opacity=".85" />
         <path d="M238 78 q10-12 22-4 q8 5 18 0" fill="none" stroke="var(--ink-2)" stroke-width="2" />
         <text x="259" y="93" text-anchor="middle" font-size="7.5" letter-spacing="2" fill="var(--ink-3)" font-family="var(--font-mono)">POST</text>
         {{- /* 邮销线最后画：压在邮票左缘上，像真盖销 */ -}}
@@ -204,18 +204,18 @@
                 <stop offset="0" stop-color="var(--bg-3)" /><stop offset="1" stop-color="var(--bg-2)" />
               </linearGradient>
               <linearGradient id="ab-hill2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="var(--accent)" stop-opacity=".22" /><stop offset="1" stop-color="var(--accent)" stop-opacity=".10" />
+                <stop offset="0" stop-color="var(--grass)" stop-opacity=".26" /><stop offset="1" stop-color="var(--grass)" stop-opacity=".12" />
               </linearGradient>
               <radialGradient id="ab-sunglow">
-                <stop offset=".5" stop-color="var(--accent)" stop-opacity=".26" /><stop offset="1" stop-color="var(--accent)" stop-opacity="0" />
+                <stop offset=".5" stop-color="var(--sun)" stop-opacity=".3" /><stop offset="1" stop-color="var(--sun)" stop-opacity="0" />
               </radialGradient>
             </defs>
             <rect width="320" height="400" rx="18" fill="url(#ab-sky)" />
             {{- /* 太阳 + 光晕环 */ -}}
             {{- /* 太阳：柔光晕（径向渐变，不再是硬圈"表盘感"）+ 实心盘 + 八道均匀光芒 */ -}}
             <circle cx="242" cy="84" r="54" fill="url(#ab-sunglow)" />
-            <circle cx="242" cy="84" r="26" fill="var(--accent)" />
-            <g stroke="var(--accent)" stroke-width="3" stroke-linecap="round" opacity=".55">
+            <circle cx="242" cy="84" r="26" fill="var(--sun)" />
+            <g stroke="var(--sun-deep)" stroke-width="3" stroke-linecap="round" opacity=".6">
               <line x1="242" y1="52" x2="242" y2="44" /><line x1="265" y1="61" x2="270" y2="56" />
               <line x1="274" y1="84" x2="282" y2="84" /><line x1="265" y1="107" x2="270" y2="112" />
               <line x1="242" y1="116" x2="242" y2="124" /><line x1="219" y1="107" x2="214" y2="112" />
@@ -238,13 +238,13 @@
             {{- /* 三层山丘，由远及近 */ -}}
             <path d="M-6 250 Q 60 190 140 222 Q 220 252 334 206 L 334 400 L -6 400 Z" fill="url(#ab-hill1)" />
             <path d="M-6 296 Q 90 240 190 278 Q 262 302 334 282 L 334 400 L -6 400 Z" fill="url(#ab-hill2)" />
-            <path d="M-6 352 Q 120 316 230 344 Q 292 358 334 346 L 334 400 L -6 400 Z" fill="var(--accent)" opacity=".14" />
+            <path d="M-6 352 Q 120 316 230 344 Q 292 358 334 346 L 334 400 L -6 400 Z" fill="var(--grass)" opacity=".18" />
             {{- /* 小屋：墙/顶/门/十字窗/烟囱炊烟 */ -}}
             <rect x="116" y="228" width="9" height="20" fill="var(--ink-3)" />
             <path d="M122 222 q8-9 0-18 q-8-9 0-18" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" opacity=".45" />
             <rect x="62" y="248" width="70" height="50" rx="2" fill="var(--bg)" stroke="var(--ink-3)" stroke-width="2.5" />
-            <path d="M54 250 L97 214 L140 250 Z" fill="var(--accent)" />
-            <rect x="86" y="272" width="21" height="26" rx="1.5" fill="var(--accent-deep)" opacity=".6" />
+            <path d="M54 250 L97 214 L140 250 Z" fill="var(--sun-deep)" />
+            <rect x="86" y="272" width="21" height="26" rx="1.5" fill="var(--grass-deep)" opacity=".6" />
             <circle cx="103" cy="286" r="1.6" fill="var(--bg)" />
             <rect x="68" y="260" width="13" height="13" rx="1.5" fill="var(--bg-2)" stroke="var(--ink-3)" stroke-width="2" />
             <line x1="74.5" y1="260" x2="74.5" y2="273" stroke="var(--ink-3)" stroke-width="1.5" />
@@ -258,18 +258,18 @@
             <ellipse cx="222" cy="304" rx="26" ry="5" fill="var(--ink-3)" opacity=".14" />
             <rect x="218" y="262" width="7" height="42" rx="2" fill="var(--ink-3)" />
             {{- /* 树冠：实心同色、两两相交足够深，无缝隙无叠色暗印 */ -}}
-            <g fill="var(--accent-deep)">
+            <g fill="var(--grass-deep)">
               <circle cx="210" cy="252" r="16" /><circle cx="234" cy="256" r="14" /><circle cx="222" cy="237" r="17" />
             </g>
             {{- /* 灌木两丛 */ -}}
-            <g fill="var(--accent)" opacity=".4">
+            <g fill="var(--grass)" opacity=".45">
               <circle cx="38" cy="344" r="9" /><circle cx="50" cy="348" r="7" />
               <circle cx="286" cy="356" r="8" /><circle cx="297" cy="360" r="6" />
             </g>
             {{- /* 蜿蜒回家的小路（虚线脚印感） */ -}}
             <path d="M120 400 Q 118 352 110 324 Q 104 306 97 300" fill="none" stroke="var(--ink-3)" stroke-width="3.5" stroke-dasharray="1 10" stroke-linecap="round" opacity=".5" />
             {{- /* 前景草丛 */ -}}
-            <g stroke="var(--accent-deep)" stroke-width="2" stroke-linecap="round" opacity=".45" fill="none">
+            <g stroke="var(--grass-deep)" stroke-width="2" stroke-linecap="round" opacity=".5" fill="none">
               <path d="M22 384 v-10 M28 384 v-14 M34 384 v-9" />
               <path d="M252 392 v-10 M258 392 v-13 M264 392 v-8" />
             </g>
