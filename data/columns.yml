@@ -1,0 +1,42 @@
+# 首页笔记板块的「专栏」配置：每个专栏按 tag 收纳同类型的笔记。
+# 改这里就够了，不动模板和 CSS。加一个专栏就复制一块；tag 用 content/posts 里的标签名。
+
+- title: "Qt / QML 桌面开发"
+  icon: "🖥️"
+  tag: "Qt"
+  desc: "跟着几套网课，从 C++ 基础到 QML 前端，把桌面客户端啃下来。"
+
+- title: "机器视觉"
+  icon: "🔍"
+  tag: "机器视觉"
+  desc: "面向制造业的视觉检测，从行业手册到真实项目。"
+
+- title: "易语言 / 游戏脚本"
+  icon: "🎮"
+  tag: "易语言"
+  desc: "国产可视化编程到图色脚本，一条能跑通的路。"
+
+- title: "PLC / 工控"
+  icon: "⚙️"
+  tag: "PLC"
+  desc: "从毕业设计出发的工业控制实践。"
+
+- title: "Python"
+  icon: "🐍"
+  tag: "Python"
+  desc: "边用边学的基础常识与自动化小工具。"
+
+- title: "AI 工具"
+  icon: "🤖"
+  tag: "AI工具"
+  desc: "把 AI 组合进日常工作流。"
+
+- title: "职场"
+  icon: "💼"
+  tag: "职场"
+  desc: "找工作、面试、入行方向的思考。"
+
+- title: "生活"
+  icon: "🌿"
+  tag: "生活"
+  desc: "租房、减肥这类过日子的记录。"

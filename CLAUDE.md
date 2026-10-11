@@ -29,7 +29,7 @@
 
 ## 独立手写页（不走 PaperMod，复用 home.css 令牌）
 
-- `layouts/index.html` —— 首页单页
+- `layouts/index.html` —— 首页单页（笔记区「学习专栏」是手风琴列表，读 `data/columns.yml`：每个专栏按 tag 收同类笔记，点开看明细）
 - `layouts/photos/list.html` + `assets/css/photos-page.css` —— 相册瀑布流
 - `layouts/tracks/list.html` + `assets/css/tracks.css` —— 学习路线（读 `data/tracks.yml`）
 - `layouts/404.html` —— 晴空风 404 页（`buildFuture` 等无关）

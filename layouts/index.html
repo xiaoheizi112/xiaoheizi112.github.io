@@ -5,7 +5,6 @@
 {{- $photos := default (first 6 $allPhotos) (where $allPhotos "featured" true) -}}
 {{- /* src → 全量列表下标，相册条点击后跳 /photos/#pN 定位到那张图 */ -}}
 {{- $pidx := dict -}}{{- range $i, $p := $allPhotos }}{{- $pidx = merge $pidx (dict $p.src $i) -}}{{- end -}}
-{{- $posts := first 6 site.RegularPages -}}
 {{- $words := 0 -}}
 {{- range site.RegularPages -}}{{- $words = add $words .WordCount -}}{{- end -}}
 {{- $days := int (div (now.Sub (time $h.stats.since)).Hours 24) -}}
@@ -291,20 +290,36 @@
   <section class="sec" id="posts">
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>NOTES · 学习笔记</div>
-        <h2>学习笔记</h2>
-        <p class="sec-desc">上课听过、夜里啃过的，都整理成笔记放在这里。</p>
+        <div class="sec-eyebrow"><span class="dot"></span>COLUMNS · 学习笔记</div>
+        <h2>学习专栏</h2>
+        <p class="sec-desc">按主题分的专栏，每一栏都收着同一路数的笔记，点进去顺着读。</p>
       </div>
-      <div class="posts-grid rv">
-        {{- range $posts }}
-        <a class="post-card" href="{{ .RelPermalink }}">
-          <div class="post-meta"><time>{{ .Date.Format site.Params.dateFormat }}</time><span>{{ .ReadingTime }} 分钟</span></div>
-          <h3>{{ .Title }}</h3>
-          {{- /* Summary 是整段渲染后的 HTML（含 h1/h2/嵌套 p/a），塞进 <p> 会破版；先 plainify 成纯文本再截断 */ -}}
-          <p>{{ strings.Truncate 90 (.Summary | plainify | htmlUnescape) }}</p>
-          {{- with .Params.tags }}<div class="post-tags">{{ range . }}<span>#{{ . }}</span>{{ end }}</div>{{ end }}
-          <span class="post-more">阅读全文 →</span>
-        </a>
+      <div class="col-acc rv">
+        {{- $all := site.RegularPages }}
+        {{- $shown := 0 }}
+        {{- range $c := hugo.Data.columns }}
+        {{- $notes := where $all "Params.tags" "intersect" (slice $c.tag) }}
+        {{- if $notes }}
+        <details class="col-row"{{ if eq $shown 0 }} open{{ end }}>
+          <summary class="col-row-head">
+            <span class="col-row-icon" aria-hidden="true">{{ $c.icon }}</span>
+            <span class="col-row-text">
+              <span class="col-row-title">{{ $c.title }}<span class="col-row-count">{{ len $notes }} 篇</span></span>
+              <span class="col-row-desc">{{ $c.desc }}</span>
+            </span>
+            <span class="col-row-chev" aria-hidden="true"></span>
+          </summary>
+          <div class="col-row-body">
+            <ul class="col-row-notes">
+              {{- range $notes.ByDate.Reverse }}
+              <li><a href="{{ .RelPermalink }}"><span class="col-note-title">{{ .Title }}</span><time class="col-note-date">{{ .Date.Format "2006-01-02" }}</time></a></li>
+              {{- end }}
+            </ul>
+            <a class="col-tag-link" href="{{ "/tags/" | relURL }}{{ $c.tag | urlize }}/">查看「{{ $c.tag }}」标签下的全部 →</a>
+          </div>
+        </details>
+        {{- $shown = add $shown 1 }}
+        {{- end }}
         {{- end }}
       </div>
       <div class="posts-more rv"><a href="{{ "/posts/" | relURL }}" class="btn-ghost">全部文章 →</a></div>
@@ -447,7 +462,12 @@
             <span class="contact-value">{{ .value }}</span>
             {{- end }}
           </span>
-          <button class="copy-btn" type="button" data-copy="{{ .value }}" aria-label="复制{{ .label }}">复制</button>
+          <span class="contact-actions">
+            {{- if .url }}
+            <a class="contact-go" href="{{ .url }}" target="_blank" rel="noopener noreferrer" aria-label="打开{{ .label }}">打开 <span class="arr">↗</span></a>
+            {{- end }}
+            <button class="copy-btn" type="button" data-copy="{{ .value }}" aria-label="复制{{ .label }}">复制</button>
+          </span>
         </div>
         {{- end }}
       </div>
