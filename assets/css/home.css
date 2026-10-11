@@ -69,7 +69,8 @@ body[data-theme="morning"] .amb[data-for="morning"],
 body[data-theme="ink"] .amb[data-for="ink"],
 body[data-theme="sound"] .amb[data-for="sound"],
 body[data-theme="sea"] .amb[data-for="sea"],
-body[data-theme="hello"] .amb[data-for="hello"] { opacity: 1; }
+body[data-theme="hello"] .amb[data-for="hello"],
+body[data-theme="play"] .amb[data-for="play"] { opacity: 1; }
 /* 每层两团光：主色定基调，副色拉开层次。色相都压在暖纸±20°内，明显但不脏 */
 .amb[data-for="morning"]::before { background: radial-gradient(70vw 60vh at 85% 5%, rgba(205,160,90,.30), transparent 70%); }
 .amb[data-for="morning"]::after { background: radial-gradient(55vw 45vh at 10% 90%, rgba(122,104,73,.14), transparent 70%); }
@@ -81,6 +82,9 @@ body[data-theme="hello"] .amb[data-for="hello"] { opacity: 1; }
 .amb[data-for="sea"]::after { background: radial-gradient(80vw 55vh at 20% 95%, rgba(100,110,110,.16), transparent 70%); }
 .amb[data-for="hello"]::before { background: radial-gradient(65vw 55vh at 12% 85%, rgba(122,104,73,.26), transparent 70%); }
 .amb[data-for="hello"]::after { background: radial-gradient(55vw 45vh at 90% 15%, rgba(205,185,143,.30), transparent 70%); }
+/* 兴趣层：暖橙 + 米金，比其它层稍亮一点，呼应活动的活气 */
+.amb[data-for="play"]::before { background: radial-gradient(70vw 55vh at 80% 20%, rgba(205,150,80,.26), transparent 70%); }
+.amb[data-for="play"]::after { background: radial-gradient(60vw 50vh at 15% 85%, rgba(210,180,120,.26), transparent 70%); }
 /* 暗色下：氛围光晕整体压暗，改褐金微光，避免浅色光团糊在深底上 */
 :root[data-theme="dark"] .amb[data-for="morning"]::before { background: radial-gradient(70vw 60vh at 85% 5%, rgba(205,160,90,.13), transparent 70%); }
 :root[data-theme="dark"] .amb[data-for="morning"]::after { background: radial-gradient(55vw 45vh at 10% 90%, rgba(205,185,143,.08), transparent 70%); }
@@ -92,6 +96,8 @@ body[data-theme="hello"] .amb[data-for="hello"] { opacity: 1; }
 :root[data-theme="dark"] .amb[data-for="sea"]::after { background: radial-gradient(80vw 55vh at 20% 95%, rgba(140,150,150,.08), transparent 70%); }
 :root[data-theme="dark"] .amb[data-for="hello"]::before { background: radial-gradient(65vw 55vh at 12% 85%, rgba(205,185,143,.11), transparent 70%); }
 :root[data-theme="dark"] .amb[data-for="hello"]::after { background: radial-gradient(55vw 45vh at 90% 15%, rgba(205,185,143,.09), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="play"]::before { background: radial-gradient(70vw 55vh at 80% 20%, rgba(205,150,80,.12), transparent 70%); }
+:root[data-theme="dark"] .amb[data-for="play"]::after { background: radial-gradient(60vw 50vh at 15% 85%, rgba(205,185,143,.09), transparent 70%); }
 .fl { position: absolute; font-style: normal; line-height: 1; color: var(--accent); opacity: .3; pointer-events: auto; transform: translateY(calc(var(--sy, 0) * var(--px) * -1px)); transition: scale 260ms var(--ease), opacity 260ms var(--ease); animation: bob 5.5s ease-in-out infinite alternate; }
 .fl:hover { scale: 1.35; opacity: .55; }
 @keyframes bob { to { translate: 0 -16px; } }
@@ -110,6 +116,9 @@ body[data-theme="hello"] .amb[data-for="hello"] { opacity: 1; }
 .s9 { top: 20%; right: 8%; font-size: 130px; }
 .s10 { top: 66%; left: 6%; font-size: 88px; animation-delay: -1.8s; }
 .s10b { top: 42%; left: 16%; font-size: 58px; animation-delay: -3.8s; }
+.s11 { top: 14%; left: 8%; font-size: 150px; }
+.s12 { top: 64%; right: 7%; font-size: 96px; animation-delay: -2.6s; }
+.s12b { top: 38%; left: 12%; font-size: 64px; animation-delay: -4.2s; }
 @media (prefers-reduced-motion: reduce) { .fl { animation: none; } }
 ::selection { background: var(--accent); color: var(--bg); }
 ::-webkit-scrollbar { width: 10px; }
@@ -249,6 +258,7 @@ h2 { font: 600 clamp(1.7rem, 3.6vw, 2.6rem)/1.35 var(--font-display); margin-top
 /* 板块底色：同族暖色小步递进（76% → 45% → 褐金6% → 76%），相邻段色差都很小，不做渐变 */
 #music { background: color-mix(in srgb, var(--bg-2) 76%, transparent); }
 #photos { background: color-mix(in srgb, var(--bg-2) 45%, transparent); }
+#interests { background: color-mix(in srgb, var(--accent) 5%, transparent); }
 #products { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 #contact { background: color-mix(in srgb, var(--bg-2) 76%, transparent); }
 .music-layout { display: grid; grid-template-columns: 280px 1fr; gap: 18px; align-items: stretch; }
@@ -296,6 +306,22 @@ a.contact-value:hover { color: var(--accent); }
 .prod-badge.self { color: var(--accent-deep); border-color: var(--accent); background: rgba(122, 104, 73, .08); }
 .prod-name { font: 600 17px var(--font-display); margin: 12px 0 6px; }
 .prod-desc { font-size: 13.5px; line-height: 1.8; color: var(--ink-2); margin: 0; }
+
+/* ============ 兴趣板块（data/interests.yml） ============ */
+.hobby-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 8px; }
+.hobby-card {
+  position: relative; padding: 26px 24px 24px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 16px;
+  transition: transform 240ms var(--ease), border-color 240ms var(--ease), box-shadow 240ms var(--ease);
+}
+.hobby-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 14px 28px -10px rgba(38, 35, 32, 0.22); }
+/* 左上一小块暖色衬底，让 emoji 更醒目 */
+.hobby-icon { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 14px; background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: 30px; line-height: 1; margin-bottom: 16px; }
+.hobby-name { font: 600 18px var(--font-display); }
+.hobby-desc { font-size: 13.5px; line-height: 1.8; color: var(--ink-2); margin: 8px 0 0; }
+:root[data-theme="dark"] .hobby-icon { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+@media (max-width: 860px) { .hobby-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .hobby-grid { grid-template-columns: 1fr; } }
 
 /* 返回顶部：全站统一规格（right 26 / bottom 88，与 56px 胶卷按钮圆心对齐叠放），PaperMod 侧 .top-link 在 custom.css 对齐同款 */
 .to-top { position: fixed; right: 26px; bottom: 88px; z-index: 30; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-2); color: var(--ink-2); display: grid; place-items: center; cursor: pointer; opacity: 0; transform: translateY(10px); pointer-events: none; transition: all 260ms var(--ease); box-shadow: var(--shadow); }

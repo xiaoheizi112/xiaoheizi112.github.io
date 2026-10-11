@@ -76,6 +76,7 @@
   <div class="amb" data-for="sound"><i class="fl s5" style="--px:.07">♪</i><i class="fl s6" style="--px:.11">♫</i><i class="fl s6b" style="--px:.15">♩</i></div>
   <div class="amb" data-for="sea"><i class="fl s7" style="--px:.05">〜</i><i class="fl s8" style="--px:.09">☁</i><i class="fl s8b" style="--px:.13">☀</i></div>
   <div class="amb" data-for="hello"><i class="fl s9" style="--px:.06">✉</i><i class="fl s10" style="--px:.1">✈</i><i class="fl s10b" style="--px:.14">☏</i></div>
+  <div class="amb" data-for="play"><i class="fl s11" style="--px:.07">✦</i><i class="fl s12" style="--px:.11">◦</i><i class="fl s12b" style="--px:.15">✦</i></div>
 </div>
 <a class="skip-link" href="#main">跳到主要内容</a>
 
@@ -92,6 +93,7 @@
       {{- if $songs }}<a href="#music">音乐</a>{{ end }}
       <a href="/photos/">相册</a>
       {{- with hugo.Data.products }}<a href="#products">产品</a>{{ end }}
+      <a href="#interests">兴趣</a>
       <a href="/now/">现在</a>
       <a href="#contact">联系</a>
     </div>
@@ -371,6 +373,27 @@
         {{- end }}
       </div>
       <div class="posts-more"><a href="/photos/" class="btn-ghost">全部照片 →</a></div>
+    </div>
+  </section>
+  {{- end }}
+
+  {{- with hugo.Data.interests }}
+  <section class="sec" id="interests">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div class="sec-eyebrow"><span class="dot"></span>INTERESTS · 兴趣</div>
+        <h2>兴趣</h2>
+        <p class="sec-desc">打球、睡觉、听歌、散步、做饭，还有一个正在改变我干活的 AI。</p>
+      </div>
+      <div class="hobby-grid rv">
+        {{- range . }}
+        <div class="hobby-card">
+          <span class="hobby-icon" aria-hidden="true">{{ .icon }}</span>
+          <div class="hobby-name">{{ .name }}</div>
+          <p class="hobby-desc">{{ .desc }}</p>
+        </div>
+        {{- end }}
+      </div>
     </div>
   </section>
   {{- end }}

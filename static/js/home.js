@@ -8,11 +8,11 @@
   }
 
   // 滚动主题长背景：哪个板块占据视口中线，body 就切到对应氛围层
-  const themeOf = { home: "morning", about: "morning", posts: "ink", music: "sound", photos: "sea", contact: "hello" };
+  const themeOf = { home: "morning", about: "morning", posts: "ink", music: "sound", photos: "sea", interests: "play", contact: "hello" };
   const ao = new IntersectionObserver((es) => {
     for (const e of es) if (e.isIntersecting) document.body.dataset.theme = themeOf[e.target.id];
   }, { rootMargin: "-45% 0px -45% 0px" });
-  document.querySelectorAll("#home,#about,#posts,#music,#photos,#contact").forEach((s) => ao.observe(s));
+  document.querySelectorAll("#home,#about,#posts,#music,#photos,#interests,#contact").forEach((s) => ao.observe(s));
 
   // 视差量：--sy 每帧写一次，图标按各自 --px 系数反向漂移，制造长图跟手感
   let syRaf = 0;
