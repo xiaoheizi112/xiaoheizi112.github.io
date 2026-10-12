@@ -51,7 +51,6 @@
     { icon: "⌗", title: "标签", sub: "Tags", href: "/tags/" },
     { icon: "▤", title: "相册", sub: "Photos", href: "/photos/" },
     { icon: "✦", title: "路线", sub: "Learning tracks", href: "/tracks/" },
-    { icon: "◐", title: "现在", sub: "Now", href: "/now/" },
     { icon: "✉", title: "关于", sub: "About", href: "/about/" },
   ].map((p) => ({ ...p, kind: "page", href: base + p.href }));
 

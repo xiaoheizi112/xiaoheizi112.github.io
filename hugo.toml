@@ -96,11 +96,6 @@ identifier = 'about'
 name = '关于'
 url = '/about/'
 weight = 30
-[[menu.main]]
-identifier = 'now'
-name = '现在'
-url = '/now/'
-weight = 35
 
 [markup]
 [markup.highlight]
