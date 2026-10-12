@@ -15,6 +15,12 @@
   --border: rgba(43, 58, 66, 0.12);
   --border-soft: rgba(43, 58, 66, 0.07);
   --glass: rgba(247, 251, 252, 0.8);
+  /* 极光雾三色：晴空蓝主光 / 青过渡 / 暖阳点睛（点睛占比极低，只在层次上留一口气） */
+  --mist-1: 62, 155, 212;
+  --mist-2: 75, 179, 200;
+  --mist-3: 245, 183, 64;
+  --bg-sky: #e9f4fa;      /* 竖向底色的天顶 */
+  --bg-warm: #fbf6ee;     /* 竖向底色的地平线（微暖） */
   --ease: cubic-bezier(0.23, 1, 0.32, 1);
   --cat-ink: #2b3a42;     /* 猫的五官专用固定深色：不随深浅主题翻转，避免暗色下变成白眼珠 */
   --shadow: 0 1px 2px rgba(43, 58, 66, 0.04), 0 10px 30px -10px rgba(43, 58, 66, 0.13);
@@ -40,6 +46,12 @@
   --border: rgba(230, 240, 244, 0.12);
   --border-soft: rgba(230, 240, 244, 0.07);
   --glass: rgba(16, 26, 32, 0.8);
+  /* 夜里的极光雾：晴空蓝提亮一档、青更冷、暖阳压到几乎看不见 */
+  --mist-1: 91, 180, 227;
+  --mist-2: 79, 176, 196;
+  --mist-3: 245, 194, 90;
+  --bg-sky: #0c1519;      /* 夜幕天顶 */
+  --bg-warm: #14181b;     /* 夜幕地平线（极轻的暖灰，不做黄） */
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,86 +61,76 @@ body {
   font: 16px/1.75 var(--font-cn);
   min-width: 320px; overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  /* 清水点底：极浅的青蓝细点，像晴天的水汽 */
-  background-image: radial-gradient(circle, rgba(62, 155, 212, 0.09) 1.1px, transparent 1.1px);
-  background-size: 26px 26px;
+  /* 竖向 mesh：天顶晴空蓝 → 中段近白 → 地平线微暖。原来那层手账点阵已撤掉，
+     底色改由这一条极淡的三段渐变承担，安静、有天气感，不喧宾夺主 */
+  background-image: linear-gradient(180deg, var(--bg-sky) 0%, var(--bg) 46%, var(--bg-warm) 100%);
+  background-attachment: fixed;
 }
-/* 左上晴空 + 右下暖阳两团柔光，制造晴朗通透感（去掉原先居中飘着的那团孤立黄光） */
+/* 胶片颗粒：雾面质感的来源。比原先略重一档，仍极克制——只让大片渐变不"塑料" */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  opacity: 0.03; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* 静态柔光 + 暗角：两团极淡的晴空蓝/暖阳定基调，四边缘再极轻收拢视线制造纵深。
+   流动的雾在 .ambient、指针聚光在 .spotlight，这里只做底色的方向感 */
 body::after {
   content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background:
-    radial-gradient(460px 460px at 8% 8%, rgba(62, 155, 212, 0.09), transparent 72%),
-    radial-gradient(420px 420px at 94% 94%, rgba(245, 183, 64, 0.10), transparent 72%);
+    radial-gradient(120vw 80vh at 78% -10%, rgba(var(--mist-1), 0.10), transparent 62%),
+    radial-gradient(90vw 60vh at 8% 108%, rgba(var(--mist-3), 0.06), transparent 60%),
+    radial-gradient(130% 120% at 50% 45%, transparent 55%, rgba(var(--mist-1), 0.07) 100%);
 }
-/* 极轻的颗粒：几乎不可见，只让纯色底不"死板"，去掉了纸张的做旧感 */
-body::before {
-  content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none;
-  opacity: 0.012; mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-/* 光标透镜画布：与噪点/茶渍同层（z-index 1，DOM 排在 ::before 后、::after 前），绝不挡交互 */
-#dot-lens { position: fixed; inset: 0; z-index: -1; pointer-events: none; width: 100%; height: 100%; }
 
-/* ---------- 滚动主题长背景 ---------- */
+/* ---------- 滚动极光雾（原「滚动主题长背景」）----------
+   每个板块一层雾，层内三团软渐变的"气团"各自缓慢漂移，重叠成一锅流动的极光。
+   关键：气团只做 transform（translate/scale），纯 GPU 合成、不重绘；
+   柔边靠 radial-gradient 的软停，不用 filter: blur（大元素模糊会拖垮合成）。 */
 .ambient { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
 .amb { position: absolute; inset: 0; opacity: 0; transition: opacity 1500ms var(--ease); }
-.amb::before, .amb::after { content: ""; position: absolute; inset: -20vh 0; }
 body[data-theme="morning"] .amb[data-for="morning"],
 body[data-theme="ink"] .amb[data-for="ink"],
 body[data-theme="sound"] .amb[data-for="sound"],
 body[data-theme="sea"] .amb[data-for="sea"],
 body[data-theme="hello"] .amb[data-for="hello"],
 body[data-theme="play"] .amb[data-for="play"] { opacity: 1; }
-/* 每层两团光：统一走晴空蓝→青这一族，只变深浅与位置，不再掺暖阳黄。
-   各板块仅蓝的强弱不同（0.09~0.17），滚动时是同族蓝的呼吸，不会蓝黄对冲、也不会混灰 */
-.amb[data-for="morning"]::before { background: radial-gradient(70vw 60vh at 85% 5%, rgba(62,155,212,.14), transparent 70%); }
-.amb[data-for="morning"]::after { background: radial-gradient(55vw 45vh at 10% 90%, rgba(96,180,214,.10), transparent 70%); }
-.amb[data-for="ink"]::before { background: radial-gradient(65vw 65vh at 5% 35%, rgba(62,155,212,.12), transparent 70%); }
-.amb[data-for="ink"]::after { background: radial-gradient(50vw 45vh at 95% 80%, rgba(90,170,205,.09), transparent 70%); }
-.amb[data-for="sound"]::before { background: radial-gradient(75vw 55vh at 50% 100%, rgba(64,178,184,.15), transparent 70%); }
-.amb[data-for="sound"]::after { background: radial-gradient(55vw 45vh at 12% 8%, rgba(88,172,206,.10), transparent 70%); }
-.amb[data-for="sea"]::before { background: radial-gradient(70vw 50vh at 90% 10%, rgba(62,170,212,.16), transparent 70%); }
-.amb[data-for="sea"]::after { background: radial-gradient(80vw 55vh at 20% 95%, rgba(110,196,196,.11), transparent 70%); }
-.amb[data-for="hello"]::before { background: radial-gradient(65vw 55vh at 12% 85%, rgba(88,176,210,.13), transparent 70%); }
-.amb[data-for="hello"]::after { background: radial-gradient(55vw 45vh at 90% 15%, rgba(62,155,212,.10), transparent 70%); }
-/* 兴趣层：薄荷青比其它层略亮一档，呼应活动的活气，仍在蓝青族内 */
-.amb[data-for="play"]::before { background: radial-gradient(70vw 55vh at 80% 20%, rgba(76,196,170,.15), transparent 70%); }
-.amb[data-for="play"]::after { background: radial-gradient(60vw 50vh at 15% 85%, rgba(62,164,208,.11), transparent 70%); }
-/* 暗色下：氛围光晕整体压暗，同为晴空蓝→青微光，只留蓝青、不掺黄，避免深底上蓝黄对冲发脏 */
-:root[data-theme="dark"] .amb[data-for="morning"]::before { background: radial-gradient(70vw 60vh at 85% 5%, rgba(91,180,227,.10), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="morning"]::after { background: radial-gradient(55vw 45vh at 10% 90%, rgba(91,180,227,.08), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="ink"]::before { background: radial-gradient(65vw 65vh at 5% 35%, rgba(91,180,227,.09), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="ink"]::after { background: radial-gradient(50vw 45vh at 95% 80%, rgba(91,180,227,.07), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="sound"]::before { background: radial-gradient(75vw 55vh at 50% 100%, rgba(64,178,184,.10), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="sound"]::after { background: radial-gradient(55vw 45vh at 12% 8%, rgba(91,180,227,.07), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="sea"]::before { background: radial-gradient(70vw 50vh at 90% 10%, rgba(91,180,227,.11), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="sea"]::after { background: radial-gradient(80vw 55vh at 20% 95%, rgba(120,200,190,.08), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="hello"]::before { background: radial-gradient(65vw 55vh at 12% 85%, rgba(91,180,227,.09), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="hello"]::after { background: radial-gradient(55vw 45vh at 90% 15%, rgba(91,180,227,.07), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="play"]::before { background: radial-gradient(70vw 55vh at 80% 20%, rgba(76,196,170,.11), transparent 70%); }
-:root[data-theme="dark"] .amb[data-for="play"]::after { background: radial-gradient(60vw 50vh at 15% 85%, rgba(91,180,227,.08), transparent 70%); }
-.fl { position: absolute; font-style: normal; line-height: 1; color: var(--accent); opacity: .3; pointer-events: auto; transform: translateY(calc(var(--sy, 0) * var(--px) * -1px)); transition: scale 260ms var(--ease), opacity 260ms var(--ease); animation: bob 5.5s ease-in-out infinite alternate; }
-.fl:hover { scale: 1.35; opacity: .55; }
-@keyframes bob { to { translate: 0 -16px; } }
-.s1 { top: 10%; right: 7%; font-size: 150px; }
-.s2 { top: 32%; left: 5%; font-size: 110px; animation-delay: -2s; }
-.s2b { top: 72%; right: 12%; font-size: 70px; animation-delay: -3.4s; }
-.s3 { top: 18%; right: 9%; font-size: 130px; }
-.s4 { top: 62%; left: 4%; font-size: 84px; animation-delay: -1.5s; }
-.s4b { top: 40%; left: 14%; font-size: 64px; animation-delay: -4s; }
-.s5 { top: 16%; left: 7%; font-size: 140px; }
-.s6 { top: 68%; right: 6%; font-size: 96px; animation-delay: -3s; }
-.s6b { top: 45%; left: 10%; font-size: 60px; animation-delay: -1.2s; }
-.s7 { top: 58%; left: 5%; font-size: 170px; }
-.s8 { top: 12%; right: 10%; font-size: 100px; animation-delay: -2.4s; }
-.s8b { top: 80%; right: 16%; font-size: 66px; animation-delay: -4.6s; }
-.s9 { top: 20%; right: 8%; font-size: 130px; }
-.s10 { top: 66%; left: 6%; font-size: 88px; animation-delay: -1.8s; }
-.s10b { top: 42%; left: 16%; font-size: 58px; animation-delay: -3.8s; }
-.s11 { top: 14%; left: 8%; font-size: 150px; }
-.s12 { top: 64%; right: 7%; font-size: 96px; animation-delay: -2.6s; }
-.s12b { top: 38%; left: 12%; font-size: 64px; animation-delay: -4.2s; }
-@media (prefers-reduced-motion: reduce) { .fl { animation: none; } }
+/* 气团：一团软光。--cx/--cy 定其基准位置，动画只在其上叠加小幅漂移 */
+.blob { position: absolute; left: 0; top: 0; width: 70vmax; height: 70vmax; border-radius: 50%; }
+.blob.m1 { background: radial-gradient(circle at 50% 50%, rgba(var(--mist-1), .16), transparent 66%); }
+.blob.m2 { background: radial-gradient(circle at 50% 50%, rgba(var(--mist-2), .13), transparent 66%); }
+.blob.m3 { background: radial-gradient(circle at 50% 50%, rgba(var(--mist-3), .10), transparent 66%); }
+/* 三团漂移：时长与相位全错开，叠起来是"永不同相"的流动。
+   translate 用 vmax，缩放控制在 ±6%，幅度小才显高级（大了就成霓虹灯） */
+@keyframes mist-a { 0% { transform: translate(-14%, -10%) scale(1); } 50% { transform: translate(10%, 6%) scale(1.06); } 100% { transform: translate(-14%, -10%) scale(1); } }
+@keyframes mist-b { 0% { transform: translate(12%, 8%) scale(1.05); } 50% { transform: translate(-12%, -8%) scale(1); } 100% { transform: translate(12%, 8%) scale(1.05); } }
+@keyframes mist-c { 0% { transform: translate(6%, 14%) scale(1); } 50% { transform: translate(-8%, -12%) scale(1.07); } 100% { transform: translate(6%, 14%) scale(1); } }
+/* 每层给三团不同的落点与节奏，让六个板块的雾各自有"天气" */
+.morning .blob.m1 { left: 34%; top: -18%; animation: mist-a 74s var(--ease) infinite; }
+.morning .blob.m2 { left: -16%; top: 44%; animation: mist-b 62s var(--ease) infinite; }
+.morning .blob.m3 { left: 62%; top: 58%; width: 46vmax; height: 46vmax; animation: mist-c 88s var(--ease) infinite; }
+.ink .blob.m1 { left: -14%; top: 8%; animation: mist-b 70s var(--ease) infinite; }
+.ink .blob.m2 { left: 48%; top: 62%; animation: mist-c 82s var(--ease) infinite; }
+.ink .blob.m3 { left: 60%; top: -20%; width: 44vmax; height: 44vmax; animation: mist-a 90s var(--ease) infinite; }
+.sound .blob.m1 { left: 20%; top: 66%; animation: mist-c 68s var(--ease) infinite; }
+.sound .blob.m2 { left: 58%; top: -12%; animation: mist-a 78s var(--ease) infinite; }
+.sound .blob.m3 { left: -12%; top: 30%; width: 46vmax; height: 46vmax; animation: mist-b 86s var(--ease) infinite; }
+.sea .blob.m1 { left: 52%; top: -16%; animation: mist-a 72s var(--ease) infinite; }
+.sea .blob.m2 { left: -18%; top: 52%; animation: mist-b 66s var(--ease) infinite; }
+.sea .blob.m3 { left: 40%; top: 70%; width: 48vmax; height: 48vmax; animation: mist-c 84s var(--ease) infinite; }
+.hello .blob.m1 { left: -12%; top: -10%; animation: mist-b 76s var(--ease) infinite; }
+.hello .blob.m2 { left: 56%; top: 48%; animation: mist-c 64s var(--ease) infinite; }
+.hello .blob.m3 { left: 40%; top: 74%; width: 44vmax; height: 44vmax; animation: mist-a 92s var(--ease) infinite; }
+.play .blob.m1 { left: 46%; top: -14%; animation: mist-c 70s var(--ease) infinite; }
+.play .blob.m2 { left: -14%; top: 58%; animation: mist-a 80s var(--ease) infinite; }
+.play .blob.m3 { left: 62%; top: 52%; width: 46vmax; height: 46vmax; animation: mist-b 88s var(--ease) infinite; }
+/* 暗色：夜里更亮的蓝青微光，暖阳压到几乎只剩一点点，避免深底上蓝黄对冲发脏 */
+:root[data-theme="dark"] .blob.m1 { background: radial-gradient(circle at 50% 50%, rgba(var(--mist-1), .13), transparent 66%); }
+:root[data-theme="dark"] .blob.m2 { background: radial-gradient(circle at 50% 50%, rgba(var(--mist-2), .10), transparent 66%); }
+:root[data-theme="dark"] .blob.m3 { background: radial-gradient(circle at 50% 50%, rgba(var(--mist-3), .05), transparent 66%); }
+/* 减少动效：气团静止，只留静态柔光 */
+@media (prefers-reduced-motion: reduce) {
+  .blob { animation: none !important; }
+}
 ::selection { background: var(--accent); color: var(--bg); }
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
@@ -140,9 +142,13 @@ img { display: block; max-width: 100%; }
 .skip-link:focus { transform: none; }
 
 /* ---------- 导航 ---------- */
-.nav { position: fixed; inset: 0 0 auto; z-index: 50; border-bottom: 1px solid transparent; transition: background-color 200ms var(--ease), border-color 200ms var(--ease); }
-.nav.scrolled { background: var(--glass); backdrop-filter: blur(12px); border-bottom-color: var(--border-soft); }
-.nav-inner { max-width: 1120px; margin: 0 auto; padding: 0 32px; height: 68px; display: flex; align-items: center; gap: 28px; }
+.nav { position: fixed; inset: 0 0 auto; z-index: 50; border-bottom: 1px solid transparent; transition: background-color 260ms var(--ease), border-color 260ms var(--ease), box-shadow 260ms var(--ease); }
+/* 滚动后收紧：玻璃模糊 + 发丝下边 + 一点点投影；nav-inner 同时收窄高度，像"扣上"了 */
+.nav.scrolled { background: var(--glass); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); border-bottom-color: var(--border-soft); box-shadow: 0 1px 0 rgba(43, 58, 66, 0.03), 0 8px 24px -18px rgba(43, 58, 66, 0.3); }
+.nav-inner { max-width: 1120px; margin: 0 auto; padding: 0 32px; height: 68px; display: flex; align-items: center; gap: 28px; transition: height 260ms var(--ease); }
+.nav.scrolled .nav-inner { height: 58px; }
+/* 顶部阅读进度：贴着导航下沿的一根晴空蓝细线，用 --progress 宽度随滚动推进 */
+.nav-progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; transform: scaleX(var(--progress, 0)); transform-origin: 0 50%; background: linear-gradient(90deg, var(--accent), var(--accent-deep)); pointer-events: none; }
 .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
 .brand-mark { width: 30px; height: 30px; border-radius: 10px; background: var(--ink); color: var(--bg); display: grid; place-items: center; font: 600 15px var(--font-display); }
 .brand-name { font: 600 17px var(--font-display); letter-spacing: .01em; }
@@ -160,14 +166,20 @@ img { display: block; max-width: 100%; }
 @keyframes nav-underline { from { transform: scaleX(0.3); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .nav-links a.active::after { animation: none; } }
 .nav-actions { display: flex; gap: 10px; }
-.icon-action { position: relative; width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 12px; background: transparent; color: var(--ink-2); transition: all 150ms var(--ease); }
-.icon-action:hover { color: var(--ink); border-color: var(--ink-3); transform: translateY(-1px); }
-.icon-action svg { width: 18px; height: 18px; }
+.icon-action { position: relative; width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 12px; background: transparent; color: var(--ink-2); transition: color 180ms var(--ease), border-color 180ms var(--ease), background-color 180ms var(--ease), transform 180ms var(--ease); }
+.icon-action:hover { color: var(--accent-deep); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); transform: translateY(-1px); }
+/* 按下时轻微下压，给出"按到了"的触感 */
+.icon-action:active { transform: translateY(0) scale(0.94); }
+.icon-action svg { width: 18px; height: 18px; transition: transform 220ms var(--ease); }
+.icon-action:hover svg { transform: scale(1.08); }
 /* 深浅色切换钮：默认显月亮（点它进暗色），暗色下显太阳 */
 .theme-btn .tb-sun { display: none; }
 .theme-btn.dark .tb-moon { display: none; }
 .theme-btn.dark .tb-sun { display: block; }
-.icon-action[data-tip]:hover::after { content: attr(data-tip); position: absolute; top: 110%; right: 0; font: 12px var(--font-cn); white-space: nowrap; background: var(--ink); color: var(--bg); padding: 4px 8px; border-radius: 6px; }
+/* tip 气泡：淡入 + 极轻上移，不是硬出现 */
+.icon-action[data-tip]:hover::after { content: attr(data-tip); position: absolute; top: 110%; right: 0; font: 12px var(--font-cn); white-space: nowrap; background: var(--ink); color: var(--bg); padding: 4px 8px; border-radius: 6px; animation: tip-in 180ms var(--ease) both; }
+@keyframes tip-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .icon-action[data-tip]:hover::after { animation: none; } }
 
 /* ---------- Hero ---------- */
 .hero { position: relative; min-height: 100svh; display: grid; place-items: center; padding: 120px 32px 80px; overflow: hidden; }
@@ -192,12 +204,15 @@ img { display: block; max-width: 100%; }
 .hero-divider { width: 64px; height: 1px; background: var(--border); margin: 36px 0; }
 .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
 .btn-primary, .btn-ghost { display: inline-flex; align-items: center; gap: 8px; padding: 13px 24px; border-radius: 99px; font-size: 15px; transition: all 180ms var(--ease); }
-.btn-primary { background: var(--ink); color: var(--bg); }
+.btn-primary { background: var(--ink); color: var(--bg); position: relative; overflow: hidden; }
+/* 悬停时一道极淡的高光从左扫过（Linear/Stripe 的按钮质感），只扫一次不循环 */
+.btn-primary::before { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.16) 50%, transparent 70%); transform: translateX(-100%); transition: transform 620ms var(--ease); pointer-events: none; }
+.btn-primary:hover::before { transform: translateX(100%); }
 .btn-primary:hover { background: var(--accent-deep); transform: translateY(-2px); box-shadow: var(--shadow); }
 .btn-primary .arr { transition: transform 180ms var(--ease); }
 .btn-primary:hover .arr { transform: translateX(4px); }
-.btn-ghost { border: 1px solid var(--border); color: var(--ink-2); }
-.btn-ghost:hover { border-color: var(--ink-3); color: var(--ink); }
+.btn-ghost { border: 1px solid var(--border); color: var(--ink-2); background: transparent; }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent-deep); transform: translateY(-2px); box-shadow: 0 8px 20px -12px rgba(43, 58, 66, 0.28); }
 /* 三张歪歪的便利贴 */
 .hero-stats { display: flex; gap: 18px; margin-top: 56px; }
 .hero-stats div { padding: 14px 22px; background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 6px; box-shadow: var(--shadow); cursor: default; transition: rotate 260ms var(--ease), transform 260ms var(--ease), border-color 260ms var(--ease), box-shadow 260ms var(--ease); }
@@ -227,7 +242,11 @@ img { display: block; max-width: 100%; }
 .sec { padding: 120px 0; position: relative; }
 .sec-head { max-width: 640px; margin-bottom: 56px; }
 .sec-eyebrow { display: flex; align-items: center; gap: 12px; }
-.sec-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+/* 眉标的小圆点：一圈极淡的呼吸光晕，像在轻轻搏动，给静态板块一点活气 */
+.sec-eyebrow .dot { position: relative; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.sec-eyebrow .dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; background: var(--accent); opacity: .28; animation: dot-pulse 2.6s var(--ease) infinite; }
+@keyframes dot-pulse { 0%, 100% { transform: scale(.6); opacity: .3; } 50% { transform: scale(1.25); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sec-eyebrow .dot::after { animation: none; opacity: .22; } }
 h2 { font: 600 clamp(1.7rem, 3.6vw, 2.6rem)/1.35 var(--font-display); margin-top: 16px; }
 .sec-desc { color: var(--ink-2); margin-top: 14px; }
 .em { color: var(--accent-deep); font-weight: 600; }
@@ -388,6 +407,7 @@ a.contact-value:hover { color: var(--accent); }
 .to-top { position: fixed; right: 26px; bottom: 88px; z-index: 30; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-2); color: var(--ink-2); display: grid; place-items: center; cursor: pointer; opacity: 0; transform: translateY(10px); pointer-events: none; transition: all 260ms var(--ease); box-shadow: var(--shadow); }
 .to-top.show { opacity: 1; transform: none; pointer-events: auto; }
 .to-top:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-3px); }
+.to-top:active { transform: translateY(-1px) scale(0.94); }
 .to-top svg { width: 18px; height: 18px; }
 
 .footer { border-top: 1px solid var(--border); padding: 36px 0 48px; }
@@ -453,14 +473,8 @@ a, button, label, summary, [role="button"] { cursor: url("/cursors/link.png") 2 
 input, textarea, select, [contenteditable="true"] { cursor: url("/cursors/text.png") 16 16, text; }
 
 /* ============ 深色模式修正：翻转那些写死浅色的地方 ============ */
-:root[data-theme="dark"] body {
-  background-image: radial-gradient(circle, rgba(91, 180, 227, 0.07) 1.1px, transparent 1.1px);
-}
-:root[data-theme="dark"] body::after {
-  background:
-    radial-gradient(460px 460px at 8% 8%, rgba(91, 180, 227, 0.09), transparent 72%),
-    radial-gradient(420px 420px at 94% 94%, rgba(245, 183, 64, 0.07), transparent 72%);
-}
+/* 颗粒在深底上用 screen 提亮，比 multiply 更像"胶片"而非"污渍" */
+:root[data-theme="dark"] body::before { mix-blend-mode: screen; opacity: 0.028; }
 :root[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--bg); }
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(230, 240, 244, 0.18); border-color: var(--bg); }
 :root[data-theme="dark"] html { scrollbar-color: rgba(230, 240, 244, 0.18) transparent; }
@@ -505,10 +519,8 @@ input, textarea, select, [contenteditable="true"] { cursor: url("/cursors/text.p
 .tilt.col-row { box-shadow: var(--shadow); }
 :root[data-theme="dark"] .tilt.hobby-card,
 :root[data-theme="dark"] .tilt.prod-card { box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.5); }
-/* 允许动效时才走 transform 过渡：JS 每帧写 --tx/--ty，回调自带缓动，故这里只加短过渡让回正更顺 */
-@media (prefers-reduced-motion: no-preference) {
-  .tilt { transition: transform 120ms var(--ease); }
-}
+/* 这里不再给 .tilt 加 transform 过渡：JS 的弹簧积分已每帧写入 --tx/--ty 且自带过冲，
+   再叠一层 CSS 过渡会拖慢每帧写入、把回正的弹感磨没，故彻底交给弹簧 */
 
 /* ---------- ② 右下「此刻」挂件：小圆时钟 + 随机慢生活小语气泡 ---------- */
 /* 位置：播放器 bottom18/56px、返回顶部 bottom88/40px，挂件上移叠在返回顶部上方，互不遮挡；
@@ -648,6 +660,44 @@ html[data-lang="en"] .lang-en { display: block; }
 }
 .cat-peeker.up { transform: translate(-50%, 0); }
 @media (max-width: 520px) { .cat-peeker { width: 64px; } }
+
+/* ============ 指针聚光（Spotlight）：柔和光团 lerp 跟随指针，像雾里的一点亮 ============ */
+/* 比鼠标慢半拍地跟随（JS 每帧写入 --mx/--my），制造"光有惯性"的物理手感。
+   仅精确指针启用；默认隐藏，JS 首次移动后才淡入，避免静止页面上凭空一团光 */
+.spotlight {
+  position: fixed; left: 0; top: 0; z-index: 0; pointer-events: none;
+  width: 46vmax; height: 46vmax; margin: -23vmax 0 0 -23vmax;
+  transform: translate3d(var(--mx, -100vmax), var(--my, -100vmax), 0);
+  background: radial-gradient(circle at 50% 50%, rgba(var(--mist-1), .12), transparent 62%);
+  opacity: 0; transition: opacity 600ms var(--ease);
+  will-change: transform;
+}
+.spotlight.on { opacity: 1; }
+:root[data-theme="dark"] .spotlight { background: radial-gradient(circle at 50% 50%, rgba(var(--mist-1), .10), transparent 62%); }
+@media (prefers-reduced-motion: reduce) { .spotlight { display: none; } }
+
+/* ============ 卡片光斑（Linear 同款）：悬停时卡内一处高光随指针游走 ============ */
+/* 用 ::after 画一层径向高光，--gx/--gy（JS 写入，%）定位光斑中心；
+   悬停才显形，配合既有 .tilt 3D 倾斜，卡片像被一束光扫过 */
+.post-card, .hobby-card, .prod-card, .col-row { position: relative; }
+.post-card::after, .hobby-card::after, .prod-card::after, .col-row::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  opacity: 0; transition: opacity 300ms var(--ease);
+  background: radial-gradient(260px circle at var(--gx, 50%) var(--gy, 50%), rgba(var(--mist-1), .13), transparent 60%);
+}
+:root[data-theme="dark"] .post-card::after,
+:root[data-theme="dark"] .hobby-card::after,
+:root[data-theme="dark"] .prod-card::after,
+:root[data-theme="dark"] .col-row::after {
+  background: radial-gradient(260px circle at var(--gx, 50%) var(--gy, 50%), rgba(var(--mist-1), .16), transparent 60%);
+}
+@media (hover: hover) and (pointer: fine) {
+  .post-card:hover::after, .hobby-card:hover::after, .prod-card:hover::after, .col-row:hover::after { opacity: 1; }
+}
+/* 卡片内的内容要压在光斑之上 */
+.post-card > *, .hobby-card > *, .prod-card > *, .col-row > * { position: relative; z-index: 1; }
+/* 展开的专栏行：光斑改由 summary 承载即可，展开体不再叠光，避免越界 */
+.col-row[open]::after { opacity: 0 !important; }
 
 /* ============ 路由过渡：Turbo 8 原生 View Transitions（与文章页同款，进出首页也顺滑） ============ */
 @view-transition { navigation: auto; }

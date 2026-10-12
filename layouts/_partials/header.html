@@ -13,6 +13,11 @@
             {{- $lsenabled := (or (not site.Params.disableThemeToggle) (and (not site.Params.disableLangToggle) (hugo.IsMultilingual))) }}
             {{- if $lsenabled }}
             <div class="logo-switches">
+                {{- /* 命令面板入口：⌘K 呼出（键盘直接按也行），全站统一 */ -}}
+                <button class="pal-trigger" type="button" data-pal-trigger aria-label="打开命令面板" title="命令面板 (Ctrl/⌘ + K)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    <span class="kbd">⌘K</span>
+                </button>
                 {{- if (not site.Params.disableThemeToggle) }}
                 <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="切换主题">
                     <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"

@@ -7,6 +7,21 @@
     onScroll();
   }
 
+  // 顶部阅读进度：把"已滚过 / 可滚总距离"写成 --progress（0~1），导航下沿细线据此推进。
+  // 单次滚动只写一个 CSS 变量，开销可忽略，故不做 rAF 节流（rAF 在后台/低帧率下可能延迟或 starving，
+  // 直接同步写更稳）；文档高度变化（图片懒加载、专栏展开）由 ResizeObserver 重算缓存的可滚距离。
+  const progressEl = document.querySelector(".nav-progress");
+  if (progressEl) {
+    let max = 0;
+    const measure = () => { max = Math.max(1, document.documentElement.scrollHeight - innerHeight); };
+    const paint = () => { progressEl.style.setProperty("--progress", Math.min(1, scrollY / max).toFixed(4)); };
+    measure();
+    addEventListener("scroll", paint, { passive: true });
+    addEventListener("resize", () => { measure(); paint(); });
+    if ("ResizeObserver" in window) new ResizeObserver(() => { measure(); paint(); }).observe(document.body);
+    paint();
+  }
+
   // 滚动主题长背景：哪个板块占据视口中线，body 就切到对应氛围层；同步高亮导航里对应的栏目
   const themeOf = { home: "morning", about: "morning", posts: "ink", music: "sound", photos: "sea", interests: "play", contact: "hello" };
   const navLinks = [...document.querySelectorAll(".nav-links a")];
@@ -22,13 +37,6 @@
   document.querySelectorAll("#home,#about,#posts,#music,#photos,#interests,#contact").forEach((s) => ao.observe(s));
   // 滚回顶部（hero 区）时清掉高亮
   addEventListener("scroll", () => { if (scrollY < innerHeight * 0.5) setActive(""); }, { passive: true });
-
-  // 视差量：--sy 每帧写一次，图标按各自 --px 系数反向漂移，制造长图跟手感
-  let syRaf = 0;
-  addEventListener("scroll", () => {
-    if (syRaf) return;
-    syRaf = requestAnimationFrame(() => { syRaf = 0; document.documentElement.style.setProperty("--sy", scrollY); });
-  }, { passive: true });
 
   // 返回顶部：滚过一屏才浮现，避开右下角播放器的高度
   const toTop = document.getElementById("to-top");
@@ -118,94 +126,94 @@
   }
 })();
 
-// 点格纸光标透镜：鼠标附近格点被轻微推开、放大、压成褐金铅笔色，停下即淡出。仅精确指针 + 允许动效时启用。
+// 指针聚光：柔和光团带惯性跟随指针（lerp 缓动，光比鼠标慢半拍，像雾里的一点亮）。
+// 仅精确指针 + 允许动效时启用；首次移动才淡入，静止页面上不会凭空浮着一团光。
 (() => {
-  const cv = document.getElementById("dot-lens");
-  if (!cv) return;
+  const el = document.querySelector(".spotlight");
+  if (!el) return;
   if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const ctx = cv.getContext("2d");
-  const GAP = 26, R = 120; // GAP 与 body 点阵 background-size 一致
-  let w = 0, h = 0, mx = -1e4, my = -1e4, s = 0, raf = 0, lastMove = 0;
+  let tx = -1e4, ty = -1e4;   // 目标位置（指针）
+  let cx = -1e4, cy = -1e4;   // 当前位置（光团，lerp 逼近目标）
+  let raf = 0, shown = false;
 
-  function resize() {
-    const d = Math.min(devicePixelRatio || 1, 2);
-    w = innerWidth; h = innerHeight;
-    cv.width = w * d; cv.height = h * d;
-    ctx.setTransform(d, 0, 0, d, 0, 0);
-  }
-
-  function frame() {
+  function step() {
     raf = 0;
-    if (document.hidden) { s = 0; return; }
-    ctx.clearRect(0, 0, w, h);
-    if (s > 0.01) {
-      // 透镜中心墨晕
-      const g = ctx.createRadialGradient(mx, my, 0, mx, my, R * .45);
-      g.addColorStop(0, `rgba(122,104,73,${.05 * s})`);
-      g.addColorStop(1, "rgba(122,104,73,0)");
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(mx, my, R * .45, 0, 7); ctx.fill();
-      // 范围内的格点：径向推开 + 放大 + 上色。CSS 点阵在 26px 瓦片中心（偏移 13），
-      // body 背景随文档滚动，反算回视口坐标：x=13+26k，y=13-scrollY+26k，保证逐像素同相位
-      const ox = 13, oy = ((13 - scrollY) % GAP + GAP) % GAP;
-      for (let x = ox + Math.ceil((mx - R - ox) / GAP) * GAP; x <= mx + R; x += GAP) {
-        for (let y = oy + Math.ceil((my - R - oy) / GAP) * GAP; y <= my + R; y += GAP) {
-          const dx = x - mx, dy = y - my, d = Math.hypot(dx, dy);
-          if (d > R || (dx === 0 && dy === 0)) continue;
-          const k = (1 - d / R) ** 2 * s;
-          const off = 7 * k;
-          ctx.fillStyle = `rgba(122,104,73,${(.06 + .3 * k) * s})`;
-          ctx.beginPath();
-          ctx.arc(x + dx / d * off, y + dy / d * off, 1.1 + 2.4 * k, 0, 7);
-          ctx.fill();
-        }
-      }
-      s *= performance.now() - lastMove < 120 ? .97 : .88; // 移动中基本维持，停下约 0.3s 淡出
-      loop();
-    } else { s = 0; ctx.clearRect(0, 0, w, h); }
+    if (document.hidden) return;
+    cx += (tx - cx) * 0.16;
+    cy += (ty - cy) * 0.16;
+    el.style.setProperty("--mx", cx.toFixed(1) + "px");
+    el.style.setProperty("--my", cy.toFixed(1) + "px");
+    if (Math.abs(tx - cx) > 0.3 || Math.abs(ty - cy) > 0.3) schedule();
   }
-  function loop() { if (!raf && !document.hidden) raf = requestAnimationFrame(frame); }
-  function wake(x, y) { mx = x; my = y; lastMove = performance.now(); s = Math.min(1, s + .12); loop(); }
+  function schedule() { if (!raf && !document.hidden) raf = requestAnimationFrame(step); }
 
-  addEventListener("mousemove", (e) => wake(e.clientX, e.clientY), { passive: true });
-  addEventListener("scroll", loop, { passive: true });
-  addEventListener("resize", () => { resize(); loop(); });
-  addEventListener("visibilitychange", () => { if (!document.hidden) { s = 0; resize(); } });
-  resize();
+  addEventListener("pointermove", (e) => {
+    if (!shown) { // 首帧：直接把光团摆到指针处，避免从屏幕外"飞"进来
+      cx = tx = e.clientX; cy = ty = e.clientY;
+      el.style.setProperty("--mx", cx + "px");
+      el.style.setProperty("--my", cy + "px");
+      el.classList.add("on");
+      shown = true;
+    }
+    tx = e.clientX; ty = e.clientY;
+    schedule();
+  }, { passive: true });
+})();
+
+// 卡片光斑：指针在卡片上移动时，把指针位置写成卡内的 --gx/--gy（%），
+// CSS 的 ::after 径向高光据此游走（Linear 同款）。离开不清零，保留最后位置，避免光斑跳回中心。
+(() => {
+  const cards = document.querySelectorAll(".hobby-card, .post-card, .prod-card, .col-row");
+  if (!cards.length) return;
+  if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  cards.forEach((el) => {
+    el.addEventListener("pointermove", (e) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      el.style.setProperty("--gx", ((e.clientX - r.left) / r.width * 100).toFixed(1) + "%");
+      el.style.setProperty("--gy", ((e.clientY - r.top) / r.height * 100).toFixed(1) + "%");
+    }, { passive: true });
+  });
 })();
 
 // 卡片 3D 微倾斜：鼠标在卡片上移动时，卡片随指针位置做极小幅度的透视倾斜（最大 4deg），移开回正。
-// 位移量走 rAF 缓动（无 CSS transition 依赖，故 .col-row 这类无 transform 过渡的卡片也能顺滑回正）。
+// 走弹簧物理（K/D 积分）：跟随指针时迅速到位，回正时带一点过冲再弹回，手感有质量（Josh Comeau / Rauno 的春季感）。
 // 仅精确指针 + 允许动效时启用；.tilt 由 JS 在悬停期间挂上，配合 CSS 合成旋转并复刻原有 hover 抬升。
 (() => {
   const cards = document.querySelectorAll(".hobby-card, .post-card, .prod-card, .col-row");
   if (!cards.length) return;
   if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const MAX = 4; // 最大倾角（度），克制不喧宾夺主
+  const MAX = 4;   // 最大倾角（度），克制不喧宾夺主
+  const K = 0.16;  // 弹簧刚度：越大越快到位
+  const D = 0.80;  // 阻尼：<1 才有回正过冲，0.8 约过冲后再弹一下即停
 
   cards.forEach((el) => {
     let inside = false, cx = 0, cy = 0;      // 指针状态
-    let rx = 0, ry = 0, tRX = 0, tRY = 0;    // 当前/目标倾角
+    let rx = 0, ry = 0, vx = 0, vy = 0;      // 当前倾角与角速度
     let raf = 0;
 
     function step() {
       raf = 0;
       const r = el.getBoundingClientRect();
+      let tRX = 0, tRY = 0;
       if (inside && r.width && r.height) {
         // 指针相对卡片中心归一化到 -0.5..0.5，再放大到 ±MAX
         const nx = (cx - r.left) / r.width - 0.5;
         const ny = (cy - r.top) / r.height - 0.5;
         tRY = Math.max(-MAX, Math.min(MAX, nx * 2 * MAX));  // 水平移动 → rotateY
         tRX = Math.max(-MAX, Math.min(MAX, -ny * 2 * MAX)); // 垂直移动 → rotateX
-      } else { tRX = 0; tRY = 0; }
-      rx += (tRX - rx) * 0.18;
-      ry += (tRY - ry) * 0.18;
-      if (Math.abs(tRX - rx) < 0.03 && Math.abs(tRY - ry) < 0.03) { rx = tRX; ry = tRY; }
+      }
+      // 弹簧积分：v += (目标-当前)*K；v *= D；当前 += v
+      vx = (vx + (tRX - rx) * K) * D; rx += vx;
+      vy = (vy + (tRY - ry) * K) * D; ry += vy;
+      // 既到位又几乎无速度：吸附归零，避免长期微小抖动
+      if (Math.abs(tRX - rx) < 0.02 && Math.abs(vx) < 0.02) { rx = tRX; vx = 0; }
+      if (Math.abs(tRY - ry) < 0.02 && Math.abs(vy) < 0.02) { ry = tRY; vy = 0; }
       el.style.setProperty("--tx", rx.toFixed(2) + "deg");
       el.style.setProperty("--ty", ry.toFixed(2) + "deg");
-      if (!inside && rx === 0 && ry === 0) { // 已回正且指针离开：卸下 .tilt，交还 CSS
+      if (!inside && rx === 0 && ry === 0 && vx === 0 && vy === 0) { // 已回正停稳：卸下 .tilt，交还 CSS
         el.classList.remove("tilt");
         el.style.removeProperty("--tx");
         el.style.removeProperty("--ty");

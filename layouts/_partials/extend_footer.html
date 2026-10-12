@@ -60,25 +60,70 @@
 <script src="{{ "js/lightbox.js" | relURL }}"></script>
 {{- /* 阅读沉浸感增强（文章/列表页）：逐段进场、标题锚点复制、读完印记、路由淡入 */ -}}
 <script src="{{ "js/reading.js" | relURL }}"></script>
+{{- /* 命令面板（⌘K / Ctrl+K）：搜索文章 + 跳转页面 + 执行命令，全站可用。
+       body 上带 data-baseurl 供面板拼 /index.json（子路径部署也正确）。 */ -}}
+{{ partialCached "css.html" (dict "path" "css/palette.css") "palette.css" }}
+<script>document.documentElement.dataset.baseurl = {{ site.Home.RelPermalink | jsonify }};</script>
+<script src="{{ "js/palette.js" | relURL }}"></script>
 <script>
 /* 深浅色切换：写 pref-theme（全站共用），html[data-theme] 由 CSS 变量响应。
-   .theme-btn 只出现在首页/相册页手写导航；PaperMod 侧用主题自带的 #theme-toggle。 */
+   .theme-btn 出现在首页/相册页手写导航；PaperMod 侧用主题自带的 #theme-toggle。
+   切换时用 View Transitions 做「从点击点扩散的圆形揭示」——旧主题整体被新主题的圆扫过取代，
+   比瞬间翻色高级得多。不支持 / 减动效时自动退化为即时切换。 */
 (function () {
-  function bind() {
-    var b = document.querySelector(".theme-btn");
+  var reduce = function () { return matchMedia("(prefers-reduced-motion: reduce)").matches; };
+  function isDark() { return document.documentElement.dataset.theme === "dark"; }
+
+  function apply(dark) {
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    try { localStorage.setItem("pref-theme", dark ? "dark" : "light"); } catch (e) {}
+    document.querySelectorAll(".theme-btn").forEach(function (b) { b.classList.toggle("dark", dark); });
+  }
+
+  // 圆形揭示：next 主题的根快照裁成一个从 (x,y) 长到盖满全屏的圆
+  function reveal(dark, x, y) {
+    x = x == null ? innerWidth / 2 : x;
+    y = y == null ? innerHeight / 2 : y;
+    if (!document.startViewTransition || reduce()) { apply(dark); return; }
+    var r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    var root = document.documentElement;
+    root.classList.add("vt-theme");
+    var vt = document.startViewTransition(function () { apply(dark); });
+    vt.ready.then(function () {
+      root.animate(
+        { clipPath: ["circle(0px at " + x + "px " + y + "px)", "circle(" + r + "px at " + x + "px " + y + "px)"] },
+        { duration: 460, easing: "cubic-bezier(.4,0,.2,1)", pseudoElement: "::view-transition-new(root)" }
+      ).finished.then(function () { root.classList.remove("vt-theme"); }, function () { root.classList.remove("vt-theme"); });
+    }).catch(function () { root.classList.remove("vt-theme"); });
+  }
+
+  function bindBtn(b, name) {
     if (!b || b.__bound) return;
     b.__bound = true;
-    var sync = function () { b.classList.toggle("dark", document.documentElement.dataset.theme === "dark"); };
+    var sync = function () { b.classList.toggle("dark", isDark()); };
     sync();
-    b.addEventListener("click", function () {
-      var dark = document.documentElement.dataset.theme === "dark";
-      document.documentElement.dataset.theme = dark ? "light" : "dark";
-      try { localStorage.setItem("pref-theme", dark ? "light" : "dark"); } catch (e) {}
-      sync();
+    b.addEventListener("click", function (e) {
+      var r = e.currentTarget.getBoundingClientRect();
+      reveal(!isDark(), r.left + r.width / 2, r.top + r.height / 2);
     });
+  }
+  function bind() {
+    bindBtn(document.querySelector(".theme-btn"));
+    bindBtn(document.querySelector("#theme-toggle"));
   }
   bind();
   addEventListener("turbo:load", bind);
   addEventListener("turbo:render", bind);
+
+  // 供命令面板复用：从屏幕中心揭示
+  window.__palToggleTheme = function () { reveal(!isDark()); };
 })();
 </script>
+<style>
+/* 主题揭示：接管根过渡，动画交给 JS 的 clip-path；新旧快照不参与位移，只让新快照盖在旧之上 */
+html.vt-theme::view-transition-old(root),
+html.vt-theme::view-transition-new(root),
+html.vt-theme::view-transition-group(root) { animation: none; }
+html.vt-theme::view-transition-old(root) { z-index: 1; }
+html.vt-theme::view-transition-new(root) { z-index: 2; }
+</style>

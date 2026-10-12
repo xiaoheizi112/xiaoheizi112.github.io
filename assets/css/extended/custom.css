@@ -11,6 +11,12 @@
   --paper-accent: #3e9bd4;
   --paper-accent-deep: #2c80b8;
   --paper-sun: #f5b740;
+  /* 极光雾三色（与首页 home.css 同源）：晴空蓝主光 / 青过渡 / 暖阳点睛 */
+  --mist-1: 62, 155, 212;
+  --mist-2: 75, 179, 200;
+  --mist-3: 245, 183, 64;
+  --bg-sky: #e9f4fa;
+  --bg-warm: #fbf6ee;
   --font-cn: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   --font-display: "Space Grotesk", var(--font-cn), sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
@@ -41,6 +47,11 @@
   --code-block-bg: #0b1216;
   --code-bg: #16232b;
   --border: #22333c;
+  --mist-1: 91, 180, 227;
+  --mist-2: 79, 176, 196;
+  --mist-3: 245, 194, 90;
+  --bg-sky: #0c1519;
+  --bg-warm: #14181b;
 }
 
 /* 正文/标题/元信息字体，与首页一致 */
@@ -135,19 +146,19 @@ nav.pagination .page-number.active {
   font-weight: 600;
 }
 
-/* ============ 生活感纸底：与首页同源（清水点 + 晴空/暖阳柔光） ============ */
+/* ============ 生活感纸底：与首页同源（竖向 mesh + 晴空/暖阳柔光 + 暗角） ============ */
+/* 原来那层 26px 手账点阵已撤掉，底色改由这条极淡的三段竖向渐变承担；
+   文章页没有首页的 .ambient 流动雾，故此处用 body::after 一次性画静态雾与暗角 */
 body {
-  background-image: radial-gradient(circle, rgba(62, 155, 212, 0.09) 1.1px, transparent 1.1px);
-  background-size: 26px 26px;
-}
-:root[data-theme="dark"] body {
-  background-image: radial-gradient(circle, rgba(91, 180, 227, 0.07) 1.1px, transparent 1.1px);
+  background-image: linear-gradient(180deg, var(--bg-sky) 0%, var(--theme) 42%, var(--bg-warm) 100%);
+  background-attachment: fixed;
 }
 body::after {
   content: ""; position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background:
-    radial-gradient(320px 320px at 88% 10%, rgba(245, 183, 64, 0.09), transparent 70%),
-    radial-gradient(420px 420px at 6% 88%, rgba(62, 155, 212, 0.09), transparent 70%);
+    radial-gradient(120vw 80vh at 78% -10%, rgba(var(--mist-1), 0.10), transparent 62%),
+    radial-gradient(90vw 60vh at 8% 108%, rgba(var(--mist-3), 0.06), transparent 60%),
+    radial-gradient(130% 120% at 50% 45%, transparent 55%, rgba(var(--mist-1), 0.07) 100%);
 }
 
 /* ============ 滚动条：与首页 home.css 同款 ============ */
@@ -291,10 +302,13 @@ html { scrollbar-width: thin; scrollbar-color: rgba(43, 58, 66, 0.2) transparent
 }
 
 /* ============ 文章页阅读进度条（extend_head.html 内联脚本驱动宽度） ============ */
+/* 与首页 .nav-progress 同色同调；顶端加一枚发光的圆头，像光标点，走完更有"读到底"的实感 */
 #read-progress {
   position: fixed; top: 0; left: 0; z-index: 100;
   height: 3px; width: 0;
   background: linear-gradient(90deg, var(--paper-accent), var(--paper-accent-deep));
+  border-radius: 0 99px 99px 0;
+  box-shadow: 0 0 8px rgba(var(--mist-1), .55);
   transition: width 120ms linear;
 }
 
@@ -311,10 +325,12 @@ html { scrollbar-width: thin; scrollbar-color: rgba(43, 58, 66, 0.2) transparent
 .post-content figure img { margin-inline: auto; }
 
 /* ============ 文章页顶栏：滚动时吸顶常驻（主题默认 static，会随页滚走） ============ */
+/* 玻璃参数与首页 .nav.scrolled 对齐（14px 模糊 + 提饱和），全站观感统一 */
 .header {
   position: sticky; top: 0; z-index: 60;
   background: color-mix(in srgb, var(--theme) 88%, transparent);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
   border-bottom: 1px solid var(--border);
 }
 

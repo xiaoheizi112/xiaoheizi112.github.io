@@ -91,23 +91,8 @@
 </script>
 {{- end }}
 
-{{- if (not site.Params.disableThemeToggle) }}
-<script>
-(function () {
-    var t = document.getElementById("theme-toggle");
-    if (t) t.addEventListener("click", () => {
-        const html = document.querySelector("html");
-        if (html.dataset.theme === "dark") {
-            html.dataset.theme = 'light';
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            html.dataset.theme = 'dark';
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    });
-})();
-</script>
-{{- end }}
+{{- /* 深浅色切换已移到 extend_footer.html：那里统一给 #theme-toggle 与首页 .theme-btn 绑定，
+       并做 View Transitions 圆形揭示。此处若再绑一次会同键触发两次、相互抵消，故删去原主题的绑定。 */ -}}
 
 {{- if (and (eq .Kind "page") (ne .Layout "archives") (ne .Layout "search") (.Param "ShowCodeCopyButtons")) }}
 <script>

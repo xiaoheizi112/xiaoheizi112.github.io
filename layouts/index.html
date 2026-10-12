@@ -70,7 +70,6 @@
   <meta name="view-transition" content="same-origin" />
 </head>
 <body>
-<canvas id="dot-lens" aria-hidden="true"></canvas>
 {{- /* 猫猫元素共用的爪印符号（爪垫+四趾），全站 <use href="#paw"> 复用 */ -}}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="paw" viewBox="0 0 24 24">
@@ -81,15 +80,18 @@
     <circle cx="18.4" cy="10.6" r="2.1" fill="currentColor" />
   </symbol>
 </svg>
-{{- /* 滚动长背景：五层主题氛围随板块交叉淡入，图标视差漂移 + hover 放大。字形用系统单色符号，零图片资源 */ -}}
+{{- /* 滚动极光雾：六个板块各一层，层内三团软光缓慢漂移，随所在板块交叉淡入。
+       纯 transform 动画（GPU 合成、不重绘），颜色令牌随深浅主题翻转，零图片资源 */ -}}
 <div class="ambient" aria-hidden="true">
-  <div class="amb" data-for="morning"><i class="fl s1" style="--px:.05">☀</i><i class="fl s2" style="--px:.09">☁</i><i class="fl s2b" style="--px:.13">☀</i></div>
-  <div class="amb" data-for="ink"><i class="fl s3" style="--px:.06">✎</i><i class="fl s4" style="--px:.1">✎</i><i class="fl s4b" style="--px:.14">✎</i></div>
-  <div class="amb" data-for="sound"><i class="fl s5" style="--px:.07">♪</i><i class="fl s6" style="--px:.11">♫</i><i class="fl s6b" style="--px:.15">♩</i></div>
-  <div class="amb" data-for="sea"><i class="fl s7" style="--px:.05">〜</i><i class="fl s8" style="--px:.09">☁</i><i class="fl s8b" style="--px:.13">☀</i></div>
-  <div class="amb" data-for="hello"><i class="fl s9" style="--px:.06">✉</i><i class="fl s10" style="--px:.1">✈</i><i class="fl s10b" style="--px:.14">☏</i></div>
-  <div class="amb" data-for="play"><i class="fl s11" style="--px:.07">✦</i><i class="fl s12" style="--px:.11">◦</i><i class="fl s12b" style="--px:.15">✦</i></div>
+  <div class="amb morning" data-for="morning"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
+  <div class="amb ink" data-for="ink"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
+  <div class="amb sound" data-for="sound"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
+  <div class="amb sea" data-for="sea"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
+  <div class="amb hello" data-for="hello"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
+  <div class="amb play" data-for="play"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
 </div>
+{{- /* 指针聚光：柔和光团带惯性跟随指针（位置由 home.js 每帧写入 --mx/--my） */ -}}
+<div class="spotlight" aria-hidden="true"></div>
 <a class="skip-link" href="#main" data-zh="跳到主要内容" data-en="Skip to content">跳到主要内容</a>
 
 <nav class="nav" id="nav" aria-label="主导航">
@@ -110,6 +112,12 @@
       <a href="#contact" data-zh="联系" data-en="Contact">联系</a>
     </div>
     <div class="nav-actions">
+      {{- /* 命令面板入口：⌘K 呼出（键盘也能直接按），全站可用 */ -}}
+      <button class="pal-trigger" type="button" data-pal-trigger aria-label="打开命令面板" data-zh-tip="命令面板" data-en-tip="Command palette">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <span class="label" data-zh="搜索" data-en="Search">搜索</span>
+        <span class="kbd">⌘K</span>
+      </button>
       {{- range site.Params.socialIcons }}
       <a class="icon-action" href="{{ .url }}" target="_blank" rel="noopener noreferrer" data-tip="{{ .name }}" aria-label="{{ .name }}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -129,6 +137,8 @@
       </button>
     </div>
   </div>
+  {{- /* 顶部阅读进度：贴着导航下沿的一根晴空蓝细线（宽度由 home.js 写 --progress） */ -}}
+  <div class="nav-progress" aria-hidden="true"></div>
 </nav>
 
 <header class="hero" id="home">
@@ -425,24 +435,26 @@
       </div>
       <div class="music-layout rv">
         <div class="artist-card">
-          {{- /* 右下角耳机驻场猫：只有头+耳机的贴纸构图，#music.playing 时整颗头跟节奏点头。耳/带/耳罩分层，头压叠其上不留缝 */ -}}
-          <svg class="music-cat cat" viewBox="0 0 46 44" aria-hidden="true">
-            <path d="M8.5 20 Q23 2 37.5 20" fill="none" stroke="var(--ink-3)" stroke-width="3.8" stroke-linecap="round" />
-            <path d="M15.5 4.5 L13 14.5 L20.5 11 Z" fill="var(--sun)" />
-            <path d="M30.5 4.5 L33 14.5 L25.5 11 Z" fill="var(--sun)" />
-            <circle cx="23" cy="21" r="12" fill="var(--sun)" />
-            <g fill="none" stroke="var(--sun-deep)" stroke-width="1.6" stroke-linecap="round" opacity=".5">
-              <path d="M18.6 12.6 q1.2 2.3 .6 4.3" /><path d="M23 12 q0 2.6 0 4.9" /><path d="M27.4 12.6 q-1.2 2.3 -.6 4.3" />
+          {{- /* 右下角耳机驻场猫：只有头+耳机的贴纸构图，#music.playing 时整颗头跟节奏点头。
+               耳机明确"戴在头上"：头带先画（在头后），弧线跨过头顶、两端落到耳罩；耳罩贴住脸颊两侧。
+               耳 / 脸 / 五官依次压叠，最后补第二只耳罩的前缘，层次干净不留缝 */ -}}
+          <svg class="music-cat cat" viewBox="0 0 52 46" aria-hidden="true">
+            <path d="M12.5 26 C 12.5 6.5, 39.5 6.5, 39.5 26" fill="none" stroke="var(--ink-3)" stroke-width="3.6" stroke-linecap="round" />
+            <path d="M14.5 20 L15.5 7 L23.5 16 Z" fill="var(--sun)" />
+            <path d="M37.5 20 L36.5 7 L28.5 16 Z" fill="var(--sun)" />
+            <ellipse cx="26" cy="26.5" rx="13.5" ry="12.5" fill="var(--sun)" />
+            <g fill="none" stroke="var(--sun-deep)" stroke-width="1.7" stroke-linecap="round" opacity=".5">
+              <path d="M21.5 17 q1.2 2.6 .6 4.8" /><path d="M26 16.5 q0 2.8 0 5.2" /><path d="M30.5 17 q-1.2 2.6 -.6 4.8" />
             </g>
-            <g class="eyes-closed" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round">
-              <path d="M16.6 20.6 q2.4 2.1 4.8 0" /><path d="M24.6 20.6 q2.4 2.1 4.8 0" />
+            <g class="eyes-closed" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round">
+              <path d="M18.5 25.8 q2.8 2.4 5.6 0" /><path d="M27.9 25.8 q2.8 2.4 5.6 0" />
             </g>
             <g class="eyes-open" fill="#2b3a42">
-              <ellipse cx="18.8" cy="20.8" rx="1.7" ry="2" /><ellipse cx="26.8" cy="20.8" rx="1.7" ry="2" />
+              <ellipse cx="21.1" cy="26" rx="1.9" ry="2.2" /><ellipse cx="30.9" cy="26" rx="1.9" ry="2.2" />
             </g>
-            <path d="M21.9 24.2 h2.2 l-1.1 1.5 z" fill="var(--sun-deep)" />
-            <rect x="4.6" y="16.5" width="8.6" height="17" rx="4.3" fill="var(--accent)" />
-            <rect x="32.8" y="16.5" width="8.6" height="17" rx="4.3" fill="var(--accent)" />
+            <path d="M25 29.6 h2 l-1 1.4 z" fill="var(--sun-deep)" />
+            <rect x="7" y="19" width="9" height="16" rx="4.5" fill="var(--accent)" />
+            <rect x="36" y="19" width="9" height="16" rx="4.5" fill="var(--accent)" />
           </svg>
           <span class="artist-tag" data-zh="歌手介绍" data-en="Artist">歌手介绍</span>
           <div class="artist-memorial">IN MEMORIAM</div>
