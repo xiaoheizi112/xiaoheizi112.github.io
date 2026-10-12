@@ -1,3 +1,4 @@
+{{- $hen := hugo.Data.home_en -}}
 {{- $h := hugo.Data.home -}}
 {{- $songs := hugo.Data.music -}}
 {{- /* 首页相册条：优先取 photos.yml 里 featured: true 的代表作，没标就退回最新 6 张 */ -}}
@@ -33,7 +34,7 @@
       setTimeout(function () { if (!window.__homeReady) document.documentElement.classList.add("rv-fallback"); }, 1200);
     });
   </script>
-  <title>{{ site.Title }} · 学习笔记与生活随拍</title>
+  <title>{{ site.Title }}</title>
   <meta name="description" content="{{ site.Params.description }}" />
   <link rel="canonical" href="{{ .Permalink }}" />
   {{- with .OutputFormats.Get "rss" }}
@@ -43,7 +44,7 @@
   {{- $ogimg := "images/og-cover.png" | absURL }}
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="{{ site.Title }}" />
-  <meta property="og:title" content="{{ site.Title }} · 学习笔记与生活随拍" />
+  <meta property="og:title" content="{{ site.Title }}" />
   <meta property="og:description" content="{{ site.Params.description }}" />
   <meta property="og:url" content="{{ .Permalink }}" />
   <meta property="og:image" content="{{ $ogimg }}" />
@@ -51,7 +52,7 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="zh_CN" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{{ site.Title }} · 学习笔记与生活随拍" />
+  <meta name="twitter:title" content="{{ site.Title }}" />
   <meta name="twitter:description" content="{{ site.Params.description }}" />
   <meta name="twitter:image" content="{{ $ogimg }}" />
   {{- if site.Params.assets.favicon }}<link rel="icon" href="{{ site.Params.assets.favicon | relURL }}" />{{ end }}
@@ -65,9 +66,21 @@
   <link href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400&display=swap&text=%E6%8A%8A%E8%BF%99%E4%BA%9B%E6%AD%8C%E6%94%BE%E4%B8%8A%E6%9C%AC%E7%AB%99%EF%BC%8C%E6%98%AF%E6%88%91%E8%83%BD%E6%83%B3%E5%88%B0%E7%9A%84%E6%9C%80%E5%AE%89%E9%9D%99%E7%9A%84%E7%BA%AA%E5%BF%B5%E2%80%94%E2%80%94%E4%BD%A0%E6%9D%A5%E8%AF%BB%E5%AD%97%EF%BC%8C%E4%B9%9F%E9%A1%BA%E4%BE%BF%E5%90%AC%E5%90%AC%E4%BB%96%E3%80%82" rel="stylesheet" />
   {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
   {{ partialCached "js.html" (dict "path" "lib/turbo/turbo.umd.js" "defer" true) "turbo" }}
+  {{- /* Turbo 8 原生 View Transitions：与文章页同一套换页过渡，进出首页也顺滑。不支持则自动退化 */ -}}
+  <meta name="view-transition" content="same-origin" />
 </head>
 <body>
 <canvas id="dot-lens" aria-hidden="true"></canvas>
+{{- /* 猫猫元素共用的爪印符号（爪垫+四趾），全站 <use href="#paw"> 复用 */ -}}
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="paw" viewBox="0 0 24 24">
+    <ellipse cx="12" cy="15.8" rx="5" ry="4.1" fill="currentColor" />
+    <circle cx="5.6" cy="10.6" r="2.1" fill="currentColor" />
+    <circle cx="9.6" cy="7.6" r="2.2" fill="currentColor" />
+    <circle cx="14.4" cy="7.6" r="2.2" fill="currentColor" />
+    <circle cx="18.4" cy="10.6" r="2.1" fill="currentColor" />
+  </symbol>
+</svg>
 {{- /* 滚动长背景：五层主题氛围随板块交叉淡入，图标视差漂移 + hover 放大。字形用系统单色符号，零图片资源 */ -}}
 <div class="ambient" aria-hidden="true">
   <div class="amb" data-for="morning"><i class="fl s1" style="--px:.05">☀</i><i class="fl s2" style="--px:.09">☁</i><i class="fl s2b" style="--px:.13">☀</i></div>
@@ -77,7 +90,7 @@
   <div class="amb" data-for="hello"><i class="fl s9" style="--px:.06">✉</i><i class="fl s10" style="--px:.1">✈</i><i class="fl s10b" style="--px:.14">☏</i></div>
   <div class="amb" data-for="play"><i class="fl s11" style="--px:.07">✦</i><i class="fl s12" style="--px:.11">◦</i><i class="fl s12b" style="--px:.15">✦</i></div>
 </div>
-<a class="skip-link" href="#main">跳到主要内容</a>
+<a class="skip-link" href="#main" data-zh="跳到主要内容" data-en="Skip to content">跳到主要内容</a>
 
 <nav class="nav" id="nav" aria-label="主导航">
   <div class="nav-inner">
@@ -86,15 +99,15 @@
       <span class="brand-name">{{ $h.brand.cn }}<span class="en">{{ $h.brand.en }}</span></span>
     </a>
     <div class="nav-links">
-      <a href="#about">关于</a>
-      <a href="#posts">笔记</a>
-      <a href="/tracks/">路线</a>
-      {{- if $songs }}<a href="#music">音乐</a>{{ end }}
-      <a href="/photos/">相册</a>
-      {{- with hugo.Data.products }}<a href="#products">产品</a>{{ end }}
-      <a href="#interests">兴趣</a>
-      <a href="/now/">现在</a>
-      <a href="#contact">联系</a>
+      <a href="#about" data-zh="关于" data-en="About">关于</a>
+      <a href="#posts" data-zh="笔记" data-en="Notes">笔记</a>
+      <a href="/tracks/" data-zh="路线" data-en="Tracks">路线</a>
+      {{- if $songs }}<a href="#music" data-zh="音乐" data-en="Music">音乐</a>{{ end }}
+      <a href="/photos/" data-zh="相册" data-en="Photos">相册</a>
+      {{- with hugo.Data.products }}<a href="#products" data-zh="产品" data-en="Products">产品</a>{{ end }}
+      <a href="#interests" data-zh="兴趣" data-en="Interests">兴趣</a>
+      <a href="/now/" data-zh="现在" data-en="Now">现在</a>
+      <a href="#contact" data-zh="联系" data-en="Contact">联系</a>
     </div>
     <div class="nav-actions">
       {{- range site.Params.socialIcons }}
@@ -107,7 +120,10 @@
         </svg>
       </a>
       {{- end }}
-      <button class="icon-action theme-btn" type="button" data-tip="深浅色" aria-label="切换深浅色主题">
+      <button class="icon-action lang-btn" type="button" data-tip="中 / EN" aria-label="切换中英文">
+        <span class="lang-cur">EN</span>
+      </button>
+      <button class="icon-action theme-btn" type="button" data-tip="深浅色" data-zh-tip="深浅色" data-en-tip="Light / Dark" aria-label="切换深浅色主题">
         <svg class="tb-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg class="tb-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
       </button>
@@ -119,18 +135,18 @@
   <div class="hero-orbit" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="hero-copy">
-      <p class="hero-eyebrow">{{ $h.hero.eyebrow }}</p>
-      <h1>{{ $h.hero.line1 }}<br /><span class="acc">{{ $h.hero.line2 }}<svg class="squig" viewBox="0 0 240 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 9 C 34 3, 58 13, 92 7 S 150 3, 182 10 S 222 8, 237 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span></h1>
-      <p class="hero-sub">{{ $h.hero.sub }}</p>
+      <p class="hero-eyebrow" data-zh="{{ $h.hero.eyebrow }}" data-en="{{ $hen.hero.eyebrow }}">{{ $h.hero.eyebrow }}</p>
+      <h1><span data-zh="{{ $h.hero.line1 }}" data-en="{{ $hen.hero.line1 }}">{{ $h.hero.line1 }}</span><br /><span class="acc"><span data-zh="{{ $h.hero.line2 }}" data-en="{{ $hen.hero.line2 }}">{{ $h.hero.line2 }}</span><svg class="squig" viewBox="0 0 240 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 9 C 34 3, 58 13, 92 7 S 150 3, 182 10 S 222 8, 237 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span></h1>
+      <p class="hero-sub" data-zh="{{ $h.hero.sub }}" data-en="{{ $hen.hero.sub }}">{{ $h.hero.sub }}</p>
       <div class="hero-divider" aria-hidden="true"></div>
       <div class="hero-ctas">
-        <a href="#posts" class="btn-primary">{{ $h.hero.cta_primary }} <span class="arr">→</span></a>
-        {{- if $songs }}<a href="#music" class="btn-ghost">{{ $h.hero.cta_secondary }}</a>{{ end }}
+        <a href="#posts" class="btn-primary"><span data-zh="{{ $h.hero.cta_primary }}" data-en="{{ $hen.hero.cta_primary }}">{{ $h.hero.cta_primary }}</span> <span class="arr">→</span></a>
+        {{- if $songs }}<a href="#music" class="btn-ghost" data-zh="{{ $h.hero.cta_secondary }}" data-en="{{ $hen.hero.cta_secondary }}">{{ $h.hero.cta_secondary }}</a>{{ end }}
       </div>
       <dl class="hero-stats" aria-label="站点快照">
-        <div><dt data-count="{{ len site.RegularPages }}">0</dt><dd>篇笔记</dd></div>
-        <div><dt data-count="{{ len site.Taxonomies.tags }}">0</dt><dd>个标签</dd></div>
-        <div><dt data-count="{{ $days }}">0</dt><dd>天运行</dd></div>
+        <div><dt data-count="{{ len site.RegularPages }}">0</dt><dd data-zh="篇笔记" data-en="notes">篇笔记</dd></div>
+        <div><dt data-count="{{ len site.Taxonomies.tags }}">0</dt><dd data-zh="个标签" data-en="tags">个标签</dd></div>
+        <div><dt data-count="{{ $days }}">0</dt><dd data-zh="天运行" data-en="days running">天运行</dd></div>
       </dl>
     </div>
     {{- /* Hero 明信片：手绘卡通插画内联 SVG，颜色全走 :root 令牌，零外部资源 */ -}}
@@ -162,6 +178,27 @@
         <rect x="157" y="216" width="6" height="22" fill="var(--ink-3)" />
         <circle cx="160" cy="205" r="15" fill="var(--grass-deep)" />
         <line x1="16" y1="252" x2="304" y2="252" stroke="var(--border)" />
+        {{- /* 驻站猫「小橘猫」：趴着晒太阳。整组用定稿的躺姿几何，靠 translate+scale 嵌入避免手调走形 */ -}}
+        <g class="cat hero-cat" transform="translate(28 203) scale(1.6)">
+          <ellipse cx="34" cy="28.5" rx="19" ry="2" fill="var(--ink-3)" opacity=".14" />
+          <path d="M45 17.5 Q55 15.5 56 22 Q56.8 28.5 48.5 27.5 Q53.5 26 53 21.5 Q52 17.5 45 20 Z" fill="var(--sun)" />
+          <path d="M11.5 6 L12 15.5 L18 13 Z" fill="var(--sun)" />
+          <path d="M24.5 6 L24 15.5 L18 13 Z" fill="var(--sun)" />
+          <ellipse cx="34" cy="21" rx="16" ry="7" fill="var(--sun)" />
+          <g fill="none" stroke="var(--sun-deep)" stroke-width="1.6" stroke-linecap="round" opacity=".5">
+            <path d="M37 15 q1.2 3.4 .8 6.8" /><path d="M42 16 q1 3 .6 6" /><path d="M46.4 17.8 q.8 2.6 .5 5" />
+          </g>
+          <circle cx="18" cy="19.5" r="8.4" fill="var(--sun)" />
+          <g class="eyes-closed" fill="none" stroke="var(--cat-ink)" stroke-width="1.1" stroke-linecap="round">
+            <path d="M13.6 19 q2 1.7 4 0" /><path d="M18.6 19 q2 1.7 4 0" />
+          </g>
+          <g class="eyes-open" fill="var(--cat-ink)">
+            <ellipse cx="15.5" cy="19.2" rx="1.1" ry="1.5" /><ellipse cx="20.5" cy="19.2" rx="1.1" ry="1.5" />
+          </g>
+          <path d="M17.2 21.6 h1.6 l-.8 1.1 z" fill="var(--sun-deep)" />
+          <text class="zz z1" x="6" y="13" font-size="7" fill="var(--ink-3)" font-family="var(--font-mono)">z</text>
+          <text class="zz z2" x="1.5" y="6.5" font-size="9.5" fill="var(--ink-3)" font-family="var(--font-mono)">z</text>
+        </g>
         {{- /* 右上角邮票（虚线圆点啃边做齿孔）+ 波浪邮销线 */ -}}
         <rect x="232" y="34" width="54" height="64" fill="var(--bg)" stroke="var(--sun)" stroke-width="1.5" />
         <rect x="232" y="34" width="54" height="64" fill="none" stroke="var(--bg-2)" stroke-width="8" stroke-dasharray="0.1 8.5" stroke-linecap="round" />
@@ -185,7 +222,11 @@
       </svg>
     </figure>
   </div>
-  <div class="hero-scroll" aria-hidden="true"><span>SCROLL</span><span class="line"></span></div>
+  <div class="hero-scroll" aria-hidden="true"><span>SCROLL</span><span class="paw-steps">
+    <svg class="ps ps1" viewBox="0 0 24 24"><use href="#paw" /></svg>
+    <svg class="ps ps2" viewBox="0 0 24 24"><use href="#paw" /></svg>
+    <svg class="ps ps3" viewBox="0 0 24 24"><use href="#paw" /></svg>
+  </span></div>
 </header>
 
 <main id="main">
@@ -265,6 +306,31 @@
               <circle cx="38" cy="344" r="9" /><circle cx="50" cy="348" r="7" />
               <circle cx="286" cy="356" r="8" /><circle cx="297" cy="360" r="6" />
             </g>
+            {{- /* 小橘猫的第二幕：山丘上端坐看蝴蝶。同款画法——耳/尾先画，身体和后爪压叠其上 */ -}}
+            <g class="cat about-cat" transform="translate(239 307)">
+              <ellipse cx="22" cy="47" rx="13" ry="1.8" fill="var(--ink-3)" opacity=".14" />
+              <path d="M29.5 40.5 q9 2 8 -8 q-1 -5 -5 -4.5" fill="none" stroke="var(--sun)" stroke-width="4.2" stroke-linecap="round" />
+              <path d="M13 4 L13.5 13 L20.5 10 Z" fill="var(--sun)" />
+              <path d="M31 4 L30.5 13 L23.5 10 Z" fill="var(--sun)" />
+              <ellipse cx="22" cy="36" rx="10.5" ry="11" fill="var(--sun)" />
+              <ellipse cx="16.5" cy="45" rx="4" ry="2.6" fill="var(--sun)" />
+              <ellipse cx="27.5" cy="45" rx="4" ry="2.6" fill="var(--sun)" />
+              <circle cx="22" cy="18" r="11.5" fill="var(--sun)" />
+              <path d="M18.4 12.2 q2.6 -1.6 5.6 0" fill="none" stroke="var(--sun-deep)" stroke-width="1.5" stroke-linecap="round" opacity=".5" />
+              <g class="eyes-closed" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round">
+                <path d="M16 17 q2.4 2.1 4.8 0" /><path d="M23.2 17 q2.4 2.1 4.8 0" />
+              </g>
+              <g class="eyes-open" fill="#2b3a42">
+                <ellipse cx="18.2" cy="17.2" rx="1.7" ry="2" /><ellipse cx="25.8" cy="17.2" rx="1.7" ry="2" />
+              </g>
+              <path d="M20.9 20.4 h2.2 l-1.1 1.5 z" fill="var(--sun-deep)" />
+            </g>
+            {{- /* 蝴蝶：轻浮 + 扇翅 */ -}}
+            <g class="butterfly">
+              <ellipse cx="286" cy="306" rx="3" ry="4.4" fill="var(--accent)" opacity=".75" transform="rotate(-24 286 306)" />
+              <ellipse cx="292.4" cy="306" rx="3" ry="4.4" fill="var(--sun)" opacity=".85" transform="rotate(24 292.4 306)" />
+              <line x1="289.2" y1="303" x2="289.2" y2="309" stroke="var(--ink-2)" stroke-width="1.1" stroke-linecap="round" />
+            </g>
             {{- /* 蜿蜒回家的小路（虚线脚印感） */ -}}
             <path d="M120 400 Q 118 352 110 324 Q 104 306 97 300" fill="none" stroke="var(--ink-3)" stroke-width="3.5" stroke-dasharray="1 10" stroke-linecap="round" opacity=".5" />
             {{- /* 前景草丛 */ -}}
@@ -273,14 +339,15 @@
               <path d="M252 392 v-10 M258 392 v-13 M264 392 v-8" />
             </g>
           </svg>
-          <span class="portrait-tag">{{ $h.about.since }}</span>
+<span class="portrait-tag" data-zh="{{ $h.about.since }}" data-en="{{ $hen.about.since }}">{{ $h.about.since }}</span>
         </div>
         <div class="about-body rv">
-          <div class="sec-eyebrow"><span class="dot"></span>ABOUT · 关于</div>
-          <h2>关于我</h2>
-          {{- range $h.about.paragraphs }}<p>{{ . | safeHTML }}</p>{{ end }}
+          <div class="sec-eyebrow"><span class="dot"></span><span data-zh="ABOUT · 关于" data-en="ABOUT · About">ABOUT · 关于</span></div>
+          <h2 data-zh="关于我" data-en="About me">关于我</h2>
+          {{- range $h.about.paragraphs }}<p class="lang-zh">{{ . | safeHTML }}</p>{{ end }}
+          {{- range $hen.about.paragraphs }}<p class="lang-en">{{ . | safeHTML }}</p>{{ end }}
           <div class="about-tags">
-            {{- range $h.about.tags }}<span class="tag">{{ . }}</span>{{ end }}
+            {{- range $i, $t := $h.about.tags }}<span class="tag" data-zh="{{ $t }}" data-en="{{ index $hen.about.tags $i | default $t }}">{{ $t }}</span>{{ end }}
           </div>
         </div>
       </div>
@@ -288,24 +355,34 @@
   </section>
 
   <section class="sec" id="posts">
+    {{- /* 小橘猫路过留下的爪印：淡到几乎 unnoticed，只给细心的人 */ -}}
+    <svg class="paw-trail trail-posts" viewBox="0 0 170 100" aria-hidden="true">
+      <use href="#paw" x="2" y="80" width="15" height="15" transform="rotate(-18 9.5 87.5)" opacity=".30" />
+      <use href="#paw" x="36" y="64" width="14" height="14" transform="rotate(10 43 71)" opacity=".25" />
+      <use href="#paw" x="68" y="48" width="13" height="13" transform="rotate(-16 74.5 54.5)" opacity=".20" />
+      <use href="#paw" x="100" y="32" width="12" height="12" transform="rotate(12 106 38)" opacity=".15" />
+      <use href="#paw" x="128" y="18" width="11" height="11" transform="rotate(-14 133.5 23.5)" opacity=".10" />
+      <use href="#paw" x="152" y="6" width="10" height="10" transform="rotate(10 157 11)" opacity=".06" />
+    </svg>
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>COLUMNS · 学习笔记</div>
-        <h2>学习专栏</h2>
-        <p class="sec-desc">按主题分的专栏，每一栏都收着同一路数的笔记，点进去顺着读。</p>
+        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="COLUMNS · 学习笔记" data-en="COLUMNS · Study notes">COLUMNS · 学习笔记</span></div>
+        <h2 data-zh="学习专栏" data-en="Study columns">学习专栏</h2>
+        <p class="sec-desc" data-zh="按主题分的专栏，每一栏都收着同一路数的笔记，点进去顺着读。" data-en="Columns by topic — each gathers notes of the same kind. Open one and read along.">按主题分的专栏，每一栏都收着同一路数的笔记，点进去顺着读。</p>
       </div>
       <div class="col-acc rv">
         {{- $all := site.RegularPages }}
-        {{- $shown := 0 }}
+        {{- $cen := hugo.Data.columns_en }}
         {{- range $c := hugo.Data.columns }}
         {{- $notes := where $all "Params.tags" "intersect" (slice $c.tag) }}
         {{- if $notes }}
-        <details class="col-row"{{ if eq $shown 0 }} open{{ end }}>
+        {{- $ce := dict -}}{{- range $cen }}{{ if eq .tag $c.tag }}{{ $ce = . }}{{ end }}{{ end }}
+        <details class="col-row">
           <summary class="col-row-head">
             <span class="col-row-icon" aria-hidden="true">{{ $c.icon }}</span>
             <span class="col-row-text">
-              <span class="col-row-title">{{ $c.title }}<span class="col-row-count">{{ len $notes }} 篇</span></span>
-              <span class="col-row-desc">{{ $c.desc }}</span>
+              <span class="col-row-title"><span data-zh="{{ $c.title }}" data-en="{{ $ce.title | default $c.title }}">{{ $c.title }}</span><span class="col-row-count"><span data-zh="{{ len $notes }} 篇" data-en="{{ len $notes }} notes">{{ len $notes }} 篇</span></span></span>
+              <span class="col-row-desc" data-zh="{{ $c.desc }}" data-en="{{ $ce.desc | default $c.desc }}">{{ $c.desc }}</span>
             </span>
             <span class="col-row-chev" aria-hidden="true"></span>
           </summary>
@@ -315,27 +392,26 @@
               <li><a href="{{ .RelPermalink }}"><span class="col-note-title">{{ .Title }}</span><time class="col-note-date">{{ .Date.Format "2006-01-02" }}</time></a></li>
               {{- end }}
             </ul>
-            <a class="col-tag-link" href="{{ "/tags/" | relURL }}{{ $c.tag | urlize }}/">查看「{{ $c.tag }}」标签下的全部 →</a>
+            <a class="col-tag-link" href="{{ "/tags/" | relURL }}{{ $c.tag | urlize }}/" data-zh="查看「{{ $c.tag }}」标签下的全部 →" data-en="All under this tag →">查看「{{ $c.tag }}」标签下的全部 →</a>
           </div>
         </details>
-        {{- $shown = add $shown 1 }}
         {{- end }}
         {{- end }}
       </div>
-      <div class="posts-more rv"><a href="{{ "/posts/" | relURL }}" class="btn-ghost">全部文章 →</a></div>
+      <div class="posts-more rv"><a href="{{ "/posts/" | relURL }}" class="btn-ghost" data-zh="全部文章 →" data-en="All articles →">全部文章 →</a></div>
     </div>
   </section>
 
   <section class="sec metrics">
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>BY THE NUMBERS · 持续记录</div>
-        <h2>记录数据</h2>
+        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="BY THE NUMBERS · 持续记录" data-en="BY THE NUMBERS · The record">BY THE NUMBERS · 持续记录</span></div>
+        <h2 data-zh="记录数据" data-en="The record">记录数据</h2>
       </div>
       <div class="metric-grid rv">
-        <div class="metric"><div class="num" data-count="{{ len site.RegularPages }}">0</div><div class="label">文章</div><div class="src">Articles</div></div>
-        <div class="metric"><div class="num" data-count="{{ $words }}">0</div><div class="label">总字数</div><div class="src">Total words</div></div>
-        <div class="metric"><div class="num" data-count="{{ len $songs }}">0</div><div class="label">首歌常驻</div><div class="src">Songs on rotation</div></div>
+        <div class="metric"><div class="num" data-count="{{ len site.RegularPages }}">0</div><div class="label" data-zh="文章" data-en="Articles">文章</div><div class="src">Articles</div></div>
+        <div class="metric"><div class="num" data-count="{{ $words }}">0</div><div class="label" data-zh="总字数" data-en="Total words">总字数</div><div class="src">Total words</div></div>
+        <div class="metric"><div class="num" data-count="{{ len $songs }}">0</div><div class="label" data-zh="首歌常驻" data-en="Songs on rotation">首歌常驻</div><div class="src">Songs on rotation</div></div>
       </div>
     </div>
   </section>
@@ -344,17 +420,36 @@
   <section class="sec" id="music">
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>SOUNDTRACK · 音乐</div>
-        <h2>常驻歌单</h2>
+        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="SOUNDTRACK · 音乐" data-en="SOUNDTRACK · Music">SOUNDTRACK · 音乐</span></div>
+        <h2 data-zh="常驻歌单" data-en="On rotation">常驻歌单</h2>
       </div>
       <div class="music-layout rv">
         <div class="artist-card">
-          <span class="artist-tag">歌手介绍</span>
+          {{- /* 右下角耳机驻场猫：只有头+耳机的贴纸构图，#music.playing 时整颗头跟节奏点头。耳/带/耳罩分层，头压叠其上不留缝 */ -}}
+          <svg class="music-cat cat" viewBox="0 0 46 44" aria-hidden="true">
+            <path d="M8.5 20 Q23 2 37.5 20" fill="none" stroke="var(--ink-3)" stroke-width="3.8" stroke-linecap="round" />
+            <path d="M15.5 4.5 L13 14.5 L20.5 11 Z" fill="var(--sun)" />
+            <path d="M30.5 4.5 L33 14.5 L25.5 11 Z" fill="var(--sun)" />
+            <circle cx="23" cy="21" r="12" fill="var(--sun)" />
+            <g fill="none" stroke="var(--sun-deep)" stroke-width="1.6" stroke-linecap="round" opacity=".5">
+              <path d="M18.6 12.6 q1.2 2.3 .6 4.3" /><path d="M23 12 q0 2.6 0 4.9" /><path d="M27.4 12.6 q-1.2 2.3 -.6 4.3" />
+            </g>
+            <g class="eyes-closed" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round">
+              <path d="M16.6 20.6 q2.4 2.1 4.8 0" /><path d="M24.6 20.6 q2.4 2.1 4.8 0" />
+            </g>
+            <g class="eyes-open" fill="#2b3a42">
+              <ellipse cx="18.8" cy="20.8" rx="1.7" ry="2" /><ellipse cx="26.8" cy="20.8" rx="1.7" ry="2" />
+            </g>
+            <path d="M21.9 24.2 h2.2 l-1.1 1.5 z" fill="var(--sun-deep)" />
+            <rect x="4.6" y="16.5" width="8.6" height="17" rx="4.3" fill="var(--accent)" />
+            <rect x="32.8" y="16.5" width="8.6" height="17" rx="4.3" fill="var(--accent)" />
+          </svg>
+          <span class="artist-tag" data-zh="歌手介绍" data-en="Artist">歌手介绍</span>
           <div class="artist-memorial">IN MEMORIAM</div>
           <div class="artist-name">XXXTENTACION</div>
           <div class="artist-years">1998.1.18 — 2018.6.18</div>
-          <p>本名 Jahseh Dwayne Ricardo Onfroy，1998 年生于美国佛罗里达州劳德希尔，说唱歌手、创作人。他把失眠、愤怒和脆弱原样写进歌里，风格横跨情绪说唱、摇滚与不插电，是「情绪说唱」浪潮里最有影响力的人之一。</p>
-          <p class="artist-quote">代表作《SAD!》《Jocelyn Flores》《Moonlight》。2018 年 6 月 18 日，他在迈阿密遭枪击身亡，年仅 20 岁——《SAD!》在他身后登顶 Billboard 单曲榜。</p>
+          <p data-zh="本名 Jahseh Dwayne Ricardo Onfroy，1998 年生于美国佛罗里达州劳德希尔，说唱歌手、创作人。他把失眠、愤怒和脆弱原样写进歌里，风格横跨情绪说唱、摇滚与不插电，是「情绪说唱」浪潮里最有影响力的人之一。" data-en="Born Jahseh Dwayne Ricardo Onfroy in 1998 in Lauderhill, Florida — rapper and songwriter. He wrote his insomnia, anger and fragility straight into his songs, moving between emo rap, rock and acoustic, and became one of the most influential figures of the emo-rap wave.">本名 Jahseh Dwayne Ricardo Onfroy，1998 年生于美国佛罗里达州劳德希尔，说唱歌手、创作人。他把失眠、愤怒和脆弱原样写进歌里，风格横跨情绪说唱、摇滚与不插电，是「情绪说唱」浪潮里最有影响力的人之一。</p>
+          <p class="artist-quote" data-zh="代表作《SAD!》《Jocelyn Flores》《Moonlight》。2018 年 6 月 18 日，他在迈阿密遭枪击身亡，年仅 20 岁——《SAD!》在他身后登顶 Billboard 单曲榜。" data-en="Known for SAD!, Jocelyn Flores and Moonlight. On June 18, 2018, he was shot and killed in Miami at just 20 — SAD! topped the Billboard singles chart after his death.">代表作《SAD!》《Jocelyn Flores》《Moonlight》。2018 年 6 月 18 日，他在迈阿密遭枪击身亡，年仅 20 岁——《SAD!》在他身后登顶 Billboard 单曲榜。</p>
         </div>
         <ol class="tracklist">
           {{- range $i, $e := $songs }}
@@ -363,7 +458,7 @@
             <img class="track-cover" src="{{ .cover | relURL }}" alt="{{ .title }} 封面" loading="lazy" />
             <div class="track-body">
               <div class="track-name">{{ .title }}</div>
-              <div class="track-desc">{{ .desc }}</div>
+              <div class="track-desc" data-zh="{{ .desc }}" data-en="{{ .desc_en | default .desc }}">{{ .desc }}</div>
             </div>
           </li>
           {{- end }}
@@ -377,35 +472,47 @@
   <section class="sec" id="photos">
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>PHOTOS · 相册</div>
-        <h2>相册</h2>
+        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="PHOTOS · 相册" data-en="PHOTOS · Photos">PHOTOS · 相册</span></div>
+        <h2 data-zh="相册" data-en="Photos">相册</h2>
       </div>
       <div class="photos-strip rv">
         {{- range $photos }}
         {{- $thumb := strings.Replace .src "photos/" "photos/thumbs/" 1 }}
         {{- $thumb = cond (fileExists (printf "static/%s" $thumb)) $thumb .src }}
-        <a class="strip-item" href="/photos/#p-{{ index $pidx .src }}"><img src="{{ $thumb | relURL }}" alt="{{ .caption | default .place }}" loading="lazy" /><span class="strip-cap">{{ .caption | default .place }}</span></a>
+        <a class="strip-item" href="/photos/#p-{{ index $pidx .src }}"><img src="{{ $thumb | relURL }}" alt="{{ .caption | default .place }}" loading="lazy" /></a>
         {{- end }}
       </div>
-      <div class="posts-more"><a href="/photos/" class="btn-ghost">全部照片 →</a></div>
+      <div class="posts-more"><a href="/photos/" class="btn-ghost" data-zh="全部照片 →" data-en="All photos →">全部照片 →</a></div>
     </div>
   </section>
   {{- end }}
 
   {{- with hugo.Data.interests }}
   <section class="sec" id="interests">
+    {{- /* 小橘猫又路过了兴趣区：这串从右下往左上 */ -}}
+    <svg class="paw-trail trail-interests" viewBox="0 0 170 100" aria-hidden="true">
+      <use href="#paw" x="152" y="76" width="15" height="15" transform="rotate(14 159.5 83.5)" opacity=".28" />
+      <use href="#paw" x="120" y="62" width="14" height="14" transform="rotate(-12 127 69)" opacity=".22" />
+      <use href="#paw" x="88" y="48" width="13" height="13" transform="rotate(16 94.5 54.5)" opacity=".16" />
+      <use href="#paw" x="58" y="34" width="12" height="12" transform="rotate(-10 64 40)" opacity=".11" />
+      <use href="#paw" x="30" y="22" width="11" height="11" transform="rotate(12 35.5 27.5)" opacity=".07" />
+      <use href="#paw" x="6" y="12" width="10" height="10" transform="rotate(-14 11 17)" opacity=".04" />
+    </svg>
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>INTERESTS · 兴趣</div>
-        <h2>兴趣</h2>
-        <p class="sec-desc">打球、睡觉、听歌、散步、做饭，还有一个正在改变我干活的 AI。</p>
+        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="INTERESTS · 兴趣" data-en="INTERESTS · Interests">INTERESTS · 兴趣</span></div>
+        <h2 data-zh="兴趣" data-en="Interests">兴趣</h2>
+        <p class="sec-desc" data-zh="打球、睡觉、听歌、散步、做饭，还有一个正在改变我干活的 AI。" data-en="Ping-pong, sleep, music, walks, cooking — and an AI that changes how I work.">打球、睡觉、听歌、散步、做饭，还有一个正在改变我干活的 AI。</p>
       </div>
       <div class="hobby-grid rv">
+        {{- $ien := hugo.Data.interests_en }}
         {{- range . }}
+        {{- $zh := . }}
+        {{- $ie := dict }}{{ range $ien }}{{ if eq .name $zh.name }}{{ $ie = . }}{{ end }}{{ end }}
         <div class="hobby-card">
-          <span class="hobby-icon" aria-hidden="true">{{ .icon }}</span>
-          <div class="hobby-name">{{ .name }}</div>
-          <p class="hobby-desc">{{ .desc }}</p>
+          <span class="hobby-icon" aria-hidden="true">{{ $zh.icon }}</span>
+          <div class="hobby-name" data-zh="{{ $zh.name }}" data-en="{{ $ie.label | default $zh.name }}">{{ $zh.name }}</div>
+          <p class="hobby-desc" data-zh="{{ $zh.desc }}" data-en="{{ $ie.desc | default $zh.desc }}">{{ $zh.desc }}</p>
         </div>
         {{- end }}
       </div>
@@ -417,14 +524,14 @@
   <section class="sec" id="products">
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>PRODUCTS · 产品</div>
-        <h2>产品</h2>
-        <p class="sec-desc">自己捣鼓出来的，和用过之后觉得值得推荐的。</p>
+        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="PRODUCTS · 产品" data-en="PRODUCTS · Products">PRODUCTS · 产品</span></div>
+        <h2 data-zh="产品" data-en="Products">产品</h2>
+        <p class="sec-desc" data-zh="自己捣鼓出来的，和用过之后觉得值得推荐的。" data-en="Things I built, and things worth recommending.">自己捣鼓出来的，和用过之后觉得值得推荐的。</p>
       </div>
       <div class="prod-grid rv">
         {{- range . }}
         <div class="prod-card">
-          <span class="prod-badge{{ if eq .kind "self" }} self{{ end }}">{{ if eq .kind "self" }}自己做{{ else }}推荐{{ end }}</span>
+          <span class="prod-badge{{ if eq .kind "self" }} self{{ end }}" data-zh="{{ if eq .kind "self" }}自己做{{ else }}推荐{{ end }}" data-en="{{ if eq .kind "self" }}Built by me{{ else }}Recommended{{ end }}">{{ if eq .kind "self" }}自己做{{ else }}推荐{{ end }}</span>
           <div class="prod-name">{{ .name }}</div>
           <p class="prod-desc">{{ .desc }}</p>
         </div>
@@ -437,9 +544,9 @@
   <section class="sec" id="contact">
     <div class="wrap">
       <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span>CONTACT · 联系</div>
-        <h2>联系方式</h2>
-        <p class="sec-desc">点右侧按钮即可复制，欢迎来聊。</p>
+        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="CONTACT · 联系" data-en="CONTACT · Get in touch">CONTACT · 联系</span></div>
+        <h2 data-zh="联系方式" data-en="Get in touch">联系方式</h2>
+        <p class="sec-desc" data-zh="点右侧按钮即可复制，欢迎来聊。" data-en="Click the button to copy. Say hi anytime.">点右侧按钮即可复制，欢迎来聊。</p>
       </div>
       <div class="contact-grid rv">
         {{- range $h.contact }}
@@ -455,7 +562,7 @@
             {{- end }}
           </span>
           <span class="contact-info">
-            <span class="contact-label">{{ .label }}</span>
+            <span class="contact-label" data-zh="{{ .label }}" data-en="{{ .label_en | default .label }}">{{ .label }}</span>
             {{- if .url }}
             <a class="contact-value" href="{{ .url }}" target="_blank" rel="noopener noreferrer">{{ .value }}</a>
             {{- else }}
@@ -464,9 +571,9 @@
           </span>
           <span class="contact-actions">
             {{- if .url }}
-            <a class="contact-go" href="{{ .url }}" target="_blank" rel="noopener noreferrer" aria-label="打开{{ .label }}">打开 <span class="arr">↗</span></a>
+            <a class="contact-go" href="{{ .url }}" target="_blank" rel="noopener noreferrer" aria-label="打开{{ .label }}" data-zh-tip="打开" data-en-tip="Open"><span data-zh="打开" data-en="Open">打开</span> <span class="arr">↗</span></a>
             {{- end }}
-            <button class="copy-btn" type="button" data-copy="{{ .value }}" aria-label="复制{{ .label }}">复制</button>
+            <button class="copy-btn" type="button" data-copy="{{ .value }}" aria-label="复制{{ .label }}" data-zh-tip="复制" data-en-tip="Copy"><span class="copy-label" data-zh="复制" data-en="Copy">复制</span></button>
           </span>
         </div>
         {{- end }}
@@ -477,17 +584,47 @@
 
 <footer class="footer">
   <div class="wrap footer-inner">
-    <span>{{ $h.footer.line }}</span>
+    <span data-zh="{{ $h.footer.line }}" data-en="{{ $hen.footer.line }}">{{ $h.footer.line }}</span>
     <span class="footer-links">
-      <a href="{{ "/posts/" | relURL }}">文章</a>
-      <a href="{{ "/tags/" | relURL }}">标签</a>
+      <a href="{{ "/posts/" | relURL }}" data-zh="文章" data-en="Articles">文章</a>
+      <a href="{{ "/tags/" | relURL }}" data-zh="标签" data-en="Tags">标签</a>
       <a href="https://github.com/xiaoheizi112" target="_blank" rel="noopener noreferrer">GitHub</a>
     </span>
+  </div>
+  {{- /* 页脚团睡的驻站猫 + 名分（中英随 data-zh/data-en 切换）。耳/尾先画，身体压叠其上 */ -}}
+  <div class="wrap footer-cat">
+    <svg viewBox="0 0 92 34" aria-hidden="true">
+      <ellipse cx="46" cy="28.5" rx="30" ry="2.4" fill="var(--ink-3)" opacity=".12" />
+      <path d="M66 25 q9 .5 8 -8 q-.8 -5 -5 -4.4" fill="none" stroke="var(--sun)" stroke-width="4.6" stroke-linecap="round" />
+      <path d="M25 13 L21 5 L29.5 9.5 Z" fill="var(--sun)" />
+      <path d="M35 13 L39 5 L30.5 9.5 Z" fill="var(--sun)" />
+      <ellipse cx="50" cy="21" rx="24" ry="8.4" fill="var(--sun)" />
+      <g fill="none" stroke="var(--sun-deep)" stroke-width="1.9" stroke-linecap="round" opacity=".55">
+        <path d="M51 15 q1.5 3.8 1 7.4" /><path d="M57 14.6 q1.3 3.6 .9 7" /><path d="M63 15.4 q1 3.2 .7 6.4" />
+      </g>
+      <circle cx="30" cy="18" r="9.2" fill="var(--sun)" />
+      <g class="cat">
+        <g class="eyes-closed" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round">
+          <path d="M25.6 18 q2 1.8 4 0" /><path d="M31.6 18 q2 1.8 4 0" />
+        </g>
+        <g class="eyes-open" fill="#2b3a42">
+          <ellipse cx="27.6" cy="18.2" rx="1.4" ry="1.7" /><ellipse cx="33.6" cy="18.2" rx="1.4" ry="1.7" />
+        </g>
+        <path d="M29.3 21.4 h1.4 l-.7 .95 z" fill="var(--sun-deep)" />
+      </g>
+      <use href="#paw" x="4" y="17" width="11" height="11" transform="rotate(-16 9.5 22.5)" opacity=".35" />
+    </svg>
+    <span class="footer-cat-name" data-zh="小橘猫 · 驻站猫，此刻正在晒太阳" data-en="The little orange tabby · station cat, sunbathing right now">小橘猫 · 驻站猫，此刻正在晒太阳</span>
   </div>
 </footer>
 
 <button class="to-top" id="to-top" type="button" aria-label="返回顶部">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>
+  <svg class="to-top-paw" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <g class="toes">
+      <circle cx="5.6" cy="10.8" r="2" /><circle cx="9.7" cy="7.8" r="2.1" /><circle cx="14.3" cy="7.8" r="2.1" /><circle cx="18.4" cy="10.8" r="2" />
+    </g>
+    <path class="pad" d="M12 12.6c3 0 5.5 2.2 5.5 4.8 0 1.8-1.5 2.9-3.1 2.5-.9-.2-1.5-.6-2.4-.6s-1.5.4-2.4.6c-1.6.4-3.1-.7-3.1-2.5 0-2.6 2.5-4.8 5.5-4.8z" />
+  </svg>
 </button>
 
 <script src="{{ "js/home.js" | relURL }}"></script>

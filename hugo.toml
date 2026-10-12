@@ -1,5 +1,5 @@
 baseURL = 'https://xiaoheizi112.github.io/'
-title = '慢公子的小站'
+title = '慢公子 · 晴日小站'
 locale = 'zh-CN'
 defaultContentLanguage = 'zh-cn'
 hasCJKLanguage = true
@@ -54,7 +54,7 @@ favicon = "favicon.svg"
 
 [params.homeInfoParams]
 Title = '慢公子的小站'
-Content = '一个很懒的人的博客。更新频率取决于我什么时候突然想说点什么。'
+Content = '一个晒太阳、写笔记的小站。想起来才更新。'
 
 [[params.socialIcons]]
 name = 'github'

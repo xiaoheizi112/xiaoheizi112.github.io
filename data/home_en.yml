@@ -1,0 +1,30 @@
+# English copy for the homepage (mirrors data/home.yml). Used by the homepage
+# language toggle ONLY — article content stays Chinese.
+
+brand:
+  tagline: "SUNNY"
+
+hero:
+  eyebrow: "HOME · FIELD NOTES"
+  line1: "What I think,"
+  line2: "only counts once written."
+  sub: >-
+    Memory quietly rewrites the past; words don't. So this little site is built
+    slowly and updated whenever the mood strikes — not for an audience, but a
+    corner my future self can come back and browse.
+  cta_primary: "Start reading"
+  cta_secondary: "Play a song"
+
+about:
+  since: "EST. 2026 · smoke from the hills"
+  paragraphs:
+    - >-
+      <span class="em">Slow</span> is an attitude.
+      <span class="em">Sir</span> is self-mockery.
+    - >-
+      A blog is a <span class="em">little plot of my own</span>.
+      What to plant, and when, depends on the sky, my mood, and whether you drop by.
+  tags: ["Notes", "AI coding", "Automation", "Travel", "Music"]
+
+footer:
+  line: "Slow Sir · sleep more when free, read less when busy"

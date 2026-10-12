@@ -1,5 +1,6 @@
 public/
 .hugo_build.lock
+.zcode-shots/
 resources/_gen/
 _gh_login.log
 _hugo_server.log

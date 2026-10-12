@@ -11,8 +11,8 @@ hero:
   line1: "想过的，"
   line2: "写下来才算数。"   # 这一行会显示成强调色
   sub: >-
-    记忆会偷偷改写过去，文字不会。所以记录、写作、把这座小站一点点搭起来——
-    不为给谁看，是给未来的自己留一个可以回查的地方。
+    记忆会偷偷改写过去，文字不会。所以这座小站慢慢搭、想起来才更新——
+    不为给谁看，是给未来的自己留一个能回来翻翻的地方。
   cta_primary: "开始阅读"
   cta_secondary: "先听一首"
 
@@ -33,6 +33,7 @@ about:
 contact:
   - key: "wechat"
     label: "微信"
+    label_en: "WeChat"
     value: "hemoumoumou01"
   - key: "qq"
     label: "QQ"
@@ -47,4 +48,4 @@ stats:
   since: "2026-09-21"
 
 footer:
-  line: "慢公子 · 想起来才更新 ｜ 背景音乐：XXXTENTACION"
+  line: "慢公子 · 有空多睡觉，没空少看书"

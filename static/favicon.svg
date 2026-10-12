@@ -1,4 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#262320"/>
-  <text x="32" y="44" text-anchor="middle" font-family="'Space Grotesk','PingFang SC','Microsoft YaHei',sans-serif" font-size="34" font-weight="600" fill="#f7f5f0">慢</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="慢">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.25" y2="1">
+      <stop offset="0" stop-color="#6fbfe6"/>
+      <stop offset="1" stop-color="#3e9bd4"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#sky)"/>
+  <circle cx="49" cy="15" r="11.5" fill="#f5b740" opacity="0.20"/>
+  <circle cx="49" cy="15" r="7.2" fill="#f5b740"/>
+  <g transform="translate(17,58) scale(0.014851)"><g transform="scale(1,-1)"><path d="M288 1685H530V1310Q625 1273 722 1233L658 1019Q597 1051 530 1084V-263H288ZM756 1635H1872V1055H756ZM1624 1481H1002V1407H1624ZM1624 1209V1283H1002V1209ZM14 723Q70 1011 104 1323L272 1303Q234 963 184 691Q100 711 14 723ZM1958 525H660V979H1958ZM1732 689V815H1554V689ZM886 689H1064V815H886ZM1220 689H1398V815H1220ZM1876 439V263Q1751 110 1557 -1Q1774 -56 2034 -61Q1988 -167 1950 -269Q1579 -239 1295 -123Q1029 -221 676 -267Q630 -169 576 -69Q835 -51 1048 4Q904 95 790 217L874 263H718V439ZM1298 89Q1463 160 1590 263H1022Q1146 160 1298 89Z" fill="#ffffff" stroke="#ffffff" stroke-width="34" stroke-linejoin="round" stroke-linecap="round"/></g></g>
 </svg>

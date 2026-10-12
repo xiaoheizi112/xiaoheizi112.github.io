@@ -6,6 +6,9 @@
 <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
 {{ partialCached "js.html" (dict "path" "lib/turbo/turbo.umd.js" "defer" true) "turbo" }}
+{{- /* Turbo 8 原生 View Transitions：同源换页走浏览器 View Transition（交叉淡入 + 根快照），
+       比单纯 JS 淡入更顺、更像"页面在过渡"。不支持的浏览器自动退化为 Turbo 的即时换页，无副作用。 */ -}}
+<meta name="view-transition" content="same-origin" />
 {{- /* RSS 自动发现：文章页无自带 feed，逐级回退到所属 section / 站点首页 feed */ -}}
 {{- $feed := .OutputFormats.Get "rss" }}
 {{- if not $feed }}{{ $feed = .Parent.OutputFormats.Get "rss" }}{{ end }}
@@ -14,6 +17,14 @@
 <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}" />
 {{- end }}
 {{- /* 关键内联样式：主题 CSS 生效前（Turbo 换页/首帧）先约束主题模板里没写尺寸的 SVG，防巨大符号闪现 */ -}}
+<script>
+/* 渐进增强标记：脚本可用时才隐藏待进场元素（正文逐段 / 列表卡片），放最前避免首帧闪一下再隐藏。
+   reading.js 接上观察器后置 window.__postReady；这里 1.2s 兜底强显，脚本失效/被拦也不会白屏。 */
+document.documentElement.classList.add("js");
+addEventListener("load", function () {
+  setTimeout(function () { if (!window.__postReady) document.documentElement.classList.add("rv-fallback"); }, 1200);
+});
+</script>
 <style>
 #top-link { visibility: hidden; }
 #top-link:not(.hidden) { visibility: visible; }

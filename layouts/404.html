@@ -24,6 +24,16 @@
   {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
 </head>
 <body class="page-404">
+{{- /* 爪印符号（与首页同款），供本页 <use href="#paw"> */ -}}
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="paw" viewBox="0 0 24 24">
+    <ellipse cx="12" cy="15.8" rx="5" ry="4.1" fill="currentColor" />
+    <circle cx="5.6" cy="10.6" r="2.1" fill="currentColor" />
+    <circle cx="9.6" cy="7.6" r="2.2" fill="currentColor" />
+    <circle cx="14.4" cy="7.6" r="2.2" fill="currentColor" />
+    <circle cx="18.4" cy="10.6" r="2.1" fill="currentColor" />
+  </symbol>
+</svg>
 <nav class="nav scrolled" id="nav">
   <div class="nav-inner">
     <a href="{{ "/" | relURL }}" class="brand">
@@ -54,6 +64,40 @@
     <a href="{{ "/tracks/" | relURL }}" class="btn-ghost">顺着路线读</a>
     <a href="{{ "/photos/" | relURL }}" class="btn-ghost">看相册</a>
   </div>
+  {{- /* 走丢的小橘猫：蹲在 404 路牌下发懵，一串爪印在它身后绕成了圈 */ -}}
+  <svg class="nf-art" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <line x1="16" y1="176" x2="304" y2="176" stroke="var(--border)" stroke-width="2" />
+    {{- /* 爪印：从左走进来，到猫跟前绕了个小圈 */ -}}
+    <g>
+      <svg x="14" y="156" width="14" height="14" viewBox="0 0 24 24" transform="rotate(-16 21 163)" opacity=".30"><use href="#paw" /></svg>
+      <svg x="40" y="150" width="13" height="13" viewBox="0 0 24 24" transform="rotate(12 46.5 156.5)" opacity=".25"><use href="#paw" /></svg>
+      <svg x="64" y="156" width="12" height="12" viewBox="0 0 24 24" transform="rotate(-14 70 162)" opacity=".20"><use href="#paw" /></svg>
+      <svg x="84" y="148" width="11" height="11" viewBox="0 0 24 24" transform="rotate(16 89.5 153.5)" opacity=".15"><use href="#paw" /></svg>
+      <svg x="104" y="156" width="10" height="10" viewBox="0 0 24 24" transform="rotate(-10 109 161)" opacity=".11"><use href="#paw" /></svg>
+    </g>
+    {{- /* 路牌 */ -}}
+    <rect x="208" y="60" width="7" height="116" rx="2.5" fill="var(--ink-3)" opacity=".8" />
+    <rect x="152" y="44" width="112" height="38" rx="10" fill="var(--bg)" stroke="var(--ink-3)" stroke-width="2.5" />
+    <text x="208" y="70" text-anchor="middle" font-size="19" letter-spacing="4" fill="var(--accent-deep)" font-family="var(--font-mono)">404</text>
+    {{- /* 发懵的小猫：耳/尾先画，身体压叠其上。圆眼 + 头顶问号 */ -}}
+    <g class="cat lost-cat" transform="translate(139 127)">
+      <ellipse cx="22" cy="47" rx="13" ry="1.8" fill="var(--ink-3)" opacity=".14" />
+      <path d="M31 40 q9 2 8 -8 q-1 -5 -5 -4.5" fill="none" stroke="var(--sun)" stroke-width="4.2" stroke-linecap="round" />
+      <path d="M13 4 L13.5 13 L20.5 10 Z" fill="var(--sun)" />
+      <path d="M31 4 L30.5 13 L23.5 10 Z" fill="var(--sun)" />
+      <ellipse cx="22" cy="36" rx="10.5" ry="11" fill="var(--sun)" />
+      <ellipse cx="16.5" cy="45" rx="4" ry="2.6" fill="var(--sun)" />
+      <ellipse cx="27.5" cy="45" rx="4" ry="2.6" fill="var(--sun)" />
+      <circle cx="22" cy="18" r="11.5" fill="var(--sun)" />
+      <path d="M18.4 12.2 q2.6 -1.6 5.6 0" fill="none" stroke="var(--sun-deep)" stroke-width="1.5" stroke-linecap="round" opacity=".5" />
+      <g fill="var(--ink)">
+        <ellipse cx="18.2" cy="16.8" rx="1.9" ry="2.3" /><ellipse cx="25.8" cy="16.8" rx="1.9" ry="2.3" />
+      </g>
+      <path d="M20.9 20.4 h2.2 l-1.1 1.5 z" fill="var(--sun-deep)" />
+    </g>
+    <text class="nf-q q1" x="186" y="116" font-size="17" fill="var(--ink-2)" font-family="var(--font-mono)">?</text>
+    <text class="nf-q q2" x="196" y="102" font-size="13" fill="var(--ink-3)" font-family="var(--font-mono)">?</text>
+  </svg>
 </main>
 
 <footer class="footer">

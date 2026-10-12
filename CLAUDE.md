@@ -23,8 +23,8 @@
 | `layouts/_partials/footer.html` | Turbo 兼容三修（脚本包 IIFE、跳过 #post-toc 锚点、code-copy 防重复） |
 | `layouts/_partials/toc.html` | 侧栏 sticky 目录（≥1100px）+ 移动端可折叠目录，两套共用滚动高亮 |
 | `layouts/_partials/breadcrumbs.html` | 给 chevron SVG 补显式 width/height 防巨大符号闪现 |
-| `layouts/_partials/extend_head.html` | 首页同款字体 + Turbo + RSS 自动发现 + 阅读进度条（新增文件，非覆盖） |
-| `layouts/_partials/extend_footer.html` | 播放器 + 灯箱 + 深浅色切换挂载点（新增文件，非覆盖） |
+| `layouts/_partials/extend_head.html` | 首页同款字体 + Turbo + RSS 自动发现 + 阅读进度条 + `js` 渐进增强标记 + Turbo 8 View Transitions meta（新增文件，非覆盖） |
+| `layouts/_partials/extend_footer.html` | 播放器 + 灯箱 + 深浅色切换 + 阅读沉浸脚本 `reading.js` 挂载点（新增文件，非覆盖） |
 | `layouts/_default/_markup/render-image.html` | 从 static 读真实宽高写进 img（防懒加载撑动版面） |
 
 ## 独立手写页（不走 PaperMod，复用 home.css 令牌）
@@ -35,6 +35,17 @@
 - `layouts/404.html` —— 晴空风 404 页（`buildFuture` 等无关）
 - 深色模式：这几页都在 `<head>` 最前内联 `dataset.theme` 初始化脚本，读同一个 `localStorage.pref-theme`（与 PaperMod 侧共用），无偏好则跟随系统。暗色变量定义在 `home.css` 的 `:root[data-theme="dark"]`。
 - 首页/相册/路线/404 导航的 `.theme-btn` 切换逻辑在 `extend_footer.html`；PaperMod 文章页用主题自带 `#theme-toggle`。
+
+## 沉浸式阅读与交互（`static/js/reading.js` + `custom.css`）
+
+「晴空 + 暖阳」基调上的阅读体验增强，全站经 `extend_footer.html` 引入，Turbo 兼容、尊重 `prefers-reduced-motion`：
+
+- **路由过渡**：Turbo 8 原生 View Transitions（`extend_head.html` 的 `<meta name="view-transition">` + 两处 CSS 的 `::view-transition-*`；首页在 `home.css`、其余页在 `custom.css`）。支持时由浏览器接管换页动画，`reading.js` 不再叠加淡入（防双动画）；不支持则降级为 JS 整页淡入（只在真实 Turbo 换页时触发）。
+- **文章页**：正文结构元素（h2/h3/引用/图）逐段进场、首屏元素同步立即显示；h2 左侧晴空蓝短线随进场浮出；引用块暖阳左边线 + 轻底；标题锚点 hover 淡显、点击复制深链并弹 `read-toast`；正文末尾「读完」爪印印记；正文图圆角 + 轻投影。
+- **列表页**：`.post-entry` 卡片错峰进场、封面 hover 微放大。
+- **上一篇/下一篇**：`.paginav` 改成两张沉浸导航卡（左暖右蓝、晴空蓝描边、箭头随 hover 滑动）。
+- **首页导航**：滚动侦测（`home.js` 的 IntersectionObserver）高亮当前板块栏。
+- 渐进增强：`extend_head.html` 最前加 `.js` 类隐藏待进场元素，`reading.js` 接上观察器后置 `window.__postReady`，1.2s 兜底强显（`.rv-fallback`），脚本失效不白屏。
 
 ## 生成脚本（内容变更后按需重跑）
 
