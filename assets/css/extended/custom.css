@@ -24,7 +24,7 @@
   /* PaperMod 变量 → 晴空浅色 */
   --nav-width: 1120px;
   --main-width: 780px;
-  --header-height: 68px;
+  --header-height: 58px;
   --radius: 14px;
   --theme: var(--paper-bg);
   --entry: #ffffff;
@@ -332,6 +332,37 @@ html { scrollbar-width: thin; scrollbar-color: rgba(43, 58, 66, 0.2) transparent
   backdrop-filter: blur(14px) saturate(1.4);
   -webkit-backdrop-filter: blur(14px) saturate(1.4);
   border-bottom: 1px solid var(--border);
+}
+
+/* ============ 统一导航：PaperMod 页与首页/要事页共用同一套结构与尺寸 ============ */
+.header .nav { position: static; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; box-shadow: none; }
+.header .nav-inner { max-width: 1120px; margin: 0 auto; padding: 0 32px; height: var(--header-height); display: flex; align-items: center; gap: 28px; }
+.header .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; text-decoration: none; color: var(--paper-ink); }
+.header .brand-mark { width: 30px; height: 30px; border-radius: 10px; background: var(--paper-ink); color: var(--paper-bg); display: grid; place-items: center; font: 600 15px var(--font-display); }
+.header .brand-name { font: 600 17px var(--font-display); letter-spacing: .01em; }
+.header .brand-name .en { display: block; font: 500 9px var(--font-mono); letter-spacing: .3em; color: var(--paper-ink-3); margin-top: -3px; }
+:root[data-theme="dark"] .header .brand-mark { background: var(--paper-bg-2); color: var(--paper-ink); }
+:root[data-theme="dark"] .header .brand-name .en { color: var(--paper-ink-2); }
+.header .nav-links { display: flex; gap: 26px; }
+.header .nav-links a { font-size: 14px; line-height: 1.75; color: var(--paper-ink-2); transition: color 150ms; position: relative; white-space: nowrap; flex: none; }
+.header .nav-links a:hover { color: var(--paper-ink); }
+.header .nav-links a.active { color: var(--paper-accent-deep); }
+.header .nav-links a.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: 1px; height: 2px; border-radius: 2px; background: var(--paper-accent); }
+.header .nav-actions { display: flex; gap: 10px; }
+.header .icon-action { position: relative; width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 12px; background: transparent; color: var(--paper-ink-2); transition: color 180ms, border-color 180ms, background-color 180ms, transform 180ms; }
+.header .icon-action:hover { color: var(--paper-accent-deep); border-color: var(--paper-accent); background: color-mix(in srgb, var(--paper-accent) 8%, transparent); transform: translateY(-1px); }
+.header .icon-action:active { transform: translateY(0) scale(.94); }
+.header .icon-action svg { width: 18px; height: 18px; transition: transform 220ms; }
+.header .icon-action:hover svg { transform: scale(1.08); }
+.header .theme-btn .tb-sun { display: none; }
+.header .theme-btn .tb-moon { display: block; }
+:root[data-theme="dark"] .header .theme-btn .tb-moon { display: none; }
+:root[data-theme="dark"] .header .theme-btn .tb-sun { display: block; }
+.header .icon-action[data-tip]:hover::after { content: attr(data-tip); position: absolute; top: 110%; right: 0; font: 12px var(--font-cn); white-space: nowrap; background: var(--paper-ink); color: var(--paper-bg); padding: 4px 8px; border-radius: 6px; z-index: 2; }
+@media (max-width: 860px) {
+  .header .nav-inner { flex-wrap: wrap; height: auto; padding-top: 12px; padding-bottom: 6px; row-gap: 6px; }
+  .header .nav-links { order: 3; width: 100%; overflow-x: auto; gap: 14px; padding-bottom: 6px; scrollbar-width: none; }
+  .header .nav-links::-webkit-scrollbar { display: none; }
 }
 
 /* 文章页 meta 行（日期·时长·字数·作者）：左对齐，别居中/散开 */

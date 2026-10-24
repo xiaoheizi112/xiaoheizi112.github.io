@@ -1,0 +1,21 @@
+{{- /* 全站统一导航链接：首页用页内锚点，其它页面用路由。
+       标签与顺序在所有页面保持一致，避免「笔记页一套、要事页另一套」。 */ -}}
+{{- $p := . -}}
+{{- $home := $p.IsHome -}}
+{{- $items := slice
+  (dict "label" "关于" "en" "About"     "page" "/about/"    "hash" "#about")
+  (dict "label" "笔记" "en" "Notes"     "page" "/posts/"    "hash" "#posts")
+  (dict "label" "路线" "en" "Tracks"    "page" "/tracks/"   "hash" "/tracks/")
+  (dict "label" "音乐" "en" "Music"     "page" "/#music"    "hash" "#music")
+  (dict "label" "相册" "en" "Photos"    "page" "/photos/"   "hash" "/photos/")
+  (dict "label" "兴趣" "en" "Interests" "page" "/#interests" "hash" "#interests")
+  (dict "label" "要事" "en" "Focus"     "page" "/todo/"     "hash" "/todo/")
+  (dict "label" "联系" "en" "Contact"   "page" "/#contact"  "hash" "#contact")
+-}}
+{{- range $items -}}
+  {{- $href := .page -}}
+  {{- if $home }}{{ $href = .hash }}{{ end -}}
+  {{- if not (hasPrefix $href "#") }}{{ $href = $href | relURL }}{{ end -}}
+  {{- $active := and (not $home) (hasPrefix $p.RelPermalink .page) -}}
+  <a href="{{ $href }}" data-zh="{{ .label }}" data-en="{{ .en }}"{{ if $active }} class="active" aria-current="page"{{ end }}>{{ .label }}</a>
+{{- end -}}

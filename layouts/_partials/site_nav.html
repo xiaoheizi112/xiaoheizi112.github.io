@@ -1,0 +1,30 @@
+{{- /* 手写页（首页/要事/路线/相册）共用的顶部导航。
+       参数：page（当前 Page）。操作区全站一致，页面专属操作放回各自内容区。 */ -}}
+{{- $page := .page -}}
+{{- $h := hugo.Data.home -}}
+<nav class="nav scrolled" id="nav" aria-label="主导航">
+  <div class="nav-inner">
+    <a href="{{ site.Home.RelPermalink }}" class="brand">
+      <span class="brand-mark" aria-hidden="true">{{ $h.about.mark }}</span>
+      <span class="brand-name">{{ $h.brand.cn }}<span class="en">{{ $h.brand.en }}</span></span>
+    </a>
+    <div class="nav-links">{{ partial "nav_links.html" $page }}</div>
+    {{ partial "nav_actions.html" $page }}
+  </div>
+  <div class="nav-progress" aria-hidden="true"></div>
+</nav>
+{{- if not $page.IsHome }}
+<script>
+(function () {
+  var p = document.querySelector(".nav-progress");
+  if (!p) return;
+  var upd = function () {
+    var m = document.documentElement.scrollHeight - innerHeight;
+    p.style.setProperty("--progress", m > 0 ? Math.min(1, scrollY / m).toFixed(4) : 0);
+  };
+  addEventListener("scroll", upd, { passive: true });
+  addEventListener("resize", upd);
+  upd();
+})();
+</script>
+{{- end }}

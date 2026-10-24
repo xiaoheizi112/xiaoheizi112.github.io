@@ -1,0 +1,171 @@
+/* 要事四象限页（layouts/todo/list.html）：参考经典四象限图。
+   布局：左上 重要不紧急（绿）/ 右上 重要且紧急（红）/
+        左下 不重要不紧急（灰）/ 右下 紧急不重要（橙）。
+   颜色整块铺底，深浅主题各有一套；卡片内任务用半透明白卡保证可读。 */
+
+.page-todo .page-head { max-width: 1120px; margin: 0 auto; padding: 140px 32px 24px; position: relative; z-index: 2; }
+.page-todo .page-head h1 { font: 600 clamp(2rem, 5vw, 3.4rem)/1.3 var(--font-display); margin: 16px 0 12px; }
+.page-todo .page-head .sec-desc { max-width: 600px; }
+
+/* ---------- 顶部信息条：更新时间 / 本机编辑标记 / 编辑入口 ---------- */
+.todo-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 30px; }
+.todo-updated { font: 12px var(--font-mono); letter-spacing: .06em; color: var(--ink-3); }
+.todo-updated b { color: var(--ink-2); font-weight: 500; }
+/* 本机编辑标记：只在检测到 localStorage 覆盖时出现，提醒"这不是已发布版本" */
+.todo-local { font: 500 11.5px var(--font-mono); letter-spacing: .04em; color: var(--sun-deep); background: color-mix(in srgb, var(--sun) 14%, transparent); border: 1px solid color-mix(in srgb, var(--sun) 34%, transparent); padding: 4px 10px; border-radius: 99px; }
+:root[data-theme="dark"] .todo-local { color: var(--sun); }
+/* 页头信息条：编辑入口常驻在这里（Shift+E 仍是快捷键） */
+.todo-sp { margin-left: auto; }
+.todo-edit { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--bg); color: var(--ink-2); font: 500 13px var(--font-cn); cursor: pointer; transition: color 180ms var(--ease), border-color 180ms var(--ease), background-color 180ms var(--ease), transform 180ms var(--ease); }
+.todo-edit svg { width: 15px; height: 15px; }
+.todo-edit:hover { color: var(--accent-deep); border-color: var(--accent); transform: translateY(-1px); }
+.todo-edit.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ---------- 四象限图：2x2 + 十字轴 ---------- */
+#main { padding-bottom: 40px; }
+.matrix-title { text-align: center; font: 600 18px var(--font-display); letter-spacing: .1em; color: var(--ink-2); margin: 0 0 24px; }
+.matrix { position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 26px; margin-top: 0; padding: 30px 56px; --axis-line: rgba(43, 58, 66, .32); }
+:root[data-theme="dark"] .matrix { --axis-line: rgba(230, 240, 244, .28); }
+/* 按参考图定位置，而不是按 yml 顺序 */
+.quad-schedule { grid-area: 1 / 1; }
+.quad-do { grid-area: 1 / 2; }
+.quad-drop { grid-area: 2 / 1; }
+.quad-delegate { grid-area: 2 / 2; }
+/* 十字轴：一竖一横两条淡线，贯穿整张图 */
+.matrix-cross { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.matrix-cross::before, .matrix-cross::after { content: ""; position: absolute; background: var(--axis-line); }
+.matrix-cross::before { left: 50%; top: 8px; bottom: 8px; width: 1px; transform: translateX(-.5px); }
+.matrix-cross::after { top: 50%; left: 8px; right: 8px; height: 1px; transform: translateY(-.5px); }
+/* 轴标签：贴在轴线末端，和参考图一致 */
+.axis { position: absolute; z-index: 2; white-space: nowrap; font: 500 12px var(--font-cn); letter-spacing: .08em; color: var(--ink-2); }
+.axis-y-top { left: 50%; top: 6px; transform: translateX(12px); }
+.axis-y-bot { left: 50%; bottom: 6px; transform: translateX(12px); }
+.axis-x-left { left: 6px; top: 50%; transform: translateY(calc(-100% - 6px)); }
+.axis-x-right { right: 6px; top: 50%; transform: translateY(calc(-100% - 6px)); }
+/* 桌面端给矩阵让出左右空间；标题同步收窄以保持对齐 */
+@media (min-width: 901px) {
+  .page-todo .page-head { padding-left: 56px; padding-right: 56px; }
+  .page-todo #main { padding-left: 56px; padding-right: 56px; }
+}
+
+/* ---------- 单个象限：整块彩色 ---------- */
+.quad { position: relative; z-index: 1; display: flex; flex-direction: column; padding: 22px 22px 18px; border-radius: 20px; background: var(--qc); color: var(--qc-ink); box-shadow: 0 18px 40px -30px rgba(43, 58, 66, .55); --qc-card: rgba(255, 255, 255, .58); --qc-line: rgba(0, 0, 0, .12); }
+/* 四色与参考图对应：绿 / 红 / 橙 / 灰 */
+.quad-schedule { --qc: #a8d5b5; --qc-ink: #22382b; }
+.quad-do { --qc: #e78b8b; --qc-ink: #3b2020; }
+.quad-delegate { --qc: #f0c089; --qc-ink: #3b2c18; }
+.quad-drop { --qc: #c9c9c9; --qc-ink: #2f3437; }
+/* 深色主题：同色系压暗，文字转浅 */
+:root[data-theme="dark"] .quad { --qc-card: rgba(8, 14, 18, .42); --qc-line: rgba(255, 255, 255, .1); }
+:root[data-theme="dark"] .quad-schedule { --qc: #2f4a37; --qc-ink: #dfeee4; }
+:root[data-theme="dark"] .quad-do { --qc: #55302f; --qc-ink: #f0dede; }
+:root[data-theme="dark"] .quad-delegate { --qc: #4d3b24; --qc-ink: #f2e6d4; }
+:root[data-theme="dark"] .quad-drop { --qc: #3a3f42; --qc-ink: #e4eaed; }
+
+.quad-head { position: relative; text-align: center; margin-bottom: 18px; padding: 2px 34px 0; }
+.quad-title { font: 700 20px/1.35 var(--font-display); margin: 0; color: var(--qc-ink); }
+.quad-motto { font: 500 14px/1.6 var(--font-cn); margin: 6px 0 0; color: var(--qc-ink); opacity: .9; }
+.quad-examples { font: 12.5px/1.7 var(--font-cn); margin: 4px 0 0; color: var(--qc-ink); opacity: .85; }
+.quad-count { position: absolute; top: 0; right: 0; font: 500 11px var(--font-mono); color: var(--qc-ink); background: rgba(255, 255, 255, .5); border-radius: 99px; padding: 3px 9px; min-width: 26px; text-align: center; }
+:root[data-theme="dark"] .quad-count { background: rgba(255, 255, 255, .12); }
+
+/* ---------- 任务卡：彩色底上的半透明白卡 ---------- */
+.tasks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; min-height: 54px; flex: 1; }
+.task { position: relative; display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px 11px 13px; border: 1px solid var(--qc-line); border-radius: 12px; background: var(--qc-card); overflow: hidden; transition: transform 200ms var(--ease), box-shadow 200ms var(--ease), border-color 200ms var(--ease), opacity 200ms var(--ease); }
+/* hover 白光跟随（--gx/--gy 由 todo.js 写入） */
+.task::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 260ms var(--ease); background: radial-gradient(200px circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .55), transparent 62%); }
+@media (hover: hover) and (pointer: fine) {
+  .task:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -16px rgba(0, 0, 0, .45); border-color: var(--qc-ink); }
+  .task:hover::after { opacity: 1; }
+}
+.task-body { flex: 1; min-width: 0; }
+.task-text { font-size: 14.5px; line-height: 1.6; color: var(--ink); margin: 0; word-break: break-word; }
+.task-note { font-size: 12.5px; line-height: 1.6; color: var(--ink-2); opacity: .82; margin: 4px 0 0; }
+/* 浅色下 --ink-2 压在半透明白卡上只有 2.9:1（黄/红面板更差），改用深墨青提到 5:1；
+   暗色主题原本 4.7:1 且淡蓝灰的层次正合适，不动。 */
+:root[data-theme="light"] .task-note { color: var(--ink); }
+/* 已完成：划掉 + 淡出，视觉上"放下"了 */
+.task.st-done .task-text { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--ink-3) 70%, transparent); }
+.task.st-done { opacity: .55; }
+
+/* 状态徽标：只读时是标签，编辑时是按钮（同一元素，省一次 DOM 重建） */
+.st-chip { flex: none; margin-top: 1px; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--qc-line); background: rgba(255, 255, 255, .5); color: var(--qc-ink); font: 500 11px var(--font-mono); letter-spacing: .02em; cursor: default; }
+:root[data-theme="dark"] .st-chip { background: rgba(255, 255, 255, .1); }
+.st-doing .st-chip { background: rgba(255, 255, 255, .72); }
+:root[data-theme="dark"] .st-doing .st-chip { background: rgba(255, 255, 255, .16); }
+.st-done .st-chip { opacity: .7; text-decoration: line-through; }
+
+/* 拖拽把手：只读隐藏 */
+.task-grip { flex: none; width: 10px; height: 16px; margin: 3px -2px 0 0; opacity: 0; background-image: radial-gradient(currentColor 1.2px, transparent 1.3px); background-size: 5px 5px; color: var(--qc-ink); }
+
+/* 删除：编辑态才出现；点一次变「删?」，再点一次才真删 */
+.task-del { display: none; flex: none; height: 20px; margin: 1px -2px 0 0; padding: 0 5px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--qc-ink); font: 500 12px/18px var(--font-mono); cursor: pointer; opacity: .55; transition: opacity 160ms var(--ease), background-color 160ms var(--ease), border-color 160ms var(--ease); }
+body.editing .task-del { display: block; }
+.task-del:hover { opacity: 1; background: rgba(255, 255, 255, .38); border-color: var(--qc-line); }
+:root[data-theme="dark"] .task-del:hover { background: rgba(255, 255, 255, .1); }
+.task-del.armed { opacity: 1; background: rgba(191, 64, 58, .2); border-color: rgba(191, 64, 58, .5); }
+
+/* 只读时状态徽标不可点，保持原本外观 */
+.st-chip:disabled { cursor: default; opacity: inherit; }
+
+.task-empty { padding: 14px 12px; border: 1px dashed var(--qc-line); border-radius: 12px; text-align: center; font-size: 13px; color: var(--qc-ink); opacity: .7; }
+.task-add { display: none; margin-top: 10px; padding: 8px 12px; border: 1px dashed var(--qc-line); border-radius: 10px; background: transparent; color: var(--qc-ink); font: 500 12.5px var(--font-cn); cursor: pointer; transition: all 180ms var(--ease); }
+.task-add:hover { border-color: var(--qc-ink); background: rgba(255, 255, 255, .28); }
+
+/* ---------- 编辑模式 ---------- */
+body.editing .task-add, body.editing .task-grip { display: block; opacity: 1; }
+body.editing .task-grip { opacity: .55; }
+body.editing .st-chip { cursor: pointer; }
+body.editing .st-chip:hover { border-color: var(--qc-ink); }
+body.editing .task-text { outline: none; cursor: text; border-radius: 4px; }
+body.editing .task-text:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--qc-ink) 35%, transparent); }
+/* 拖拽中：原卡半透明；落点象限高亮描边 */
+.task.dragging { opacity: .35; }
+.quad.drop-on { box-shadow: 0 0 0 3px rgba(255, 255, 255, .65), 0 18px 40px -30px rgba(43, 58, 66, .55); }
+.quad.drop-on .tasks::after { content: ""; display: block; height: 2px; border-radius: 2px; background: var(--qc-ink); opacity: .4; }
+
+.todo-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 34px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+/* hidden 属性会被上面的 display:flex 覆盖，这里显式兜底 */
+.todo-tools[hidden], .todo-publish-hint[hidden], .todo-local[hidden] { display: none; }
+.todo-tools-tip { font-size: 12.5px; color: var(--ink-3); }
+.todo-tools-tip kbd { padding: 1px 5px; border: 1px solid var(--border); border-radius: 5px; font: 500 11px var(--font-mono); background: var(--bg-2); }
+.todo-btn { padding: 8px 16px; border: 1px solid var(--border); border-radius: 99px; background: var(--bg); color: var(--ink-2); font: 500 13px var(--font-cn); cursor: pointer; transition: all 180ms var(--ease); }
+.todo-btn:hover { color: var(--accent-deep); border-color: var(--accent); transform: translateY(-1px); }
+.todo-btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.todo-btn-primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); color: #fff; }
+.todo-publish-hint { margin-top: 12px; font-size: 13px; line-height: 1.8; color: var(--ink-3); }
+.todo-publish-hint code { font: 12px var(--font-mono); background: var(--bg-2); padding: 2px 6px; border-radius: 5px; color: var(--ink-2); }
+
+/* 轻提示（复制成功等） */
+.todo-toast { position: fixed; left: 50%; bottom: 40px; z-index: 200; transform: translate(-50%, 12px); padding: 10px 18px; border-radius: 99px; background: var(--ink); color: var(--bg); font: 500 13px var(--font-cn); box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: opacity 220ms var(--ease), transform 220ms var(--ease); }
+.todo-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- 进场：沿用全站 .rv 错峰 ---------- */
+.rv { transition: opacity 700ms var(--ease), transform 700ms var(--ease); }
+.js .rv:not(.in) { opacity: 0; transform: translateY(22px); }
+.rv.in { opacity: 1; transform: none; }
+
+/* ---------- 响应式：窄屏收成单列，按优先级 Q1→Q4，隐藏十字轴 ---------- */
+@media (max-width: 900px) {
+  .matrix { grid-template-columns: 1fr; grid-template-rows: auto; gap: 16px; padding: 0; }
+  /* 单列时按优先级：重要且紧急 → 重要不紧急 → 紧急不重要 → 不重要不紧急（DOM 顺序） */
+  .quad-schedule, .quad-do, .quad-drop, .quad-delegate { grid-area: auto; }
+  .matrix-cross, .axis { display: none; }
+  .matrix-title { margin-bottom: 18px; }
+  .page-todo .page-head { padding-top: 110px; }
+}
+@media (max-width: 520px) {
+  .todo-bar { gap: 10px; }
+  .quad { padding: 16px 14px 14px; }
+  .todo-tools { padding: 12px; }
+  .todo-tools-tip { width: 100%; }
+  /* 按钮换行时「完成编辑」靠右，和上面一排区分开 */
+  .todo-btn-primary { margin-left: auto; }
+}
+
+/* ---------- 减少动效：静止 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .rv { opacity: 1; transform: none; transition: none; }
+  .task, .task::after, .todo-btn, .todo-edit, .task-add { transition: none; }
+  .task:hover { transform: none; }
+}

@@ -145,8 +145,7 @@ img { display: block; max-width: 100%; }
 .nav { position: fixed; inset: 0 0 auto; z-index: 50; border-bottom: 1px solid transparent; transition: background-color 260ms var(--ease), border-color 260ms var(--ease), box-shadow 260ms var(--ease); }
 /* 滚动后收紧：玻璃模糊 + 发丝下边 + 一点点投影；nav-inner 同时收窄高度，像"扣上"了 */
 .nav.scrolled { background: var(--glass); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); border-bottom-color: var(--border-soft); box-shadow: 0 1px 0 rgba(43, 58, 66, 0.03), 0 8px 24px -18px rgba(43, 58, 66, 0.3); }
-.nav-inner { max-width: 1120px; margin: 0 auto; padding: 0 32px; height: 68px; display: flex; align-items: center; gap: 28px; transition: height 260ms var(--ease); }
-.nav.scrolled .nav-inner { height: 58px; }
+.nav-inner { max-width: 1120px; margin: 0 auto; padding: 0 32px; height: 58px; display: flex; align-items: center; gap: 28px; }
 /* 顶部阅读进度：贴着导航下沿的一根晴空蓝细线，用 --progress 宽度随滚动推进 */
 .nav-progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; transform: scaleX(var(--progress, 0)); transform-origin: 0 50%; background: linear-gradient(90deg, var(--accent), var(--accent-deep)); pointer-events: none; }
 .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
@@ -154,7 +153,7 @@ img { display: block; max-width: 100%; }
 .brand-name { font: 600 17px var(--font-display); letter-spacing: .01em; }
 .brand-name .en { display: block; font: 500 9px var(--font-mono); letter-spacing: .3em; color: var(--ink-3); margin-top: -3px; }
 .nav-links { display: flex; gap: 26px; }
-.nav-links a { font-size: 14px; color: var(--ink-2); transition: color 150ms; position: relative; }
+.nav-links a { font-size: 14px; color: var(--ink-2); transition: color 150ms; position: relative; white-space: nowrap; flex: none; }
 .nav-links a:hover { color: var(--ink); }
 /* 滚动侦测：正在阅读的板块，导航项亮起并落下一条晴空蓝短线 */
 .nav-links a.active { color: var(--accent-deep); }
@@ -176,6 +175,9 @@ img { display: block; max-width: 100%; }
 .theme-btn .tb-sun { display: none; }
 .theme-btn.dark .tb-moon { display: none; }
 .theme-btn.dark .tb-sun { display: block; }
+/* 首帧就按 data-theme 决定图标：主题脚本晚一步执行时，也不会先闪一下月亮再变太阳 */
+:root[data-theme="dark"] .theme-btn .tb-moon { display: none; }
+:root[data-theme="dark"] .theme-btn .tb-sun { display: block; }
 /* tip 气泡：淡入 + 极轻上移，不是硬出现 */
 .icon-action[data-tip]:hover::after { content: attr(data-tip); position: absolute; top: 110%; right: 0; font: 12px var(--font-cn); white-space: nowrap; background: var(--ink); color: var(--bg); padding: 4px 8px; border-radius: 6px; animation: tip-in 180ms var(--ease) both; }
 @keyframes tip-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
@@ -192,6 +194,10 @@ img { display: block; max-width: 100%; }
 .hero-orbit::after { width: 420px; height: 420px; right: -70px; top: -30px; }
 .hero-inner { position: relative; z-index: 2; max-width: 1080px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 72px; align-items: center; }
 .hero-eyebrow, .sec-eyebrow { font: 500 12px var(--font-mono); letter-spacing: .25em; text-transform: uppercase; color: var(--accent); }
+/* 中英切换从导航移到 hero 眉标旁：导航在全站保持同一宽度 */
+.hero-kicker { display: flex; align-items: center; gap: 14px; }
+.hero-lang { flex: none; padding: 3px 10px; border: 1px solid var(--border); border-radius: 99px; background: transparent; color: var(--ink-3); font: 500 10.5px var(--font-mono); letter-spacing: .12em; cursor: pointer; transition: color 180ms var(--ease), border-color 180ms var(--ease), background-color 180ms var(--ease); }
+.hero-lang:hover { color: var(--accent-deep); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 .hero h1 { font: 600 clamp(2.4rem, 5vw, 4rem)/1.25 var(--font-display); margin: 20px 0 24px; }
 .hero h1 .acc { color: var(--accent); position: relative; }
 .squig { position: absolute; left: 0; bottom: -12px; width: 100%; height: 14px; opacity: .85; }
@@ -418,7 +424,7 @@ a.contact-value:hover { color: var(--accent); }
 /* ---------- 响应式 ---------- */
 @media (max-width: 860px) {
   .nav-inner { flex-wrap: wrap; height: auto; padding-top: 12px; padding-bottom: 6px; row-gap: 6px; }
-  .nav-links { display: flex; order: 3; width: 100%; overflow-x: auto; gap: 20px; padding-bottom: 6px; scrollbar-width: none; }
+  .nav-links { display: flex; order: 3; width: 100%; overflow-x: auto; gap: 14px; padding-bottom: 6px; scrollbar-width: none; }
   .nav-links::-webkit-scrollbar { display: none; }
   .about-grid { grid-template-columns: 1fr; gap: 40px; }
   .about-portrait { position: static; }

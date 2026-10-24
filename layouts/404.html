@@ -22,6 +22,7 @@
   <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
   <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
   {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
+  {{ partialCached "css.html" (dict "path" "css/palette.css") "palette.css" }}
 </head>
 <body class="page-404">
 {{- /* 爪印符号（与首页同款），供本页 <use href="#paw"> */ -}}
@@ -34,25 +35,7 @@
     <circle cx="18.4" cy="10.6" r="2.1" fill="currentColor" />
   </symbol>
 </svg>
-<nav class="nav scrolled" id="nav">
-  <div class="nav-inner">
-    <a href="{{ "/" | relURL }}" class="brand">
-      <span class="brand-mark" aria-hidden="true">{{ $h.about.mark }}</span>
-      <span class="brand-name">{{ $h.brand.cn }}<span class="en">{{ $h.brand.en }}</span></span>
-    </a>
-    <div class="nav-links" style="display:flex">
-      <a href="{{ "/" | relURL }}">首页</a>
-      <a href="{{ "/posts/" | relURL }}">笔记</a>
-      <a href="{{ "/archives/" | relURL }}">归档</a>
-    </div>
-    <div class="nav-actions">
-      <button class="icon-action theme-btn" type="button" data-tip="深浅色" aria-label="切换深浅色主题">
-        <svg class="tb-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="tb-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
-      </button>
-    </div>
-  </div>
-</nav>
+{{ partial "site_nav.html" (dict "page" .) }}
 
 <main class="wrap nf" id="main">
   <p class="sec-eyebrow"><span class="dot"></span>404 · NOT FOUND</p>

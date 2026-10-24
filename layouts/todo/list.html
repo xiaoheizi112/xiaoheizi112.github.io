@@ -1,0 +1,141 @@
+{{- /* 要事四象限页（Eisenhower 矩阵）：读 data/todo.yml。
+       复用 home.css 令牌与 tracks 页同款手写骨架，独立于 PaperMod。
+       服务端先渲染出种子内容（无 JS 也能看），再把同一份数据以 JSON 内嵌，
+       供 static/js/todo.js 与本机 localStorage 合并、进入编辑模式。 */ -}}
+{{- $h := hugo.Data.home -}}
+{{- $todo := hugo.Data.todo -}}
+<!doctype html>
+<html lang="{{ site.Language.Locale }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F7FBFC" />
+  <meta name="color-scheme" content="light dark" />
+  {{- /* 主题初始化：与全站共用 pref-theme */ -}}
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("pref-theme"); } catch (e) {}
+      var dark = t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+      document.documentElement.classList.add("js");
+    })();
+  </script>
+  <title>要事 · {{ site.Title }}</title>
+  <meta name="description" content="把要做的事按重要与紧急分成四象限：立刻做、排期做、交出去、可以放掉。" />
+  <link rel="canonical" href="{{ .Permalink }}" />
+  {{- $ogimg := "images/og-cover.png" | absURL }}
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{ site.Title }}" />
+  <meta property="og:title" content="要事 · {{ site.Title }}" />
+  <meta property="og:description" content="把要做的事按重要与紧急分成四象限。" />
+  <meta property="og:url" content="{{ .Permalink }}" />
+  <meta property="og:image" content="{{ $ogimg }}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="要事 · {{ site.Title }}" />
+  <meta name="twitter:description" content="把要做的事按重要与紧急分成四象限。" />
+  <link rel="preconnect" href="https://fonts.loli.net" />
+  <link rel="preload" as="style" href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" />
+  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
+  {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
+  {{ partialCached "css.html" (dict "path" "css/todo.css") "todo.css" }}
+  {{ partialCached "css.html" (dict "path" "css/palette.css") "palette.css" }}
+</head>
+<body class="page-todo">
+<noscript><style>.rv{opacity:1 !important;transform:none !important}</style></noscript>
+{{ partial "site_nav.html" (dict "page" .) }}
+
+<header class="page-head">
+  <p class="sec-eyebrow"><span class="dot"></span>FOCUS · 要事</p>
+  <h1>重要的事不多，<br />先把它摆对位置。</h1>
+  <p class="sec-desc">按「重要」和「紧急」把要做的事分成四块：立刻做、计划做、授权做、少做/不做。想清楚哪一格该空着，比塞满更有用。</p>
+  <div class="todo-bar">
+    <span class="todo-updated">更新于 <b>{{ $todo.updated }}</b></span>
+    <span class="todo-local" id="todo-local" hidden>本机编辑中 · 仅存于这个浏览器</span>
+    <span class="todo-sp"></span>
+    <button class="todo-edit" id="todo-edit" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      <span class="todo-edit-label">编辑</span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  {{- /* 四象限图：上=重要 / 下=不重要，左=不紧急 / 右=紧急 */ -}}
+  <h2 class="matrix-title">要事四象限图</h2>
+  <div class="matrix" id="matrix">
+    {{- /* 轴标签贴轴线末端（放在 .matrix 内，绝对定位，不占网格） */ -}}
+    <div class="axis axis-y-top" aria-hidden="true">重要</div>
+    <div class="axis axis-y-bot" aria-hidden="true">不重要</div>
+    <div class="axis axis-x-left" aria-hidden="true">不紧急</div>
+    <div class="axis axis-x-right" aria-hidden="true">紧急</div>
+    {{- range $q := $todo.quadrants }}
+    <section class="quad quad-{{ $q.id }}" data-qid="{{ $q.id }}">
+      <header class="quad-head">
+        <h2 class="quad-title">{{ $q.title }}</h2>
+        {{- with $q.motto }}<p class="quad-motto">{{ . }}</p>{{ end }}
+        {{- with $q.examples }}<p class="quad-examples">{{ . }}</p>{{ end }}
+        <span class="quad-count">{{ len $q.tasks }}</span>
+      </header>
+      <ul class="tasks" data-qid="{{ $q.id }}">
+        {{- range $q.tasks }}
+        <li class="task st-{{ .status }}">
+          <button class="st-chip" type="button" data-act="status" aria-label="状态" disabled>{{ if eq .status "done" }}已完成{{ else if eq .status "doing" }}进行中{{ else }}待办{{ end }}</button>
+          <div class="task-body">
+            <p class="task-text">{{ .text }}</p>
+            {{- with .note }}<p class="task-note">{{ . }}</p>{{ end }}
+          </div>
+          <button class="task-del" type="button" data-act="del" aria-label="删除这件事" title="删除">×</button>
+          <span class="task-grip" aria-hidden="true"></span>
+        </li>
+        {{- end }}
+        {{- if not $q.tasks }}<li class="task-empty">这一格空着，也挺好</li>{{ end }}
+      </ul>
+      <button class="task-add" type="button" data-act="add">+ 加一件事</button>
+    </section>
+    {{- end }}
+    <span class="matrix-cross" aria-hidden="true"></span>
+  </div>
+
+  {{- /* 编辑模式工具条：默认收起，由 todo.js 控制显隐 */ -}}
+  <div class="todo-tools" id="todo-tools" hidden>
+    <span class="todo-tools-tip">拖动卡片可换象限 · 点状态徽标循环 · 文字可直接改 · <kbd>Alt</kbd>+<kbd>↑↓</kbd> 调序</span>
+    <span class="todo-sp"></span>
+    <button class="todo-btn" type="button" data-act="yaml">复制 YAML</button>
+    <button class="todo-btn" type="button" data-act="reset">重置为已发布版</button>
+    <button class="todo-btn todo-btn-primary" type="button" data-act="exit">完成编辑</button>
+  </div>
+  <p class="todo-publish-hint" id="todo-publish-hint" hidden>
+    改完点「复制 YAML」，把内容粘进仓库的 <code>data/todo.yml</code> 再提交，就会发布给所有人。
+  </p>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <span>{{ $h.footer.line }}</span>
+    <span class="footer-links">
+      <a href="{{ "/posts/" | relURL }}">文章</a>
+      <a href="{{ "/archives/" | relURL }}">归档</a>
+      <a href="https://github.com/xiaoheizi112" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </span>
+  </div>
+</footer>
+<button class="to-top" id="to-top" type="button" aria-label="返回顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>
+</button>
+
+{{- /* 种子数据内嵌：todo.js 据此与 localStorage 合并，避免再发一次请求 */ -}}
+<script id="todo-seed" type="application/json">{{ $todo | jsonify | safeJS }}</script>
+<script src="{{ "js/todo.js" | relURL }}"></script>
+<script>
+(function () {
+  var b = document.getElementById("to-top");
+  var chk = function () { b.classList.toggle("show", scrollY > innerHeight * .8); };
+  addEventListener("scroll", chk, { passive: true }); chk();
+  b.addEventListener("click", function () { scrollTo({ top: 0, behavior: "smooth" }); });
+})();
+</script>
+{{ partial "extend_footer.html" . }}
+</body>
+</html>

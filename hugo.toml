@@ -92,6 +92,11 @@ name = '相册'
 url = '/photos/'
 weight = 25
 [[menu.main]]
+identifier = 'todo'
+name = '要事'
+url = '/todo/'
+weight = 28
+[[menu.main]]
 identifier = 'about'
 name = '关于'
 url = '/about/'

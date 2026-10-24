@@ -6,6 +6,9 @@ _gh_login.log
 _hugo_server.log
 _smoke/
 
+# 本地验收工作区：CDP 驱动 Edge 的脚本、截图、浏览器 profile、临时构建产物
+.zcode/
+
 # 照片初筛中间产物（拼版图/候选表）
 scripts/_triage/
 

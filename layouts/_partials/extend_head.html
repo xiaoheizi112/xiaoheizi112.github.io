@@ -5,6 +5,7 @@
 <link rel="preload" as="style" href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" />
 <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
+{{ partialCached "css.html" (dict "path" "css/palette.css") "palette.css" }}
 {{ partialCached "js.html" (dict "path" "lib/turbo/turbo.umd.js" "defer" true) "turbo" }}
 {{- /* Turbo 8 原生 View Transitions：同源换页走浏览器 View Transition（交叉淡入 + 根快照），
        比单纯 JS 淡入更顺、更像"页面在过渡"。不支持的浏览器自动退化为 Turbo 的即时换页，无副作用。 */ -}}

@@ -51,6 +51,7 @@
     { icon: "⌗", title: "标签", sub: "Tags", href: "/tags/" },
     { icon: "▤", title: "相册", sub: "Photos", href: "/photos/" },
     { icon: "✦", title: "路线", sub: "Learning tracks", href: "/tracks/" },
+    { icon: "◎", title: "要事", sub: "Focus / Eisenhower", href: "/todo/" },
     { icon: "✉", title: "关于", sub: "About", href: "/about/" },
   ].map((p) => ({ ...p, kind: "page", href: base + p.href }));
 
@@ -84,6 +85,9 @@
     if (document.querySelector(".lang-btn")) {
       const en = document.documentElement.dataset.lang === "en";
       out.push({ icon: "文", title: en ? "切换到中文" : "Switch to English", sub: "Toggle language", kind: "cmd", run: () => document.querySelector(".lang-btn").click() });
+    }
+    if (document.getElementById("todo-edit")) {
+      out.push({ icon: "✎", title: "编辑要事", sub: "Toggle focus edit", kind: "cmd", run: () => document.getElementById("todo-edit").click() });
     }
     if (document.querySelector(".tape-reel-btn") || document.getElementById("tape")) {
       out.push({ icon: "♪", title: "播放 / 暂停音乐", sub: "Toggle music", kind: "cmd", run: () => { const b = document.querySelector(".tape-reel-btn") || document.querySelector(".tape-pp"); b && b.click(); } });

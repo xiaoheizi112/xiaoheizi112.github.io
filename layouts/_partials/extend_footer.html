@@ -61,13 +61,13 @@
 {{- /* 阅读沉浸感增强（文章/列表页）：逐段进场、标题锚点复制、读完印记、路由淡入 */ -}}
 <script src="{{ "js/reading.js" | relURL }}"></script>
 {{- /* 命令面板（⌘K / Ctrl+K）：搜索文章 + 跳转页面 + 执行命令，全站可用。
-       body 上带 data-baseurl 供面板拼 /index.json（子路径部署也正确）。 */ -}}
-{{ partialCached "css.html" (dict "path" "css/palette.css") "palette.css" }}
+       body 上带 data-baseurl 供面板拼 /index.json（子路径部署也正确）。
+       palette.css 已提前到 head，避免切页时搜索按钮先无样式渲染、再跳一下。 */ -}}
 <script>document.documentElement.dataset.baseurl = {{ site.Home.RelPermalink | jsonify }};</script>
 <script src="{{ "js/palette.js" | relURL }}"></script>
 <script>
 /* 深浅色切换：写 pref-theme（全站共用），html[data-theme] 由 CSS 变量响应。
-   .theme-btn 出现在首页/相册页手写导航；PaperMod 侧用主题自带的 #theme-toggle。
+   全站统一用 .theme-btn（手写页与 PaperMod 页共用同一套导航标记）。
    切换时用 View Transitions 做「从点击点扩散的圆形揭示」——旧主题整体被新主题的圆扫过取代，
    比瞬间翻色高级得多。不支持 / 减动效时自动退化为即时切换。 */
 (function () {
@@ -109,7 +109,6 @@
   }
   function bind() {
     bindBtn(document.querySelector(".theme-btn"));
-    bindBtn(document.querySelector("#theme-toggle"));
   }
   bind();
   addEventListener("turbo:load", bind);

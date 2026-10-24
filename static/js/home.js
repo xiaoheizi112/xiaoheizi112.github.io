@@ -1,11 +1,7 @@
-// 首页交互：导航底色、滚动淡入、数字滚动。无依赖。
+// 首页交互：滚动淡入、数字滚动。无依赖。
 (() => {
-  const nav = document.getElementById("nav");
-  if (nav) { // 相册等页面没有这个 id，缺 guard 会让后面的淡入逻辑整个不执行
-    const onScroll = () => nav.classList.toggle("scrolled", scrollY > 24);
-    addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-  }
+  // 导航统一为常驻的紧凑玻璃条（height 58 / .scrolled 写在 markup 上），
+  // 不再随滚动切换高度，避免在首页与内页之间跳转时顶栏“跳一下”。
 
   // 顶部阅读进度：把"已滚过 / 可滚总距离"写成 --progress（0~1），导航下沿细线据此推进。
   // 单次滚动只写一个 CSS 变量，开销可忽略，故不做 rAF 节流（rAF 在后台/低帧率下可能延迟或 starving，
@@ -24,6 +20,11 @@
 
   // 滚动主题长背景：哪个板块占据视口中线，body 就切到对应氛围层；同步高亮导航里对应的栏目
   const themeOf = { home: "morning", about: "morning", posts: "ink", music: "sound", photos: "sea", interests: "play", contact: "hello" };
+  // 首页导航混用页内锚点与独立页面（路线/相册/要事），高亮按“板块 → 链接”映射
+  const activeHref = {
+    about: "#about", posts: "#posts", music: "#music",
+    photos: "/photos/", interests: "#interests", contact: "#contact",
+  };
   const navLinks = [...document.querySelectorAll(".nav-links a")];
   const setActive = (sel) => {
     navLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === sel));
@@ -31,7 +32,7 @@
   const ao = new IntersectionObserver((es) => {
     for (const e of es) if (e.isIntersecting) {
       document.body.dataset.theme = themeOf[e.target.id];
-      setActive("#" + e.target.id);
+      setActive(activeHref[e.target.id] || "");
     }
   }, { rootMargin: "-45% 0px -45% 0px" });
   document.querySelectorAll("#home,#about,#posts,#music,#photos,#interests,#contact").forEach((s) => ao.observe(s));
