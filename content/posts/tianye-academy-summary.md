@@ -19,7 +19,7 @@ images = ["images/og/tianye-academy-summary.png"]
 
 一种默认启动；另一种在配置当中更改选项为“启动子程序”，之后在程序当中通过加载来实现窗口的启动。
 
-![天野学院第六期模拟班课程学后总结 配图 1](/posts/tianye-academy-summary/image_85.png)
+![天野学院第六期模拟班课程学后总结 配图 1](/posts/tianye-academy-summary/image_85.webp)
 
 ## 2\.基础控件：
 
@@ -27,33 +27,84 @@ images = ["images/og/tianye-academy-summary.png"]
 
 想写入文本直接通过赋值到内容即可，但是重复赋值会覆盖掉上一次的内容；或者通过写入文本直接在后面添加文本，它是以追加的方式加入不会覆盖之前的内容；通过背景颜色属性更改背景颜色，记得在颜色常量前加\#号。
 
-![天野学院第六期模拟班课程学后总结 配图 2](/posts/tianye-academy-summary/image_57.png)
+![天野学院第六期模拟班课程学后总结 配图 2](/posts/tianye-academy-summary/image_57.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 3](/posts/tianye-academy-summary/image_47.png)
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _按钮2_被单击 |  |  |  |  |
+
+```easy
+编辑框1.内容 ＝ “编辑框”
+编辑框1.加入文本 (“abc”)
+编辑框1.内容 ＝ “111111111111111111111111111111111111111111111”
+编辑框1.背景颜色 ＝ #紫色
+```
+
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _编辑框1_内容被改变 |  |  |  |  |
+
+```easy
+调试输出 (“内容被改变”)
+```
 
 ### 选择框（多选框）：
 
 通过点击按钮用如果真来判断哪些选项是被选中的；在选择框的单击事件里设置选项的选中为假，那么会造成这个选项选择不了。
 
-![天野学院第六期模拟班课程学后总结 配图 4](/posts/tianye-academy-summary/image_8.png)
+![天野学院第六期模拟班课程学后总结 配图 4](/posts/tianye-academy-summary/image_8.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 5](/posts/tianye-academy-summary/image_6.png)
+```epl
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| _按钮3_被单击 |  |  |  |  |
+如果真 (选择框_易语言. 选中 = 真)
+信息框 (“易语言”, 0, , )
+如果真 (选择框_CPP. 选中 = 真)
+信息框 (“CPP”, 0, , )
+如果真 (选择框_按键精灵. 选中 = 真)
+信息框 (“按键精灵”, 0, , )
+
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| _选择框_易语言_被单击 |  |  |  |  |
+信息框 (“易语言被选中！ ”, 0, , )
+```
 
 ### 单选框：
 
 作用跟选择框差不多，但只能单选（图中额外添加了分组框）。
 
-![天野学院第六期模拟班课程学后总结 配图 6](/posts/tianye-academy-summary/image_16.png)
+![天野学院第六期模拟班课程学后总结 配图 6](/posts/tianye-academy-summary/image_16.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 7](/posts/tianye-academy-summary/image_36.png)
+![天野学院第六期模拟班课程学后总结 配图 7](/posts/tianye-academy-summary/image_36.webp)
 
 ### 组合框：
 
 可以通过右键添加组合框里的内容；通过属性设置内容只读和显示哪一行的内容（现行选中行）；需要关联两个组合框时（例如选择大区后自动弹出该区的哪些服务器）中，在前一个组合框列表项被选择事件里通过如果真判断选择哪一个大区，如果为真，则在后面一个组合框通过加入项目的方式来添加该区服务器。
 
-![天野学院第六期模拟班课程学后总结 配图 8](/posts/tianye-academy-summary/image_13.png)
+![天野学院第六期模拟班课程学后总结 配图 8](/posts/tianye-academy-summary/image_13.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 9](/posts/tianye-academy-summary/image_17.png)
+```easy
+子程序名 | 返回值类型 | 公开 | 易包 | 备 注
+_按钮4_被单击 | | | | |
+信息框 (组合框1.内容, 0, , )
+信息框 (组合框1.现行选中项, 0, , )
+组合框1.加入项目 (“ABC”, 3)
+组合框1.置项目文本 (3, “广电大区”)
+信息框 (组合框1.取项目文本 (0), 0, , )
+子程序名 | 返回值类型 | 公开 | 易包 | 备 注
+_组合框1_列表项被选择 | | | | |
+组合框2.清空 ()
+    如果真 (组合框1.现行选中项 = 0)  ’电信
+    组合框2.加入项目 (“电信服务器1”, 0)
+    组合框2.加入项目 (“电信服务器2”, 1)
+    如果真 (组合框1.现行选中项 = 1)  ’联通
+    组合框2.加入项目 (“联通服务器1”, 0)
+    组合框2.加入项目 (“联通服务器2”, 1)
+    如果真 (组合框1.现行选中项 = 2)  ’移动
+    组合框2.加入项目 (“移动服务器1”, 0)
+    组合框2.加入项目 (“移动服务器2”, 1)
+组合框2.现行选中项 = 0
+```
 
 ### 标签：
 
@@ -63,35 +114,35 @@ images = ["images/og/tianye-academy-summary.png"]
 
 在周期事件里间隔性更新标签的内容就可实现实时鼠标坐标位置。
 
-![天野学院第六期模拟班课程学后总结 配图 10](/posts/tianye-academy-summary/image_49.png)
+![天野学院第六期模拟班课程学后总结 配图 10](/posts/tianye-academy-summary/image_49.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 11](/posts/tianye-academy-summary/image_80.png)
+![天野学院第六期模拟班课程学后总结 配图 11](/posts/tianye-academy-summary/image_80.webp)
 
 ### 透明标签：
 
 在窗口加入背景颜色的情况下，普通标签会多出来阴影，而透明标签不会。
 
-![天野学院第六期模拟班课程学后总结 配图 12](/posts/tianye-academy-summary/image_7.png)
+![天野学院第六期模拟班课程学后总结 配图 12](/posts/tianye-academy-summary/image_7.webp)
 
 ### 分组框：
 
 就是把一些控件给隔开（例如可以设置多个单选框区域）。
 
-![天野学院第六期模拟班课程学后总结 配图 13](/posts/tianye-academy-summary/image_3.png)
+![天野学院第六期模拟班课程学后总结 配图 13](/posts/tianye-academy-summary/image_3.webp)
 
 ### 外形框：
 
 一般用于设置分割线，也就是把属性的高度设为1，然后拉的很长，只用于分割。
 
-![天野学院第六期模拟班课程学后总结 配图 14](/posts/tianye-academy-summary/image_59.png)
+![天野学院第六期模拟班课程学后总结 配图 14](/posts/tianye-academy-summary/image_59.webp)
 
 ### 图片框：
 
 有两种设置图片的方式：一种直接在属性里更换图片并且设置它的显示方式（例如缩放图片，一般用于图片太大或者太小的情况下使用）；另一种则是通过点击按钮给图片框的图片用读入文件的形式（图片绝对路径\+图片名\+后缀名）进行赋值。
 
-![天野学院第六期模拟班课程学后总结 配图 15](/posts/tianye-academy-summary/image_61.png)
+![天野学院第六期模拟班课程学后总结 配图 15](/posts/tianye-academy-summary/image_61.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 16](/posts/tianye-academy-summary/image_39.png)
+![天野学院第六期模拟班课程学后总结 配图 16](/posts/tianye-academy-summary/image_39.webp)
 
 # 3、4课：
 
@@ -101,27 +152,60 @@ images = ["images/og/tianye-academy-summary.png"]
 
 添加待选任务选中项到已选任务当中。（框1：待选任务，框2：已选任务）
 
-![天野学院第六期模拟班课程学后总结 配图 17](/posts/tianye-academy-summary/image_20.png)
+![天野学院第六期模拟班课程学后总结 配图 17](/posts/tianye-academy-summary/image_20.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 18](/posts/tianye-academy-summary/image_82.png)
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _列表框1_双击选择 |  |  |  |  |
+
+| 变量名 | 类 型 | 静态 | 数组 | 备 注 |
+| --- | --- | --- | --- | --- |
+| a | 整数型 |  |  |  |
+| 逻辑 | 逻辑型 |  |  |  |
+
+```epl
+计次循环首 (列表框2.取项目数 (), a)
+    如果真 (列表框1.取项目文本 (列表框1.现行选中项) ＝ 列表框2.取项目文本 (a - 1))
+        逻辑 ＝ 真
+    跳出循环 ()
+计次循环尾 ()
+如果真 (逻辑 ＝ 假)
+    列表框2.加入项目 (列表框1.取项目文本 (列表框1.现行选中项), )
+```
 
 当双击列表框2时，删除选中项。
 
-![天野学院第六期模拟班课程学后总结 配图 19](/posts/tianye-academy-summary/image_66.png)
+![天野学院第六期模拟班课程学后总结 配图 19](/posts/tianye-academy-summary/image_66.webp)
 
 ### 通用对话框：
 
 属性类型为“打开文件”时，将选中的文件地址写入到编辑框当中。
 
-![天野学院第六期模拟班课程学后总结 配图 20](/posts/tianye-academy-summary/image_63.png)
+![天野学院第六期模拟班课程学后总结 配图 20](/posts/tianye-academy-summary/image_63.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 21](/posts/tianye-academy-summary/image_65.png)
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _按钮1_被单击 |  |  |  |  |
+
+```epl
+通用对话框1.初始目录 = 取特定目录 (#系统桌面)
+    如果真 (通用对话框1.打开 () = 真)
+    编辑框1.内容 = 通用对话框1.文件名
+```
 
 属性类型为“保存文件”时，默认创建并将编辑框内容写入到所选文件地址以文件形式当中。
 
-![天野学院第六期模拟班课程学后总结 配图 22](/posts/tianye-academy-summary/image_89.png)
+![天野学院第六期模拟班课程学后总结 配图 22](/posts/tianye-academy-summary/image_89.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 23](/posts/tianye-academy-summary/image.png)
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _按钮2_被单击 |  |  |  |  |
+
+```easy
+通用对话框2.初始目录 ＝ 取特定目录 (#系统桌面)
+    如果真 (通用对话框2.打开 () ＝ 真)
+    写到文件 (通用对话框2.文件名, 到字节集 (编辑框2.内容))
+```
 
 ### 超文本浏览框（扩展组件1）：
 
@@ -129,51 +213,74 @@ images = ["images/og/tianye-academy-summary.png"]
 
 为了防止运行时点击网址链接跳转至其他软件上，可以设置其打开新窗口逻辑。
 
-![天野学院第六期模拟班课程学后总结 配图 24](/posts/tianye-academy-summary/image_87.png)
+![天野学院第六期模拟班课程学后总结 配图 24](/posts/tianye-academy-summary/image_87.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 25](/posts/tianye-academy-summary/image_76.png)
+![天野学院第六期模拟班课程学后总结 配图 25](/posts/tianye-academy-summary/image_76.webp)
 
 按下按钮实现跳转网址功能。
 
-![天野学院第六期模拟班课程学后总结 配图 26](/posts/tianye-academy-summary/image_40.png)
+![天野学院第六期模拟班课程学后总结 配图 26](/posts/tianye-academy-summary/image_40.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 27](/posts/tianye-academy-summary/image_71.png)
+![天野学院第六期模拟班课程学后总结 配图 27](/posts/tianye-academy-summary/image_71.webp)
 
 ### 气球提示框（扩展组件1）：
 
 用于提示信息，点击会在固定位置加载冒泡。
 
-![天野学院第六期模拟班课程学后总结 配图 28](/posts/tianye-academy-summary/image_79.png)
+![天野学院第六期模拟班课程学后总结 配图 28](/posts/tianye-academy-summary/image_79.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 29](/posts/tianye-academy-summary/image_60.png)
+![天野学院第六期模拟班课程学后总结 配图 29](/posts/tianye-academy-summary/image_60.webp)
 
 ### 状态条：
 
 用于在底部显示信息，其中在最后一栏的宽度里输入\-1值则会空白最右边一栏。
 
-![天野学院第六期模拟班课程学后总结 配图 30](/posts/tianye-academy-summary/image_29.png)
+![天野学院第六期模拟班课程学后总结 配图 30](/posts/tianye-academy-summary/image_29.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 31](/posts/tianye-academy-summary/image_35.png)
+![天野学院第六期模拟班课程学后总结 配图 31](/posts/tianye-academy-summary/image_35.webp)
 
 可通过点击按钮更改其中一栏的数据。
 
-![天野学院第六期模拟班课程学后总结 配图 32](/posts/tianye-academy-summary/image_67.png)
+![天野学院第六期模拟班课程学后总结 配图 32](/posts/tianye-academy-summary/image_67.webp)
 
 ### 进度条：
 
 通过计次循环实现延迟加载。
 
-![天野学院第六期模拟班课程学后总结 配图 33](/posts/tianye-academy-summary/image_27.png)
+![天野学院第六期模拟班课程学后总结 配图 33](/posts/tianye-academy-summary/image_27.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 34](/posts/tianye-academy-summary/image_5.png)
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _按钮6_被单击 |  |  |  |  |
+
+```epl
+计次循环首 (100, )
+    进度条1.位置 = 进度条1.位置 + 1
+    延迟 (100)
+计次循环尾 ()
+```
 
 ### 滑动条：
 
 按下按钮模拟滑块条滑动效果；当滑动块位置改变时，通过赋值实时显示滑动位置。
 
-![天野学院第六期模拟班课程学后总结 配图 35](/posts/tianye-academy-summary/image_54.png)
+![天野学院第六期模拟班课程学后总结 配图 35](/posts/tianye-academy-summary/image_54.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 36](/posts/tianye-academy-summary/image_18.png)
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _按钮7_被单击 |  |  |  |  |
+
+```easy
+滑块条1.位置 = 滑块条1.位置 + 1
+```
+
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _滑块条1_位置被改变 |  |  |  |  |
+
+```easy
+标签4.标题 = 到文本 (滑块条1.位置)
+```
 
 ### 超级列表框（扩展组件1，属性类型选择报表列表框）：
 
@@ -181,25 +288,25 @@ images = ["images/og/tianye-academy-summary.png"]
 
 **显示表格线 = 真**：超级列表框会显示**横向行线 \+ 纵向列线**，像 Excel 表格一样，格子边界清晰。
 
-![天野学院第六期模拟班课程学后总结 配图 37](/posts/tianye-academy-summary/image_41.png)
+![天野学院第六期模拟班课程学后总结 配图 37](/posts/tianye-academy-summary/image_41.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 38](/posts/tianye-academy-summary/image_77.png)
+![天野学院第六期模拟班课程学后总结 配图 38](/posts/tianye-academy-summary/image_77.webp)
 
 ### 菜单：
 
 可通过设置右击按下事件在鼠标当前位置弹出菜单。
 
-![天野学院第六期模拟班课程学后总结 配图 39](/posts/tianye-academy-summary/image_2.png)
+![天野学院第六期模拟班课程学后总结 配图 39](/posts/tianye-academy-summary/image_2.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 40](/posts/tianye-academy-summary/image_25.png)
+![天野学院第六期模拟班课程学后总结 配图 40](/posts/tianye-academy-summary/image_25.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 41](/posts/tianye-academy-summary/image_38.png)
+![天野学院第六期模拟班课程学后总结 配图 41](/posts/tianye-academy-summary/image_38.webp)
 
 ## 选择夹\+分组框：
 
 注意需要每个分组都要添加分组框，位置需要一致美观。
 
-![天野学院第六期模拟班课程学后总结 配图 42](/posts/tianye-academy-summary/image_73.png)
+![天野学院第六期模拟班课程学后总结 配图 42](/posts/tianye-academy-summary/image_73.webp)
 
 ## 2\.数据类型
 
@@ -279,7 +386,11 @@ images = ["images/og/tianye-academy-summary.png"]
 
 取随机性种子：
 
-![天野学院第六期模拟班课程学后总结 配图 43](/posts/tianye-academy-summary/image_46.png)
+```easy
+置随机数种子 ()
+a = 取随机数 (1, 100)
+调试输出 (a)
+```
 
 ## 5、6课：
 
@@ -311,35 +422,49 @@ images = ["images/og/tianye-academy-summary.png"]
 
 ### 多线程主要功能代码实现（包括窗口\+全局变量）：
 
-![天野学院第六期模拟班课程学后总结 配图 44](/posts/tianye-academy-summary/image_62.png)
+![天野学院第六期模拟班课程学后总结 配图 44](/posts/tianye-academy-summary/image_62.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 45](/posts/tianye-academy-summary/image_26.png)
+![天野学院第六期模拟班课程学后总结 配图 45](/posts/tianye-academy-summary/image_26.webp)
 
 #### 全部开始（包括线程函数实现）：
 
-![天野学院第六期模拟班课程学后总结 配图 46](/posts/tianye-academy-summary/image_30.png)
+![天野学院第六期模拟班课程学后总结 配图 46](/posts/tianye-academy-summary/image_30.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 47](/posts/tianye-academy-summary/image_74.png)
+![天野学院第六期模拟班课程学后总结 配图 47](/posts/tianye-academy-summary/image_74.webp)
 
 #### 全部停止：
 
-![天野学院第六期模拟班课程学后总结 配图 48](/posts/tianye-academy-summary/image_56.png)
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _按钮3_被单击 |  |  |  |  |
+
+| 变量名 | 类 型 | 静态 | 数组 | 备 注 |
+| --- | --- | --- | --- | --- |
+| a | 整数型 |  |  |  |
+
+```epl
+计次循环首 (到整数 (编辑框1.内容), a)
+    强制结束线程 (线程句柄 [a])
+    关闭线程句柄 (线程句柄 [a])
+计次循环尾 ()
+调试输出 (“已全部停止”)
+```
 
 #### 全部暂停\+全部继续：
 
-![天野学院第六期模拟班课程学后总结 配图 49](/posts/tianye-academy-summary/image_70.png)
+![天野学院第六期模拟班课程学后总结 配图 49](/posts/tianye-academy-summary/image_70.webp)
 
 #### 控制单线程开启\+控制单线程暂停（包括许可证的创建）：
 
-![天野学院第六期模拟班课程学后总结 配图 50](/posts/tianye-academy-summary/image_34.png)
+![天野学院第六期模拟班课程学后总结 配图 50](/posts/tianye-academy-summary/image_34.webp)
 
 ## 4、超级列表框（属性类型为“报表列表框”，显示表格线为“真”，整行选择为“真”）：
 
 #### 导入游戏账号文本到超级列表框功能实现：
 
-![天野学院第六期模拟班课程学后总结 配图 51](/posts/tianye-academy-summary/image_58.png)
+![天野学院第六期模拟班课程学后总结 配图 51](/posts/tianye-academy-summary/image_58.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 52](/posts/tianye-academy-summary/image_22.png)
+![天野学院第六期模拟班课程学后总结 配图 52](/posts/tianye-academy-summary/image_22.webp)
 
 ##### 其中：
 
@@ -349,7 +474,31 @@ images = ["images/og/tianye-academy-summary.png"]
 
 **“置标题”三个参数**：第一个是项目（序号，账号等一行的内容），第二个是列（第几列）， 第三个是你要插入的数据（文本型）。
 
-![天野学院第六期模拟班课程学后总结 配图 53](/posts/tianye-academy-summary/image_43.png)
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| _按钮8_被单击 |  |  |  |  |
+
+| 变量名 | 类 型 | 静态 | 数组 | 备 注 |
+| --- | --- | --- | --- | --- |
+| a | 文本型 |  |  |  |
+| b | 文本型 |  | 0 |  |
+| c | 文本型 |  | 0 |  |
+| i | 整数型 |  |  |  |
+
+```epl
+a ＝ 到文本 （读入文件 （“．/test/账本．txt”））
+b ＝ 分割文本 （a， #换行符， ）
+调试输出 （b）
+计次循环首 （取数组成员数 （b）， i）
+    c ＝ 分割文本 （b [i]， “|”， ）
+    如果真 （取数组成员数 （c） ≥ 3）
+        超级列表框1．插入表项 （， ， ， ， ）
+        超级列表框1．置标题 （i － 1， 0， 到文本 （i））
+        超级列表框1．置标题 （i － 1， 1， c [1]）
+        超级列表框1．置标题 （i － 1， 2， c [2]）
+        超级列表框1．置标题 （i － 1， 3， c [3]）
+计次循环尾 （）
+```
 
 # 7、8课：
 
@@ -357,7 +506,7 @@ images = ["images/og/tianye-academy-summary.png"]
 
 注意：由于系统缩放不是100%，导致一些功能的使用会错乱（例如屏幕坐标偏移问题，只显示部分屏幕问题），需要到属性去勾选替代高DPI缩放行为，且下面选择为应用程序。
 
-![天野学院第六期模拟班课程学后总结 配图 54](/posts/tianye-academy-summary/image_83.png)
+![天野学院第六期模拟班课程学后总结 配图 54](/posts/tianye-academy-summary/image_83.webp)
 
 ### 注册大漠（3种方法）：
 
@@ -365,55 +514,66 @@ images = ["images/og/tianye-academy-summary.png"]
 
 1\.将本机添加到大漠服务器当中。之后会给出dm\.dll文件。
 
-![天野学院第六期模拟班课程学后总结 配图 55](/posts/tianye-academy-summary/image_19.png)
+![天野学院第六期模拟班课程学后总结 配图 55](/posts/tianye-academy-summary/image_19.webp)
 
 2\.打开大漠类库生成工具，将dm\.dll文件拖拽到里面后会在当前文件夹下点击生成一个Output文件夹。
 
-![天野学院第六期模拟班课程学后总结 配图 56](/posts/tianye-academy-summary/image_69.png)
+![天野学院第六期模拟班课程学后总结 配图 56](/posts/tianye-academy-summary/image_69.webp)
 
 3\.选择E文件夹后打开obj\.txt文件复制粘贴到易语言的类模块中，按照读我\.txt文件内容操作。
 
-![天野学院第六期模拟班课程学后总结 配图 57](/posts/tianye-academy-summary/image_21.png)
+![天野学院第六期模拟班课程学后总结 配图 57](/posts/tianye-academy-summary/image_21.webp)
 
 4\.注册大漠。
 
-![天野学院第六期模拟班课程学后总结 配图 58](/posts/tianye-academy-summary/image_23.png)
+![天野学院第六期模拟班课程学后总结 配图 58](/posts/tianye-academy-summary/image_23.webp)
 
 #### 2\.支持库调用法（注意dm文件必须提前注册大漠到系统当中）：
 
 1\.打开工具后选择OCX组件一栏，先注册组件选择dm\.dll文件。之后再点击下一步。
 
-![天野学院第六期模拟班课程学后总结 配图 59](/posts/tianye-academy-summary/image_12.png)
+![天野学院第六期模拟班课程学后总结 配图 59](/posts/tianye-academy-summary/image_12.webp)
 
 2\.选择dm点击保存，之后会弹窗点击是，然后就会关闭易语言程序自动生成库。
 
-![天野学院第六期模拟班课程学后总结 配图 60](/posts/tianye-academy-summary/image_75.png)
+![天野学院第六期模拟班课程学后总结 配图 60](/posts/tianye-academy-summary/image_75.webp)
 
 3\.重新打开易语言程序，选择工具后点击支持库配置，勾选dm支持库后点击确认，然后就可以正常使用了，代码操作跟1一样。
 
-![天野学院第六期模拟班课程学后总结 配图 61](/posts/tianye-academy-summary/image_88.png)
+![天野学院第六期模拟班课程学后总结 配图 61](/posts/tianye-academy-summary/image_88.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 62](/posts/tianye-academy-summary/image_14.png)
+![天野学院第六期模拟班课程学后总结 配图 62](/posts/tianye-academy-summary/image_14.webp)
 
 #### 3\.EC模块调用法：
 
 1\.首先创建一个易语言模块。
 
-![天野学院第六期模拟班课程学后总结 配图 63](/posts/tianye-academy-summary/image_84.png)
+![天野学院第六期模拟班课程学后总结 配图 63](/posts/tianye-academy-summary/image_84.webp)
 
 2\.插入模块将obj\.txt文件复制粘贴到易语言的类模块中，按照读我\.txt文件内容操作。
 
-![天野学院第六期模拟班课程学后总结 配图 64](/posts/tianye-academy-summary/image_24.png)
+![天野学院第六期模拟班课程学后总结 配图 64](/posts/tianye-academy-summary/image_24.webp)
 
 3\.填写相关配置后，打开编译选择Windows易语言模块编译。
 
-![天野学院第六期模拟班课程学后总结 配图 65](/posts/tianye-academy-summary/image_4.png)
+![天野学院第六期模拟班课程学后总结 配图 65](/posts/tianye-academy-summary/image_4.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 66](/posts/tianye-academy-summary/image_10.png)
+![天野学院第六期模拟班课程学后总结 配图 66](/posts/tianye-academy-summary/image_10.webp)
 
 4\.打开新的易语言程序，在模块引用表当中添加大漠模块\.ec重复之前代码操作即可使用。
 
-![天野学院第六期模拟班课程学后总结 配图 67](/posts/tianye-academy-summary/image_81.png)
+```text
+程序数据
+├─ 窗口程序集_启动窗口
+├─ 窗口
+├─ 常量表...
+├─ 资源表
+├─ 模块引用表
+│  └─ 大汉模块 - 大汉模块.ec
+└─ 外部文件记录表
+```
+
+> 图注：红框圈出「模块引用表」一行（选中高亮）及其子节点「大汉模块 - 大汉模块.ec」。
 
 #### 注意大漠注册（reg）失败的几个原因：
 
@@ -431,87 +591,127 @@ images = ["images/og/tianye-academy-summary.png"]
 
 功能：设置后之后的每次路径输入不需要再打上前面的绝对路径了，图片密码设置后会自动解密打开。
 
-![天野学院第六期模拟班课程学后总结 配图 68](/posts/tianye-academy-summary/image_9.png)
+```epl
+Dm.SetPath (取运行目录 () + “\pic\”)
+Dm.SetPicPwd (“12345”)
+```
 
 ### 找图：
 
 功能：依次找到桌面图标并且鼠标延迟指向。
 
-![天野学院第六期模拟班课程学后总结 配图 69](/posts/tianye-academy-summary/image_86.png)
+```epl
+ret ＝ Dm.FindPicEx (0, 0, 取屏幕宽度 (), 取屏幕高度 (), “回收站.bmp|QQ.bmp|音乐.bmp”, “050505”, 0.
+95, 0)
+调试输出 (ret) ' “0,46,266|1,43,635|2,51,760”
+如果真 (ret ≠ “”)
+    分割1 ＝ 分割文本 (ret, “|”, )
+    计次循环首 (取数组成员数 (分割1), a)
+        分割2 ＝ 分割文本 (分割1 [a], “,”, )
+        如果真 (取数组成员数 (分割2) ≥ 3)
+            Dm.MoveTo (到整数 (分割2 [2]), 到整数 (分割2 [3]))
+            Dm.LeftClick ()
+            Dm.delay (1200)
+    计次循环尾 ()
+```
 
 ### 找色：
 
 功能：从上到下，从左到右依次查找PGB格式的图色，并且输出x和y轴位置。
 
-![天野学院第六期模拟班课程学后总结 配图 70](/posts/tianye-academy-summary/image_1.png)
+```epl
+Dm.FindColor (0, 0, 取屏幕宽度 (), 取屏幕高度 (), “c475fe-000000”, 1, 0, x, y)
+调试输出 (x, y)
+```
 
 ### 区域截图：
 
 功能：设置好坐标后截图。
 
-![天野学院第六期模拟班课程学后总结 配图 71](/posts/tianye-academy-summary/image_68.png)
+```epl
+Dm.Capture (0, 0, 取屏幕宽度 (), 取屏幕高度 (), 取运行目录 () + “\截图1.bmp”)
+```
 
 ### 快速找字：
 
 功能：根据设置好的字库去其他文件当中快速找字。
 
-![天野学院第六期模拟班课程学后总结 配图 72](/posts/tianye-academy-summary/image_64.png)
+![天野学院第六期模拟班课程学后总结 配图 72](/posts/tianye-academy-summary/image_64.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 73](/posts/tianye-academy-summary/image_78.png)
+```epl
+ret2 = Dm.FindStrFastEx (0, 0, 取屏幕宽度 (), 取屏幕高度 (), “文|类|字”, “000000-050505”, 0.9)
+调试输出 (ret2)
+```
 
 ### 设置字库密码：
 
 功能：解密字库。注意要放在设置字库代码之前。
 
-![天野学院第六期模拟班课程学后总结 配图 74](/posts/tianye-academy-summary/image_72.png)
+![天野学院第六期模拟班课程学后总结 配图 74](/posts/tianye-academy-summary/image_72.webp)
 
 ### 区域找字：
 
 功能：区域范围内根据字库找字。注意一定要显示在屏幕上才能查找。
 
-![天野学院第六期模拟班课程学后总结 配图 75](/posts/tianye-academy-summary/image_51.png)
+```easy
+ret2 = Dm.Ocr (179, 228, 892, 453, “000000-050505”, 0.9)
+信息框 (ret2, 0, , )
+```
 
 ### 鼠标操作：
 
 功能：鼠标左键单击后按下回车键。
 
-![天野学院第六期模拟班课程学后总结 配图 76](/posts/tianye-academy-summary/image_90.png)
+![天野学院第六期模拟班课程学后总结 配图 76](/posts/tianye-academy-summary/image_90.webp)
 
 ### 获取窗口：
 
 功能：获取窗口句柄。
 
-![天野学院第六期模拟班课程学后总结 配图 77](/posts/tianye-academy-summary/image_37.png)
+```easy
+ret1 = Dm.FindWindow ("#32770", "大漠综合工具 -  Verson:7.1919 欢迎您使用本工具, 如果有问题或好的建议, 请联系我" )
+信息框 (到文本  (ret1), 0, , )
+```
 
 ### 设置窗口状态：
 
 功能：设置窗口状态为最小化（可选择多种功能）。
 
-![天野学院第六期模拟班课程学后总结 配图 78](/posts/tianye-academy-summary/image_52.png)
+```epl
+Dm.SetWindowState (2428526, 2)
+```
 
 ### 设置窗口标题：
 
 功能：更改标题（一次性）。
 
-![天野学院第六期模拟班课程学后总结 配图 79](/posts/tianye-academy-summary/image_55.png)
+```easy
+Dm.SetWindowText (2428526, “小莫” )
+```
 
 ### 向指定窗口发送文本：
 
 功能：向指定窗口发送文本，记住一般要选择输入文字的窗口，而不是父窗口。
 
-![天野学院第六期模拟班课程学后总结 配图 80](/posts/tianye-academy-summary/image_31.png)
+```easy
+Dm.SendString (2754424, “你好” )
+```
 
 ### 移动窗口：
 
 功能：移动窗口。
 
-![天野学院第六期模拟班课程学后总结 配图 81](/posts/tianye-academy-summary/image_50.png)
+```epl
+Dm.MoveWindow (2428526, 100, 100)
+Dm.delay (2000)
+Dm.MoveWindow (2428526, 300, 300)
+```
 
 ### 运行指定应用程序：
 
 功能：打开应用程序，注意需要带路径打开，路径在属性中查看。
 
-![天野学院第六期模拟班课程学后总结 配图 82](/posts/tianye-academy-summary/image_28.png)
+![天野学院第六期模拟班课程学后总结 配图 82](/posts/tianye-academy-summary/image_28.webp)
 
 # 9、10课：
 
@@ -525,45 +725,86 @@ images = ["images/og/tianye-academy-summary.png"]
 
 功能：输入窗口句柄，绑定则为1，未绑定为0。
 
-![天野学院第六期模拟班课程学后总结 配图 83](/posts/tianye-academy-summary/image_42.png)
+```epl
+调试输出 (Dm.IsBind (198530))
+```
 
 ### 关闭Aero效果：
 
 功能：win7以上适用，打开的话会对识图识字有干扰，透明，阴影的效果影响找图找字。
 
-![天野学院第六期模拟班课程学后总结 配图 84](/posts/tianye-academy-summary/image_45.png)
+![天野学院第六期模拟班课程学后总结 配图 84](/posts/tianye-academy-summary/image_45.webp)
 
 ### 模拟真实鼠标，真实键盘：
 
 功能：鼠标有部分防封的效果，手游拖动游戏内部窗口不生效，可以考虑开启次接口。键盘就起防封效果。
 
-![天野学院第六期模拟班课程学后总结 配图 85](/posts/tianye-academy-summary/image_33.png)
+![天野学院第六期模拟班课程学后总结 配图 85](/posts/tianye-academy-summary/image_33.webp)
 
 ## 大漠Foobar操作：
 
 功能：创建独立窗口，类似于qml。
 
-![天野学院第六期模拟班课程学后总结 配图 86](/posts/tianye-academy-summary/image_15.png)
+```easy
+ret1 = Dm.CreateFoobarRect (0, _启动窗口.左边, _启动窗口.顶边, 130, 130) ’ 创建窗口
+如果真 (ret1 > 0)
+    Dm.FoobarFillRect (ret1, 0, 0, 130, 130, “00d6b9”) ’ 给窗口固定区域添加颜色
+    Dm.FoobarDrawPic (ret1, 0, 0, 取运行目录 () + “\1.bmp”, “FF0000”) ’ 设置窗口底图
+    Dm.FoobarSetFont (ret1, “宋体”, 12, 2 + 4) ’ 设置字体
+    Dm.FoobarDrawText (ret1, 0, 0, 130, 130, “你好易语言”, “000000”, 2) ’ 写入文字
+    Dm.FoobarUpdate (ret1) ’ 更新窗口
+    Dm.FoobarLock (ret1) ’ 锁住窗口
+```
 
 ## 大漠算法：
 
-![天野学院第六期模拟班课程学后总结 配图 87](/posts/tianye-academy-summary/image_32.png)
+```epl
+ret2 ＝ Dm.FindPicEx (0, 0, 取屏幕宽度 (), 取屏幕高度 (), “QQ.bmp|回收站.bmp|控制面板.bmp”, “050505”, 0.9, 0)
+调试输出 (ret2)
+如果真 (ret2 ≠ “”)
+    ret3 ＝ Dm.FindNearestPos (ret2, 0, 取屏幕宽度 () ÷ 2, 取屏幕宽度 () ÷ 2)  ’ 所有坐标找最近的那个
+    调试输出 (ret3)
+    ret4 ＝ Dm.SortPosDistance (ret2, 0, 取屏幕宽度 () ÷ 2, 取屏幕宽度 () ÷ 2)  ’ 所有坐标排序，由近到远
+    调试输出 (ret4)
+    ret5 ＝ Dm.ExcludePos (ret2, 0, 13, 612, 108, 717)  ’ 排除区域内坐标
+    调试输出 (ret5)
+```
 
 ## 大漠文件操作：
 
-![天野学院第六期模拟班课程学后总结 配图 88](/posts/tianye-academy-summary/image_11.png)
+```epl
+Dm.EncodeFile (“..\开票.txt”, “123”)  ’ 加密文件
+Dm.DecodeFile (“..\开票.txt”, “123”)  ’ 解密文件
+
+Dm.WriteIni (“测试”, “大漠函数”, “writeIni”, “..\test.ini”)  ’ 向ini文件写入指定信息
+Dm.EncodeFile (“..\test.ini”, “123”)  ’ 加密ini文件
+Dm.WriteIniPwd (“学习”, “大漠abc”, “readIni”, “..\test.ini”, “123”)  ’ 在加密ini文件写入指定信息
+调试输出 (Dm.ReadIniPwd (“学习”, “大漠abc”, “..\test.ini”, “123”))  ’ 在加密ini文件读取指定信息
+
+ret6 ＝ Dm.SelectDirectory ()  ’ 弹出选择文件夹选中后输出文件夹路径
+调试输出 (ret6)
+ret7 ＝ Dm.SelectFile ()  ’ 弹出选择文件选中后输出文件路径
+调试输出 (ret7)
+```
 
 ## 大漠系统操作：
 
-![天野学院第六期模拟班课程学后总结 配图 89](/posts/tianye-academy-summary/image_53.png)
+```epl
+调试输出 (Dm.GetClipboard ())  ’ 获取剪贴板的内容
+调试输出 (Dm.GetDiskSerial (1))  ’ 获取本机的指定硬盘的序列号(管理员权限)
+调试输出 (Dm.GetMachineCode ())  ’ 获取本机的机器码.(带网卡). 此机器码用于插件网站后台
+调试输出 (Dm.GetMachineCodeNoMac ())  ’ 不带网卡的机器码
+调试输出 (Dm.GetOsBuildNumber ())  ’ 得到操作系统的build版本号
+’ dm.EXITOS()’注销系统|关机|重新启动
+```
 
 ## 大漠偏色计算器使用：
 
 功能：由于有些文字是由多个图色构成，导致单一图色添加困难，所以用大漠偏色计算器计算出适用的一个图色，然后结合大漠综合工具提取出完整文字。
 
-![天野学院第六期模拟班课程学后总结 配图 90](/posts/tianye-academy-summary/image_44.png)
+![天野学院第六期模拟班课程学后总结 配图 90](/posts/tianye-academy-summary/image_44.webp)
 
-![天野学院第六期模拟班课程学后总结 配图 91](/posts/tianye-academy-summary/image_48.png)
+![天野学院第六期模拟班课程学后总结 配图 91](/posts/tianye-academy-summary/image_48.webp)
 
 # 13、14课：
 

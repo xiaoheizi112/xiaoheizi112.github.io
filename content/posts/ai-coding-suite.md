@@ -295,7 +295,7 @@ L1 代码补全 ─── 行级/函数级补全（Copilot、TabNine）
 
 ### Claude Code 是如何“读懂”你的代码库的（Agentic Search）：
 
-![Claude Code + Codex + Cursor：AI 组合学习 配图 1](/posts/ai-coding-suite/image.png)
+![Claude Code + Codex + Cursor：AI 组合学习 配图 1](/posts/ai-coding-suite/image.webp)
 
 官方把这种机制叫做 **Agentic Search（智能体式检索）**，它的工作方式和**一个人类工程师冷启动一个项目完全一样。与传统 RAG/向量检索的本质区别：**
 

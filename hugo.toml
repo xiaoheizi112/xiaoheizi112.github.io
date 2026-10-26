@@ -23,6 +23,9 @@ env = 'production'
 dateFormat = '2006年1月2日'
 description = '一个很懒的人的博客,想起来才更新。'
 author = '慢公子'
+# 简历板块总开关：false = 导航/命令面板不出现、/resume/ 路由不生成（文件都保留）。
+# 要恢复：改 true，并删掉 content/resume/_index.md 里的 [_build] 段。
+showResume = false
 defaultTheme = 'auto'
 ShowReadingTime = true
 ShowWordCount = true

@@ -51,7 +51,24 @@ images = ["images/og/longmen-project-notes.png"]
 
 匿名函数就是没有固定名字的函数，只作为临时场景来使用，其本质就是简化版的函数。
 
-![龙门项目学习笔记 配图 1](/posts/longmen-project-notes/image_6.png)
+Lambda 表达式是 C++11 引入的一种匿名函数的方式，它允许你在需要函数的地方内联地定义函数，而无需单独命名函数
+
+Lambda 表达式的基本语法如下：
+
+```cpp
+[capture clause](parameters) -> return_type {
+    // 函数体
+    // 可以使用捕获列表中的变量
+    return expression; // 可选的返回语句
+}
+```
+
+Lambda 表达式由以下部分组成：
+
+- **捕获列表（Capture clause）**：用于捕获外部变量，在 Lambda 表达式中可以访问这些变量。捕获列表可以为空，也可以包含变量列表 `[var1, var2, ...]`。
+- **参数列表（Parameters）**：与普通函数的参数列表类似，可以为空或包含参数列表 `(param1, param2, ...)`。
+- **返回类型（Return type）**：Lambda 表达式可以自动推断返回类型auto，也可以显式指定返回类型 `-> return_type`。如果函数体只有一条返回语句，可以省略返回类型。
+- **函数体（Body）**：Lambda 表达式的函数体，包含需要执行的代码。
 
 ## Lambda表达式参数捕获
 
@@ -85,7 +102,7 @@ cmake是层级管理，每个文件夹下的子文件都有CMakelists文件。
 
 ## 使用教程：
 
-![龙门项目学习笔记 配图 2](/posts/longmen-project-notes/image_2.png)
+![龙门项目学习笔记 配图 2](/posts/longmen-project-notes/image_2.webp)
 
 # 设计模式
 
@@ -185,11 +202,11 @@ OpenCV可以分成四个学习阶段：
 
 新手小白下载**Windows**就好，里面是编译好的OpenCV库，而**Sources**是OpenCV源码，下载后需要手动编译。
 
-![龙门项目学习笔记 配图 3](/posts/longmen-project-notes/image_4.png)
+![龙门项目学习笔记 配图 3](/posts/longmen-project-notes/image_4.webp)
 
 打开下载后的文件，其中sources就是opencv的源码，build就是官方给的构建好的opencv库。
 
-![龙门项目学习笔记 配图 4](/posts/longmen-project-notes/image_9.png)
+![龙门项目学习笔记 配图 4](/posts/longmen-project-notes/image_9.webp)
 
 ### 配置环境变量：
 
@@ -199,11 +216,14 @@ vc15：对应 Visual Studio 2017（MSVC 19\.1）
 
 这里选vc15，VS2019同样适配。
 
-![龙门项目学习笔记 配图 5](/posts/longmen-project-notes/image_8.png)
+![龙门项目学习笔记 配图 5](/posts/longmen-project-notes/image_8.webp)
 
 bin：静态库存放文件。lib：动态库存放文件。手动添加到path路径当中，可直接在设置里搜**高级系统设置**。
 
-![龙门项目学习笔记 配图 6](/posts/longmen-project-notes/image_3.png)
+```text
+D:\OpenCV\opencv4.6.0\build\x64\vc15\bin
+D:\OpenCV\opencv4.6.0\build\x64\vc15\lib
+```
 
 配置完成后记得重启电脑。
 
@@ -217,7 +237,7 @@ VS编译：Win\+F5。
 
 使得VS能够完成对Opencv库的静态编译，能够找到函数声明（快递员知道有你这么号人）。
 
-![龙门项目学习笔记 配图 7](/posts/longmen-project-notes/image_10.png)
+![龙门项目学习笔记 配图 7](/posts/longmen-project-notes/image_10.webp)
 
 ### 2、Lib静态库路径配置：
 
@@ -229,7 +249,7 @@ VS编译：Win\+F5。
 
 `opencv_world460d.lib`：**Debug 版**（带 d 后缀），编译时禁用优化、包含完整调试信息、嵌入断言，仅适配项目的 Debug 模式。
 
-![龙门项目学习笔记 配图 8](/posts/longmen-project-notes/image_13.png)
+![龙门项目学习笔记 配图 8](/posts/longmen-project-notes/image_13.webp)
 
 ### 3、DLL动态库路径配置：
 
@@ -237,13 +257,13 @@ VS编译：Win\+F5。
 
 #### 方法一：
 
-![龙门项目学习笔记 配图 9](/posts/longmen-project-notes/image_11.png)
+![龙门项目学习笔记 配图 9](/posts/longmen-project-notes/image_11.webp)
 
 #### 方法二：
 
 在存放\.exe文件的文件夹当中直接添加所需动态库文件，当需要编译时会自动加载文件夹内的动态库。
 
-![龙门项目学习笔记 配图 10](/posts/longmen-project-notes/image_5.png)
+![龙门项目学习笔记 配图 10](/posts/longmen-project-notes/image_5.webp)
 
 #### 方法三：
 
@@ -255,11 +275,97 @@ VS编译：Win\+F5。
 
 ## Cmake如何找到cv库
 
-![龙门项目学习笔记 配图 11](/posts/longmen-project-notes/image_1.png)
+# Cmake如何找到cv库
 
-![龙门项目学习笔记 配图 12](/posts/longmen-project-notes/image_12.png)
+```cmake
+#设置工程名称
+project(7_3_Opencv_Canny LANGUAGES CXX)
 
-![龙门项目学习笔记 配图 13](/posts/longmen-project-notes/image.png)
+#寻找Opencv库
+FIND_PACKAGE(OpenCV REQUIRED)
+
+#添加文件树
+file(
+    GLOB _SRCS
+    MCvCanny.cpp
+)
+
+add_executable(${PROJECT_NAME} ${_SRCS})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenCV_LIBS})
+```
+
+> 图注：红色箭头指向最后的 `TARGET_LINK_LIBRARIES` 行，说明第 5 点中提到的「将 ${OpenCV_LIBS} 链接给工程对象」正是这一行；红框圈出的是 `FIND_PACKAGE(OpenCV REQUIRED)` 两行，对应第 1 点 Cmake 的 find_package 函数按库名查找。
+
+## 讲解要点
+
+1. Cmake的find_package，是一个寻找库的函数，它会根据你传的第一个字符串，作为库的名称去找
+2. 这个名称，肯定不是随便写的，是约定好的，opencv库就叫OpenCV
+3. 去哪里找呢，去环境变量里找，所以我们要给库配置windows的环境变量
+4. 找什么呢？找Opencv库提供的 OpenCVConfig.cmake，它是opencv自己写的，用来告诉cmake如何理解cv库
+5. 最后，cmake找到了cv库，并通过 TARGET_LINK_LIBRARIES函数，将 ${OpenCV_LIBS} 链接给工程对象
+
+## OpenCV 安装目录结构
+
+资源管理器路径：`...NCV > opencv-4.6.0-install > opencv > build >`
+
+| 名称 | 修改日期 | 类型 | 大小 |
+| --- | --- | --- | --- |
+| bin | 2023-02-02 20:40 | 文件夹 | |
+| etc | 2023-02-02 20:39 | 文件夹 | |
+| include | 2023-02-02 20:39 | 文件夹 | |
+| java | 2023-02-02 20:39 | 文件夹 | |
+| python | 2023-02-02 20:39 | 文件夹 | |
+| x64 | 2023-02-02 20:39 | 文件夹 | |
+| LICENSE | 2022-05-11 2?:?? | 文件 | 12 KB |
+| OpenCVConfig.cmake | 2022-06-05 23:53 | CMake 源文件 | 7 KB |
+| OpenCVConfig-version.cmake | 2022-06-05 23:53 | CMake 源文件 | 1 KB |
+| setup_vars_opencv4.cmd | 2022-06-05 23:52 | Windows 命令脚本 | 1 KB |
+
+> 图注：红色箭头指向列表中的 `OpenCVConfig.cmake`，即第 4 点所说的那个由 opencv 自己编写、用来告诉 cmake 如何理解 cv 库的配置文件。
+
+> 有 2 处无法确认：资源管理器路径开头的盘符/上级目录被截断（显示为 `...NCV`）；`LICENSE` 行的修改时间被红箭头遮挡，只能辨出前半部分 `2022-05-11 2?:??`。
+
+![龙门项目学习笔记 配图 12](/posts/longmen-project-notes/image_12.webp)
+
+```cmake
+#
+# The OpenCV CMake configuration file
+#
+#           ** File generated automatically, do not modify **
+#
+# Usage from an external project:
+#   In your CMakeLists.txt, add these lines:
+#
+#   FIND_PACKAGE(OpenCV REQUIRED)
+#   TARGET_LINK_LIBRARIES(MY_TARGET_NAME ${OpenCV_LIBS})
+#
+# Or you can search for specific OpenCV modules:
+#
+#   FIND_PACKAGE(OpenCV REQUIRED core imgcodecs)
+#
+# If the module is found then OPENCV_<MODULE>_FOUND is set to TRUE.
+#
+# This file will define the following variables:
+#   - OpenCV_LIBS                     : The list of libraries to link against.
+#   - OpenCV_INCLUDE_DIRS             : The OpenCV include directories.
+#   - OpenCV_COMPUTE_CAPABILITIES     : The version of compute capability
+#   - OpenCV_VERSION                  : The version of this OpenCV build: "4.6.0"
+#   - OpenCV_VERSION_MAJOR            : Major version part of OpenCV_VERSION: "4"
+#   - OpenCV_VERSION_MINOR            : Minor version part of OpenCV_VERSION: "6"
+#   - OpenCV_VERSION_PATCH            : Patch version part of OpenCV_VERSION: "0"
+#   - OpenCV_VERSION_STATUS           : Development status of this build: ""
+#
+# Advanced variables:
+#   - OpenCV_SHARED
+#
+# =======================================================================================
+#
+# Windows pack specific options:
+#   - OpenCV_STATIC
+#   - OpenCV_CUDA
+```
+
+> 图注：红色箭头指向 `FIND_PACKAGE(OpenCV REQUIRED)` 一行，批注「告诉你如何直接添加使用」——即在你的 `CMakeLists.txt` 里直接加上这两行即可引用 OpenCV。
 
 ## OpenCV的Mat类
 
@@ -369,7 +475,16 @@ QT自己实现了工程管理文件，就是pro文件，pro文件其实就是一
 
 使用qmake配置opencv库，或者配置任何库，语法都是一样的，都是使用includepath命令配置头文件包含，然后使用Libs配置静态库和动态库路径。
 
-![龙门项目学习笔记 配图 14](/posts/longmen-project-notes/image_7.png)
+```cpp
+#配置opencv库
+INCLUDEPATH += S:/OPENCV/opencv_4.5.5_install/opencv/build/include
+Debug: {
+LIBS += -lS:/OPENCV/opencv_4.5.5_install/opencv/build/x64/vc15/lib/opencv_world455d
+}
+Release: {
+LIBS += -lS:/OPENCV/opencv_4.5.5_install/opencv/build/x64/vc15/lib/opencv_world455
+}
+```
 
 
 

@@ -1,6 +1,6 @@
 {{- if hugo.IsServer }}
 {{- /* 本地测试水印：hugo server 才渲染，构建产物里没有——看到它就说明在 localhost，不会串到线上 */ -}}
-<div style="position:fixed;top:8px;right:8px;z-index:9999;padding:4px 10px;border-radius:99px;background:#262320;color:#f7f5f0;font:500 11px ui-monospace,Consolas,monospace;letter-spacing:.12em;opacity:.85;pointer-events:none">LOCAL 测试</div>
+<div id="local-badge" style="position:fixed;top:8px;right:8px;z-index:9999;padding:4px 10px;border-radius:99px;background:#262320;color:#f7f5f0;font:500 11px ui-monospace,Consolas,monospace;letter-spacing:.12em;opacity:.85;pointer-events:none">LOCAL 测试</div>
 {{- end }}
 {{- $songs := hugo.Data.music }}
 {{- if $songs }}
@@ -116,6 +116,23 @@
 
   // 供命令面板复用：从屏幕中心揭示
   window.__palToggleTheme = function () { reveal(!isDark()); };
+})();
+</script>
+{{- /* 锚点落点：吸顶导航在窄屏会换行变高（约 92px），写死 84px 会让跳转后的标题被导航盖住一截。
+      按导航实际高度写 --anchor-top，CSS 的 scroll-margin-top 与 toc.html 的追校滚动都读它。 */ -}}
+<script>
+(function () {
+  var head = document.querySelector('.header, .nav');
+  if (!head) return;
+  function apply() {
+    var h = Math.round(head.getBoundingClientRect().height) + 22;
+    if (h > 0) document.documentElement.style.setProperty('--anchor-top', h + 'px');
+  }
+  apply();
+  addEventListener('load', apply);
+  addEventListener('resize', apply);
+  addEventListener('turbo:load', apply);
+  if (window.ResizeObserver) { try { new ResizeObserver(apply).observe(head); } catch (e) {} }
 })();
 </script>
 <style>

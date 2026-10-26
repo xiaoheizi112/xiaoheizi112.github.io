@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="何宇杰的卡通头像">
+  <!-- 参考证件照手绘的扁平矢量头像：短发露额头、浓眉杏眼、黑西装加白衬衫加深藏青领带。
+       衣服用「白衬衫垫底 + 西装挖 V 形领口」的画法，避免两块色交界处露细线。
+       无文字、无水印；底色是极浅的灰蓝，和站点的「晴空」基调一致。 -->
+  <defs>
+    <linearGradient id="av-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2f7fb" />
+      <stop offset="1" stop-color="#e4eef6" />
+    </linearGradient>
+    <linearGradient id="av-suit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d2027" />
+      <stop offset="1" stop-color="#13151a" />
+    </linearGradient>
+    <clipPath id="av-frame"><rect width="512" height="512" /></clipPath>
+  </defs>
+
+  <g clip-path="url(#av-frame)">
+    <rect width="512" height="512" fill="url(#av-bg)" />
+
+    <!-- 脖子：窄而短，下缘被西装压住 -->
+    <path d="M236 320 h40 v60 c0 13 -9 20 -20 20 s-20 -7 -20 -20 z" fill="#eac6a8" />
+    <path d="M236 320 h40 v9 c-11 7 -29 7 -40 0 z" fill="#d5a184" opacity=".3" />
+
+    <!-- 西装：整块打底（含肩线，放宽到画布外），下面所有细节都画在它上面 -->
+    <path d="M-26 512 C-14 442 44 402 130 382 L382 382 C468 402 526 442 538 512 Z" fill="url(#av-suit)" />
+    <!-- 白衬衫：只在领口 V 区，直接压在西装上，避免与西装边界重合露出细缝 -->
+    <path d="M212 380 L256 462 L300 380 L310 384 L296 512 L216 512 L202 384 Z" fill="#fbfcfe" />
+    <!-- 领带：结 + 向下收尖的剑身 -->
+    <path d="M256 458 l-16 -13 l16 -12 l16 12 z" fill="#2c3e63" />
+    <path d="M245 460 L267 460 L272 512 L240 512 Z" fill="#21304f" />
+
+    <!-- 耳朵 -->
+    <ellipse cx="182" cy="266" rx="12" ry="20" fill="#e4ba9c" />
+    <ellipse cx="330" cy="266" rx="12" ry="20" fill="#e4ba9c" />
+
+    <!-- 脸：偏长的鹅蛋脸，下颌收窄 -->
+    <path d="M188 208 C188 152 220 118 256 118 C292 118 324 152 324 208
+             C330 254 325 296 312 324 C299 350 279 364 256 364
+             C233 364 213 350 200 324 C187 296 182 254 188 208 Z" fill="#f5d8be" />
+    <!-- 下颌一条极淡的暗部，做体积不做脏斑 -->
+    <path d="M200 324 C213 350 233 364 256 364 C279 364 299 350 312 324
+             C299 342 279 352 256 352 C233 352 213 342 200 324 Z" fill="#e8c1a2" opacity=".4" />
+    <ellipse cx="206" cy="292" rx="20" ry="9" fill="#efa88f" opacity=".08" />
+    <ellipse cx="306" cy="292" rx="20" ry="9" fill="#efa88f" opacity=".08" />
+
+    <!-- 头发：发际线高而平滑，额头整片露出，两侧剪短 -->
+    <path d="M168 246 C158 198 166 152 192 124 C213 100 234 90 256 90
+             C280 90 302 102 320 126 C344 156 352 198 344 246
+             C338 234 326 224 310 212 C292 200 276 200 256 202
+             C236 204 220 200 202 212 C186 224 174 234 168 246 Z" fill="#20212a" />
+    <!-- 发丝高光：沿头顶的一条浅带 -->
+    <path d="M198 138 C216 116 236 106 256 106 C276 106 296 116 312 134
+             C294 124 276 118 256 118 C236 118 216 124 198 138 Z" fill="#3e4150" opacity=".7" />
+    <!-- 鬓角：短，落在耳前 -->
+    <path d="M176 212 C172 228 172 240 174 250 C181 247 185 238 186 227 C186 219 182 214 176 212 Z" fill="#20212a" />
+    <path d="M336 212 C340 228 340 240 338 250 C331 247 327 238 326 227 C326 219 330 214 336 212 Z" fill="#20212a" />
+
+    <!-- 眉毛：浓、平直、尾端收细 -->
+    <path d="M198 240 C212 234 230 233 242 236" stroke="#241f1c" stroke-width="10" stroke-linecap="round" fill="none" />
+    <path d="M314 240 C300 234 282 233 270 236" stroke="#241f1c" stroke-width="10" stroke-linecap="round" fill="none" />
+
+    <!-- 眼睛：杏眼偏窄，上睑压住虹膜上缘 -->
+    <path d="M200 256 C209 245 231 245 240 256 C231 265 209 265 200 256 Z" fill="#fcfaf8" />
+    <path d="M272 256 C281 245 303 245 312 256 C303 265 281 265 272 256 Z" fill="#fcfaf8" />
+    <circle cx="220" cy="255" r="9.5" fill="#3b2b1e" />
+    <circle cx="292" cy="255" r="9.5" fill="#3b2b1e" />
+    <circle cx="220" cy="255" r="4.6" fill="#150f0a" />
+    <circle cx="292" cy="255" r="4.6" fill="#150f0a" />
+    <circle cx="217" cy="252" r="2.7" fill="#ffffff" opacity=".9" />
+    <circle cx="289" cy="252" r="2.7" fill="#ffffff" opacity=".9" />
+    <path d="M200 256 C209 245 231 245 240 256" stroke="#2b2421" stroke-width="4.5" stroke-linecap="round" fill="none" />
+    <path d="M272 256 C281 245 303 245 312 256" stroke="#2b2421" stroke-width="4.5" stroke-linecap="round" fill="none" />
+
+    <!-- 鼻子：只留鼻头一点阴影 -->
+    <path d="M247 300 C252 304 260 304 265 299" stroke="#c8916f" stroke-width="4" stroke-linecap="round" opacity=".65" fill="none" />
+
+    <!-- 嘴：自然浅笑，两端微微上扬 -->
+    <path d="M232 328 C243 339 269 339 280 328" stroke="#b56a54" stroke-width="5.5" stroke-linecap="round" fill="none" />
+    <path d="M238 333 C247 340 265 340 274 333 C264 337 248 337 238 333 Z" fill="#e9a08c" opacity=".4" />
+  </g>
+</svg>

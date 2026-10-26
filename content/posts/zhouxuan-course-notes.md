@@ -23,7 +23,7 @@ images = ["images/og/zhouxuan-course-notes.png"]
 
 项目修改后先提交变为小黑点，再推送黑点转白点。其中Local为本地仓库，origin为远程仓库。
 
-![周旋课程学习补充笔记 配图 1](/posts/zhouxuan-course-notes/image_3.png)
+![周旋课程学习补充笔记 配图 1](/posts/zhouxuan-course-notes/image_3.webp)
 
 ## 注意：
 
@@ -31,7 +31,7 @@ images = ["images/og/zhouxuan-course-notes.png"]
 
 - 如果对方是开源项目的话需要拉fork请求进行本地修改之后才能提交。
 
-![周旋课程学习补充笔记 配图 2](/posts/zhouxuan-course-notes/image.png)
+![周旋课程学习补充笔记 配图 2](/posts/zhouxuan-course-notes/image.webp)
 
 ## 合并之前先变基，再提交合并申请。如何理解这句话？
 
@@ -197,13 +197,22 @@ IDE 就是**把代码编辑、编译、运行、调试等开发工具集成在�
 
 1\.首先在原项目文件夹当中创建两个文件夹，一个叫`include`，另一个叫`lib`。其中`include`存放静态库的头文件（\.h），`lib`存放静态库的库文件（\.lib）。
 
-![周旋课程学习补充笔记 配图 3](/posts/zhouxuan-course-notes/image_5.png)
+```text
+D:\Mycode\C++code\math_lib\test\
+├── include\
+├── lib\
+├── x64\
+├── test.cpp
+├── test.vcxproj
+├── test.vcxproj.filters
+└── test.vcxproj.user
+```
 
 2\.右键打开项目文件属性，在**C/C\+\+常规**的一栏中添加附加包含目录为静态库的头文件所属路径（绝对路径/相对路径）,在**链接器输入**的一栏中添加附加依赖项为静态库的库文件路径（必须是绝对路径而且还包括文件名）。
 
-![周旋课程学习补充笔记 配图 4](/posts/zhouxuan-course-notes/image_1.png)
+![周旋课程学习补充笔记 配图 4](/posts/zhouxuan-course-notes/image_1.webp)
 
-![周旋课程学习补充笔记 配图 5](/posts/zhouxuan-course-notes/image_6.png)
+![周旋课程学习补充笔记 配图 5](/posts/zhouxuan-course-notes/image_6.webp)
 
 ### 静态库修改后该如何重新配置：
 
@@ -211,7 +220,7 @@ IDE 就是**把代码编辑、编译、运行、调试等开发工具集成在�
 
 2\.右键打开静态库编译文件属性，将常规里的输出目录一栏改为对应项目文件当中。
 
-![周旋课程学习补充笔记 配图 6](/posts/zhouxuan-course-notes/image_4.png)
+![周旋课程学习补充笔记 配图 6](/posts/zhouxuan-course-notes/image_4.webp)
 
 ## 如何配置动态库：
 
@@ -945,7 +954,7 @@ YOLO 目标检测
 
 # Cmake：
 
-![周旋课程学习补充笔记 配图 7](/posts/zhouxuan-course-notes/image_2.png)
+![周旋课程学习补充笔记 配图 7](/posts/zhouxuan-course-notes/image_2.webp)
 
 ## 底下一排按钮的含义：
 

@@ -1,0 +1,297 @@
+{{- /* 简历页：读 data/resume.yml，网页版与打印版（PDF）共用同一份数据。
+       独立于 PaperMod（与首页/相册/路线页同款手写风格），复用 home.css 的设计令牌与导航。
+       公开模式：可被搜索引擎索引，导航与命令面板都有入口。 */ -}}
+{{- /* 简历板块隐藏（showResume=false）时：磁盘构建本就不含此路由（publishDate 在未来），
+       但 hugo server 仍会构建未来页，故这里兜底跳回首页，保证测试态也看不到。 */ -}}
+{{- if not site.Params.showResume -}}
+<!doctype html>
+<meta charset="utf-8" />
+<meta http-equiv="refresh" content="0; url={{ "/" | relURL }}" />
+<a href="{{ "/" | relURL }}">返回首页</a>
+{{- else -}}
+{{- $r := hugo.Data.resume -}}
+{{- $h := hugo.Data.home -}}
+{{- $email := "" -}}{{ with where $r.contacts "key" "email" }}{{ $email = (index . 0).value }}{{ end -}}
+{{- $gh := "" -}}{{ with where $r.contacts "key" "github" }}{{ $gh = (index . 0).href }}{{ end -}}
+<!doctype html>
+<html lang="{{ site.Language.Locale }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F7FBFC" />
+  <meta name="color-scheme" content="light dark" />
+  {{- /* 主题初始化：与全站共用 pref-theme */ -}}
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("pref-theme"); } catch (e) {}
+      var dark = t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    })();
+  </script>
+  <title>{{ $r.seo.title }}</title>
+  <meta name="description" content="{{ $r.seo.description }}" />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="{{ .Permalink }}" />
+  {{- $ogimg := "images/og-cover.png" | absURL }}
+  {{- with .Params.images }}{{ $ogimg = (index . 0) | absURL }}{{ end }}
+  <meta property="og:type" content="profile" />
+  <meta property="og:site_name" content="{{ site.Title }}" />
+  <meta property="og:title" content="{{ $r.seo.title }}" />
+  <meta property="og:description" content="{{ $r.seo.description }}" />
+  <meta property="og:url" content="{{ .Permalink }}" />
+  <meta property="og:image" content="{{ $ogimg }}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ $r.seo.title }}" />
+  <meta name="twitter:description" content="{{ $r.seo.description }}" />
+  <meta name="twitter:image" content="{{ $ogimg }}" />
+  {{- /* 结构化数据：告诉搜索引擎这是一份个人档案（不是招聘启事，别用 JobPosting） */ -}}
+  {{- $ld := dict
+    "@context" "https://schema.org"
+    "@type" "ProfilePage"
+    "name" $r.seo.title
+    "url" .Permalink
+    "mainEntity" (dict
+      "@type" "Person"
+      "name" $r.basics.name
+      "alternateName" $r.basics.alias
+      "jobTitle" $r.basics.headline
+      "email" $email
+      "url" .Permalink
+      "sameAs" (slice $gh)
+      "knowsAbout" $r.seo.knows_about
+      "alumniOf" (dict "@type" "EducationalOrganization" "name" (index $r.education 0).school)
+    )
+  }}
+  <script type="application/ld+json">{{ $ld | jsonify }}</script>
+  {{- /* 国内镜像 fonts.loli.net，与全站同款字体 */ -}}
+  <link rel="preconnect" href="https://fonts.loli.net" />
+  <link rel="preload" as="style" href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" />
+  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
+  {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
+  {{ partialCached "css.html" (dict "path" "css/palette.css") "palette.css" }}
+  {{ partialCached "css.html" (dict "path" "css/resume.css") "resume.css" }}
+</head>
+<body class="page-resume">
+{{ partial "site_nav.html" (dict "page" .) }}
+
+<main class="wrap res-wrap" id="main">
+  <header class="res-head">
+    <p class="sec-eyebrow"><span class="dot"></span>RESUME · 求职档案</p>
+    <h1>{{ $r.basics.name }}<span class="res-head-sub"> · {{ $r.basics.headline }}</span></h1>
+    <p class="res-head-desc">网页版与 PDF 同源，最近更新 {{ $r.updated }}。点左下角下载 PDF，顺着下面的项目可以直接看细节。</p>
+  </header>
+
+  <div class="res-paper">
+    {{- /* ---------- 左栏：身份卡（桌面 sticky，打印时变成顶部信息块） ---------- */ -}}
+    <aside class="res-side">
+      <div class="res-id">
+        <span class="res-id-text">
+          <span class="res-name">{{ $r.basics.name }}</span>
+        </span>
+      </div>
+
+      {{- with $r.status }}
+      <p class="res-status{{ if .open }} open{{ end }}">
+        <span class="res-dot" aria-hidden="true"></span>
+        <span>{{ .text }}</span>
+        {{- with .availability }}<span class="res-status-sub">· {{ . }}</span>{{ end }}
+      </p>
+      {{- end }}
+
+      <p class="res-roles">
+        {{- range $i, $role := $r.basics.roles }}{{ if $i }}<span class="res-roles-sep" aria-hidden="true">/</span>{{ end }}<span class="res-role">{{ $role }}</span>{{ end -}}
+      </p>
+
+      <ul class="res-facts">
+        {{- range $r.facts }}{{ if .value }}
+        <li><span class="res-fact-label">{{ .label }}</span><span class="res-fact-value">{{ .value }}</span></li>
+        {{- end }}{{ end }}
+      </ul>
+
+      <div class="res-actions">
+        {{- with $r.pdf }}
+        <a class="btn-primary res-action" href="{{ .href | relURL }}" download="{{ .filename }}">
+          <span>{{ .label }}</span><span class="arr" aria-hidden="true">↓</span>
+        </a>
+        {{- end }}
+        {{- with $email }}
+        <button class="btn-ghost res-action res-copy" type="button" data-copy="{{ . }}">
+          <span class="res-copy-label">复制邮箱</span>
+        </button>
+        {{- end }}
+        {{- with $gh }}
+        <a class="btn-ghost res-action" href="{{ . }}" target="_blank" rel="noopener noreferrer">GitHub <span class="arr" aria-hidden="true">↗</span></a>
+        {{- end }}
+      </div>
+
+      <ul class="res-contacts">
+        {{- range $r.contacts }}{{ if ne .public false }}
+        {{- $href := .href | default "" }}
+        {{- if and $href (not (or (hasPrefix $href "mailto:") (hasPrefix $href "http"))) }}{{ $href = $href | relURL }}{{ end }}
+        <li class="res-contact">
+          <span class="res-contact-label">{{ .label }}</span>
+          {{- if $href }}
+          <a class="res-contact-value" href="{{ $href }}"{{ if hasPrefix $href "http" }} target="_blank" rel="noopener noreferrer"{{ end }}>{{ .value }}</a>
+          {{- else }}
+          <span class="res-contact-value">{{ .value }}</span>
+          {{- end }}
+          {{- if or (eq .key "email") (eq .key "phone") }}
+          <button class="res-mini-copy" type="button" data-copy="{{ .value }}" aria-label="复制{{ .label }}">复制</button>
+          {{- end }}
+        </li>
+        {{- end }}{{ end }}
+      </ul>
+
+      <p class="res-updated">更新于 {{ $r.updated }}</p>
+    </aside>
+
+    {{- /* ---------- 右栏：正文 ---------- */ -}}
+    <div class="res-content">
+      <section class="res-sec" id="summary">
+        <div class="res-sec-head"><span class="res-sec-no">01</span><h2>概述</h2></div>
+        <ul class="res-summary">
+          {{- range $r.summary }}<li>{{ . | safeHTML }}</li>{{ end }}
+        </ul>
+      </section>
+
+      <section class="res-sec" id="projects">
+        <div class="res-sec-head"><span class="res-sec-no">02</span><h2>项目经历</h2><span class="res-sec-note">共 {{ len $r.projects }} 个</span></div>
+        <ol class="res-projects">
+          {{- range $i, $p := $r.projects }}
+          <li class="res-proj" data-print="{{ $p.print | default 1 }}">
+            <div class="res-proj-top">
+              <span class="res-proj-no">{{ printf "%02d" (add $i 1) }}</span>
+              <h3 class="res-proj-name">{{ $p.name }}</h3>
+              <time class="res-proj-period">{{ $p.period }}</time>
+            </div>
+            <p class="res-proj-role">{{ $p.role }}</p>
+            <p class="res-proj-headline">{{ $p.headline }}</p>
+            <ul class="res-proj-list">
+              {{- range $p.bullets }}<li>{{ . | safeHTML }}</li>{{ end }}
+            </ul>
+            <div class="res-proj-foot">
+              <span class="res-stack">{{- range $p.stack }}<span class="res-chip">{{ . }}</span>{{ end }}</span>
+              {{- with $p.post }}{{ $pg := site.GetPage (printf "/posts/%s" .) }}{{ with $pg }}<a class="res-link" href="{{ .RelPermalink }}">相关笔记 · {{ .Title }} <span class="arr" aria-hidden="true">→</span></a>{{ end }}{{ end }}
+              {{- with $p.repo }}<a class="res-link" href="{{ . }}" target="_blank" rel="noopener noreferrer">代码仓库 <span class="arr" aria-hidden="true">→</span></a>{{ end }}
+            </div>
+          </li>
+          {{- end }}
+        </ol>
+      </section>
+
+      <section class="res-sec" id="skills">
+        <div class="res-sec-head"><span class="res-sec-no">03</span><h2>专业技能</h2></div>
+        <div class="res-skills">
+          {{- range $r.skills }}
+          <div class="res-skill">
+            <h3 class="res-skill-name">{{ .group }}</h3>
+            <ul class="res-skill-list">
+              {{- range .items }}<li>{{ . }}</li>{{ end }}
+            </ul>
+          </div>
+          {{- end }}
+        </div>
+      </section>
+
+      <section class="res-sec" id="education">
+        <div class="res-sec-head"><span class="res-sec-no">04</span><h2>教育背景</h2></div>
+        {{- range $r.education }}
+        <div class="res-edu">
+          <div class="res-edu-top">
+            <h3>{{ .school }}</h3>
+            <time>{{ .period }}</time>
+          </div>
+          <p class="res-edu-line">{{ .degree }} · {{ .major }}</p>
+          {{- with .courses }}<p class="res-edu-sub"><span>主修课程</span>{{ delimit . "、" }}</p>{{ end }}
+          {{- with .honors }}<p class="res-edu-sub"><span>证书</span>{{ delimit . "、" }}</p>{{ end }}
+        </div>
+        {{- end }}
+      </section>
+
+      {{- with $r.extras }}
+      <section class="res-sec" id="extras">
+        <div class="res-sec-head"><span class="res-sec-no">05</span><h2>其他</h2></div>
+        <div class="res-extras">
+          {{- range . }}
+          <div class="res-extra">
+            <span class="res-extra-label">{{ .label }}</span>
+            <span class="res-extra-value">
+              {{- with .text }}{{ . }}{{ end }}
+              {{- with .items }}{{ delimit . "、" }}{{ end }}
+              {{- with .href }} <a class="res-link" href="{{ . | relURL }}">去看看 <span class="arr" aria-hidden="true">→</span></a>{{ end }}
+            </span>
+          </div>
+          {{- end }}
+        </div>
+      </section>
+      {{- end }}
+    </div>
+  </div>
+
+  <p class="res-foot">
+    本页数据来自 <code>data/resume.yml</code>，和 PDF 同一份内容 · 更新于 {{ $r.updated }}
+    <button class="res-print-link" type="button" data-print-btn>直接打印这一页</button>
+  </p>
+  {{- /* 只出现在打印/PDF 里的页脚：给对方留一个能回到网页版的地址 */ -}}
+  <p class="res-print-foot">网页版 {{ $r.web }} · 更新于 {{ $r.updated }}</p>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    {{- /* 求职页用自己的职业口径页脚，不挂站点那句生活向签名 */ -}}
+    <span>{{ $r.basics.name }} · {{ $r.basics.headline }}</span>
+    <span class="footer-links">
+      <a href="{{ "/posts/" | relURL }}">文章</a>
+      <a href="{{ "/archives/" | relURL }}">归档</a>
+      <a href="https://github.com/xiaoheizi112" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </span>
+  </div>
+</footer>
+<button class="to-top" id="to-top" type="button" aria-label="返回顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>
+</button>
+<script>
+(function () {
+  var b = document.getElementById("to-top");
+  var chk = function () { b.classList.toggle("show", scrollY > innerHeight * .8); };
+  addEventListener("scroll", chk, { passive: true }); chk();
+  b.addEventListener("click", function () { scrollTo({ top: 0, behavior: "smooth" }); });
+
+  var pbtn = document.querySelector("[data-print-btn]");
+  if (pbtn) pbtn.addEventListener("click", function () { window.print(); });
+
+  // 复制邮箱 / 电话：成功后按钮短暂变成「已复制」，Turbo 换页无影响（本页脚本随文档加载）
+  document.querySelectorAll("[data-copy]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var text = btn.getAttribute("data-copy");
+      var label = btn.querySelector(".res-copy-label") || btn;
+      var old = label.textContent;
+      function done() {
+        btn.classList.add("ok");
+        label.textContent = "已复制";
+        setTimeout(function () { btn.classList.remove("ok"); label.textContent = old; }, 1600);
+      }
+      function fallback() {
+        var ta = document.createElement("textarea");
+        ta.value = text; ta.setAttribute("readonly", "");
+        ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); } catch (e) {}
+        document.body.removeChild(ta); done();
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else { fallback(); }
+    });
+  });
+})();
+</script>
+{{ partial "extend_footer.html" . }}
+</body>
+</html>
+{{- end -}}

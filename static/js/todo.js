@@ -15,12 +15,14 @@
   const localBadge = document.getElementById("todo-local");
   const tools = document.getElementById("todo-tools");
   const hint = document.getElementById("todo-publish-hint");
+  // 编辑按钮只在 hugo.IsServer（本地测试）下渲染；线上没有它 => 整页只读，也不合并本机草稿。
+  const LOCAL = !!editBtn;
   const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const clone = (o) => JSON.parse(JSON.stringify(o));
 
   // ---------- 状态：种子 + 本机覆盖 ----------
   let stored = null;
-  try {
+  if (LOCAL) try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const p = JSON.parse(raw);
@@ -41,13 +43,13 @@
 
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
-    localBadge.hidden = false;
+    if (localBadge) localBadge.hidden = false;
   }
   function clearLocal() {
     try { localStorage.removeItem(KEY); } catch (e) {}
     stored = null;
     state = clone(seed);
-    localBadge.hidden = true;
+    if (localBadge) localBadge.hidden = true;
   }
 
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -120,6 +122,7 @@
     });
   }
   function setEditing(on) {
+    if (!LOCAL) return;
     editing = on;
     document.body.classList.toggle("editing", on);
     editBtn.setAttribute("aria-pressed", String(on));
@@ -144,13 +147,13 @@
     }
   }
 
-  // 编辑入口常驻在顶部导航里；Shift+E 仍作为快捷键
-  addEventListener("keydown", (e) => {
+  // 编辑入口常驻在顶部导航里；Shift+E 仍作为快捷键（仅本地测试）
+  if (LOCAL) addEventListener("keydown", (e) => {
     if (e.shiftKey && (e.key === "E" || e.key === "e") && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && !document.activeElement.isContentEditable) {
       e.preventDefault(); setEditing(!editing);
     }
   });
-  editBtn.addEventListener("click", () => setEditing(!editing));
+  if (LOCAL) editBtn.addEventListener("click", () => setEditing(!editing));
 
   // ---------- 事件委托：状态 / 新增 / 删除 ----------
   matrix.addEventListener("click", (e) => {
@@ -318,7 +321,7 @@
     toast("自动复制失败，已弹出文本框供手动复制");
   }
 
-  tools.addEventListener("click", (e) => {
+  if (LOCAL) tools.addEventListener("click", (e) => {
     const act = e.target.dataset && e.target.dataset.act;
     if (act === "yaml") copyYAML();
     else if (act === "reset") {
@@ -358,6 +361,6 @@
   // 首屏统一由 JS 重绘一次：
   // 1) 服务端骨架没有 data-note，直接编辑会把备注写丢；
   // 2) 本机有覆盖时按本机版本渲染，并亮出提示。
-  if (stored) localBadge.hidden = false;
+  if (stored && localBadge) localBadge.hidden = false;
   render();
 })();

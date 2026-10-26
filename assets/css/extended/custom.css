@@ -193,11 +193,16 @@ html { scrollbar-width: thin; scrollbar-color: rgba(43, 58, 66, 0.2) transparent
 :root[data-theme="dark"] .site-brand .brand-name .en { color: var(--paper-ink-2); }
 
 /* ============ 文章页侧栏目录（覆盖 _partials/toc.html） ============ */
+/* 门槛 1250px 而不是 1100px：正文左右留白 = (视口 - 780)/2，1100 时只有 160px，
+   扣掉左边距 20 与安全间隙后目录不足 120px，窄到每行放不下几个字，且紧贴正文。
+   1250 起目录才有 180px+ 且离正文 26px+；再窄改用顶部可折叠目录（见下）。 */
 .post-toc { display: none; }
-@media (min-width: 1100px) {
+@media (min-width: 1250px) {
   .post-toc {
     display: block; position: fixed; top: 88px; left: 20px; z-index: 5;
-    width: min(240px, calc((100vw - var(--main-width)) / 2 - 32px));
+    /* 100vw 含滚动条，而正文居中用的是不含滚动条的宽度——留白必须多扣 ~52px，
+       否则实际间隙只剩几个像素（曾经就是 7px，看着像压在正文上）。 */
+    width: min(240px, calc((100vw - var(--main-width)) / 2 - 52px));
     max-height: calc(100vh - 140px); overflow: auto;
     font-size: 13px;
   }
@@ -222,9 +227,9 @@ html { scrollbar-width: thin; scrollbar-color: rgba(43, 58, 66, 0.2) transparent
 }
 :root[data-theme="dark"] .post-toc #TableOfContents a.active { color: #82c9ee; }
 
-/* ============ 移动端顶部可折叠目录（<1100px，桌面侧栏在此断开） ============ */
+/* ============ 移动端顶部可折叠目录（<1250px，与侧栏目录同一断点） ============ */
 .post-toc-mobile { display: none; }
-@media (max-width: 1099.98px) {
+@media (max-width: 1249.98px) {
   .post-toc-mobile {
     display: block;
     margin: 18px 0 4px;
@@ -312,8 +317,9 @@ html { scrollbar-width: thin; scrollbar-color: rgba(43, 58, 66, 0.2) transparent
   transition: width 120ms linear;
 }
 
-/* 标题锚点让出吸顶头部高度（与 toc.html 的 TOP=84 一致） */
-.post-content :is(h1, h2, h3, h4, h5) { scroll-margin-top: 84px; }
+/* 标题锚点让出吸顶头部高度：--anchor-top 由 extend_footer.html 按导航实际高度写入
+   （窄屏导航会换行变高到 92px 左右，写死 84px 会让标题被盖住几个像素） */
+.post-content :is(h1, h2, h3, h4, h5) { scroll-margin-top: var(--anchor-top, 84px); }
 
 /* ============ 文章评论（giscus 容器；默认关闭，见 hugo.toml [params.giscus]） ============ */
 .giscus-wrap { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--border); }
@@ -518,3 +524,4 @@ input, textarea, select, [contenteditable="true"] { cursor: url("/cursors/text.p
   .paginav a { width: 100%; }
   .paginav .next { text-align: left; }
 }
+

@@ -52,12 +52,15 @@
   <p class="sec-desc">按「重要」和「紧急」把要做的事分成四块：立刻做、计划做、授权做、少做/不做。想清楚哪一格该空着，比塞满更有用。</p>
   <div class="todo-bar">
     <span class="todo-updated">更新于 <b>{{ $todo.updated }}</b></span>
+    {{- /* 编辑入口与本机提示只在本地测试（hugo server）出现；线上构建不渲染，页面纯只读 */ -}}
+    {{ if hugo.IsServer }}
     <span class="todo-local" id="todo-local" hidden>本机编辑中 · 仅存于这个浏览器</span>
     <span class="todo-sp"></span>
     <button class="todo-edit" id="todo-edit" type="button" aria-pressed="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
       <span class="todo-edit-label">编辑</span>
     </button>
+    {{ end }}
   </div>
 </header>
 
@@ -98,7 +101,8 @@
     <span class="matrix-cross" aria-hidden="true"></span>
   </div>
 
-  {{- /* 编辑模式工具条：默认收起，由 todo.js 控制显隐 */ -}}
+  {{- /* 编辑模式工具条：默认收起，由 todo.js 控制显隐；仅本地测试渲染 */ -}}
+  {{ if hugo.IsServer }}
   <div class="todo-tools" id="todo-tools" hidden>
     <span class="todo-tools-tip">拖动卡片可换象限 · 点状态徽标循环 · 文字可直接改 · <kbd>Alt</kbd>+<kbd>↑↓</kbd> 调序</span>
     <span class="todo-sp"></span>
@@ -109,6 +113,7 @@
   <p class="todo-publish-hint" id="todo-publish-hint" hidden>
     改完点「复制 YAML」，把内容粘进仓库的 <code>data/todo.yml</code> 再提交，就会发布给所有人。
   </p>
+  {{ end }}
 </main>
 
 <footer class="footer">

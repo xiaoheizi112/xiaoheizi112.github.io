@@ -43,6 +43,16 @@ contact:
     value: "https://github.com/xiaoheizi112"
     url: "https://github.com/xiaoheizi112"
 
+# 求职条：首页产品区与联系区之间的一条细提示（enabled 设成 false 即整条隐藏）。
+# 简历页数据在 data/resume.yml，这里只放首页露出的那一行字
+career:
+  enabled: false          # 求职信息都放 /resume/，首页不再挂求职条
+  name: "慢公子"
+  role: "Qt / C++ 桌面开发"
+  note: "随时到岗"
+  cta: "看简历"
+  url: "/resume/"
+
 # since: 建站日期（首 commit 2026-09-21），首页第三张卡自动算运行天数
 stats:
   since: "2026-09-21"

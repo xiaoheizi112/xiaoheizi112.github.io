@@ -207,7 +207,7 @@ def Myfunction(startNum,endNum):
     return result
 ```
 
-![Python 基础 配图 1](/posts/python-basics/image_17.png)
+![Python 基础 配图 1](/posts/python-basics/image_17.webp)
 
 ## 列表（list）：
 
@@ -1091,19 +1091,28 @@ print("2")
 
 1\.选择项目文件。
 
-![Python 基础 配图 2](/posts/python-basics/image_5.png)
+![Python 基础 配图 2](/posts/python-basics/image_5.webp)
 
 2\.打开项目文件，在根文件夹右键单击选择新建python文件。
 
-![Python 基础 配图 3](/posts/python-basics/image_2.png)
+![Python 基础 配图 3](/posts/python-basics/image_2.webp)
 
 3\.自定义模块命名，然后在里面写需要的相关函数。
 
-![Python 基础 配图 4](/posts/python-basics/image_15.png)
+```python
+def add(x,y):
+    return x+y
+```
+
+> 图注：红圈圈出项目文件树中新建的模块文件 MyMod.py，红框框出 MyMod.py 中 add 函数的定义代码
 
 4\.同文件夹下可直接通过import直接调用模块使用。
 
-![Python 基础 配图 5](/posts/python-basics/image_7.png)
+```python
+from MyMod import add as mod
+print(mod(x=1, y=2))
+```
+> 图注：红圈圈住左侧项目树中的 main.py，旁注红字“必须同文件夹下”（即 main.py 与 MyMod.py 必须位于同一文件夹下）；红框圈出 main.py 编辑器中的上述两行代码，下方红字说明“调用模块中的函数使用”。
 
 ## 模块类别详解：
 
@@ -1170,9 +1179,22 @@ main.py              # 外部主程序
 
 创建教程：
 
-![Python 基础 配图 6](/posts/python-basics/image_11.png)
+![Python 基础 配图 6](/posts/python-basics/image_11.webp)
 
-![Python 基础 配图 7](/posts/python-basics/image.png)
+```python
+if __name__ == '__main__':
+    print("模块已加载！！！")
+
+
+def add(x ,y):
+    return x+y
+
+
+def multi(x ,y):
+    return x*y
+```
+
+> 图注：红色手写批注与箭头指向左侧项目树中的 `__init__.py`（标注“标识文件，不用管”）和 `MyMod.py`（标注“自己创建编写模块”），并由“自己创建编写模块”引出箭头指向右侧编辑器中红框内的代码，即 MyMod.py 模块里自己编写的内容。
 
 ### 包和库的关系：
 
@@ -1231,9 +1253,9 @@ pip config unset global.index-url
 
 ### 在pycharm安装：
 
-![Python 基础 配图 8](/posts/python-basics/image_1.png)
+![Python 基础 配图 8](/posts/python-basics/image_1.webp)
 
-![Python 基础 配图 9](/posts/python-basics/image_12.png)
+![Python 基础 配图 9](/posts/python-basics/image_12.webp)
 
 ## 类和对象：
 
@@ -2169,25 +2191,42 @@ python帮助手册网址：https://docs\.python\.org/zh\-cn/3/index\.html
 
 首先打开解释器，点击加号搜索pyinstaller，然后点击下载即可。
 
-![Python 基础 配图 10](/posts/python-basics/image_3.png)
+![Python 基础 配图 10](/posts/python-basics/image_3.webp)
 
-![Python 基础 配图 11](/posts/python-basics/image_10.png)
+![Python 基础 配图 11](/posts/python-basics/image_10.webp)
 
 
 
-![Python 基础 配图 12](/posts/python-basics/image_14.png)
+![Python 基础 配图 12](/posts/python-basics/image_14.webp)
 
 打包：
 
 在终端里输入：installer \-D 打包名称，之后按下回车会在当前文件夹生成build文件夹和dist文件夹，其中dist文件夹当中就是打包好的程序。
 
-![Python 基础 配图 13](/posts/python-basics/image_9.png)
+![Python 基础 配图 13](/posts/python-basics/image_9.webp)
 
-![Python 基础 配图 14](/posts/python-basics/image_16.png)
+```text
+PyInstaller: error: The following arguments are required: scriptname
+(.venv) PS D:\PythonProject1> pyinstaller -D main.py
+108 INFO: PyInstaller: 6.22.2, contrib hooks: 2026.6
+108 INFO: Python: 3.14.7
+138 INFO: Platform: Windows-10-10.0.19045-SP0
+138 INFO: Python environment: D:\PythonProject1\.venv
+139 INFO: wrote D:\PythonProject1\main.spec
+148 INFO: Module search paths (PYTHONPATH):
+['D:\\PythonProject1\\.venv\\Scripts\\pyinstaller.exe',
+ 'C:\\Users\\admin\\AppData\\Local\\Python\\pythoncore-3.14-64\\python314.zip',
+ 'C:\\Users\\admin\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs',
+ 'C:\\Users\\admin\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib',
+ 'C:\\Users\\admin\\AppData\\Local\\Python\\pythoncore-3.14-64',
+ 'D:\\PythonProject1\\.venv'
+```
 
-![Python 基础 配图 15](/posts/python-basics/image_6.png)
+> 图注：红框与手写批注“输入命令”指向终端中输入的命令行 pyinstaller -D main.py
 
-![Python 基础 配图 16](/posts/python-basics/image_8.png)
+![Python 基础 配图 15](/posts/python-basics/image_6.webp)
+
+![Python 基础 配图 16](/posts/python-basics/image_8.webp)
 
 ## 键鼠自动化、热键注册：
 
@@ -2197,9 +2236,9 @@ python帮助手册网址：https://docs\.python\.org/zh\-cn/3/index\.html
 
 使用前提：首先安装两个包：pyautogui和keyboard。
 
-![Python 基础 配图 17](/posts/python-basics/image_4.png)
+![Python 基础 配图 17](/posts/python-basics/image_4.webp)
 
-![Python 基础 配图 18](/posts/python-basics/image_13.png)
+![Python 基础 配图 18](/posts/python-basics/image_13.webp)
 
 ## pyautogui：
 

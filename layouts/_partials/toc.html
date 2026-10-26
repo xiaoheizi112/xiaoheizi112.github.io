@@ -1,5 +1,6 @@
-{{- /* 覆盖 themes/PaperMod/layouts/_partials/toc.html：桌面侧栏 sticky 目录（≥1100px）
-       + 移动端顶部可折叠目录（<1100px），两套共用同一份滚动高亮脚本。 */ -}}
+{{- /* 覆盖 themes/PaperMod/layouts/_partials/toc.html：桌面侧栏目录（≥1250px）
+       + 移动端/窄窗口顶部可折叠目录（<1250px），两套共用同一份滚动高亮脚本。
+       断点定在 1250 是因为正文两侧留白要同时容下目录与安全间隙，更窄会挤到正文。 */ -}}
 {{- $toc := .TableOfContents | string -}}
 {{- if findRE "<li" $toc -}}
 <aside class="post-toc" id="post-toc" aria-label="目录">
@@ -34,12 +35,17 @@
         // 自己接管点击：Turbo 对"同一个锚点第二次点击"（hash 不变）不响应，必须手动 scrollIntoView。
         // 滚动全程交给浏览器原生动画，不中途抢方向盘；只在"停稳"后测一次，偏差大才轻补一段（最多 2 次）。
         // 用户滚轮/触摸一动立即交还控制权；已到页底滚不动了就认了，不空转。
-        var TOP = 84, act = null;
+        // 落点让出的高度读 --anchor-top（extend_footer 按导航实际高度写入，窄屏换行后导航更高）。
+        function topOffset() {
+            var v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--anchor-top'));
+            return v || 84;
+        }
+        var act = null;
         function arm() {
             if (!act) return;
             clearTimeout(act.timer);
             act.timer = setTimeout(function () {
-                var d = act.t.getBoundingClientRect().top - TOP;
+                var d = act.t.getBoundingClientRect().top - topOffset();
                 var maxS = document.documentElement.scrollHeight - innerHeight;
                 if (Math.abs(d) < 8 || act.fixes >= 2 || (d > 0 && scrollY >= maxS - 2)) { act = null; return; }
                 act.fixes++;

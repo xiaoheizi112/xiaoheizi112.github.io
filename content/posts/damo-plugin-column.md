@@ -13,19 +13,59 @@ images = ["images/og/damo-plugin-column.png"]
 
 2\.使用大漠类库生成工具选择在你想要用的版本大漠的路径生成Output文件夹，打开E文件夹复制obj\.txt的内容到新建的类模块当中，按照读我\.txt的步骤依次执行。
 
-![大漠专栏 配图 1](/posts/damo-plugin-column/image_4.png)
+![大漠专栏 配图 1](/posts/damo-plugin-column/image_4.webp)
 
 3\.把dm\.dll复制到程序目录当中后，主程序写好代码即可运行。
 
-![大漠专栏 配图 2](/posts/damo-plugin-column/image_3.png)
+// [此处模糊：截图顶边裁切的一行，仅见绿色字符的下半截]
+
+| 子程序名 | 返回值类型 | 公开 | 易包 | 备 注 |
+| --- | --- | --- | --- | --- |
+| 注册大漠 |  |  |  |  |
+
+| 变量名 | 类 型 | 静态 | 数组 | 备 注 |
+| --- | --- | --- | --- | --- |
+| 大漠注册码 | 文本型 |  |  |  |
+| ret | 整数型 |  |  |  |
+
+```easy
+' SetDllPathA (取运行目录 () + "\模块\dm.dll", 0) ' 设置大漠路径
+
+dm.创建 () ' 创建大漠，用于占用系统内存、窗口、键鼠资源
+调试输出 ("大漠版本号：" + dm.Ver ())
+
+大漠注册码 = "699855ca9612847cf321600de9b2af246d33b1"
+ret = dm.Reg (大漠注册码, "") ' 大漠注册码，机器码
+
+    如果 (ret = 1)
+    调试输出 ("大漠VIP注册成功！")
+    调试输出 ("大漠VIP注册失败！ret = " + 到文本 (ret))
+```
+
+> 有 1 处无法确认
 
 # 绑定大漠（免注册）：
 
 1\.延续注册的所有步骤后，打开不注册调用dm\.dll的方法的文件夹，将DmReg\.dll复制到程序目录下，按照说明文件一步步执行操作。
 
-![大漠专栏 配图 3](/posts/damo-plugin-column/image_1.png)
+```text
+Dll命令名	返回值类型	公开	备注
+SetDllPathA
+库文件名：
+\模块\DmReg.dll
+在库中对应命令名：
+SetDllPathA
+参数表
+参数名	类型	传址	数组	备注
+path	文本型
+mode	整数型
+```
 
-![大漠专栏 配图 4](/posts/damo-plugin-column/image.png)
+> 图注：红箭头指向第 1 行「Dll命令名」列的 SetDllPathA；左侧红框标出的是「Dll命令」下的同名项。
+
+```epl
+SetD11PathA (取运行目录 () + “\模块\dm.d11”, 0)  ' 设置大漠路径
+```
 
 ## 注意：
 
@@ -43,7 +83,7 @@ images = ["images/og/damo-plugin-column.png"]
 
 2\.绑定参数设置。
 
-![大漠专栏 配图 5](/posts/damo-plugin-column/image_2.png)
+![大漠专栏 配图 5](/posts/damo-plugin-column/image_2.webp)
 
 
 

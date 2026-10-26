@@ -718,3 +718,40 @@ html[data-lang="en"] .lang-en { display: block; }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }
+
+/* ============ 求职条（首页 OPEN TO WORK，数据在 data/home.yml 的 career） ============ */
+.career-strip {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 18px 22px; border: 1px solid rgba(var(--mist-1), 0.3); border-radius: 16px;
+  background: linear-gradient(100deg, rgba(var(--mist-1), 0.09), rgba(var(--mist-3), 0.07));
+}
+.career-state { display: inline-flex; align-items: center; gap: 8px; font: 500 11px var(--font-mono); letter-spacing: .12em; color: var(--accent-deep); }
+.career-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--grass); animation: career-pulse 2.6s var(--ease) infinite; }
+@keyframes career-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(92, 176, 115, .45); }
+  70% { box-shadow: 0 0 0 7px rgba(92, 176, 115, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(92, 176, 115, 0); }
+}
+.career-line { font-size: 15px; color: var(--ink-2); }
+.career-line strong { color: var(--ink); font-weight: 600; }
+.career-line em { font-style: normal; font-weight: 500; color: var(--accent-deep); }
+.career-note { margin-left: 8px; font-size: 13px; color: var(--ink-3); }
+.career-cta {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+  border-radius: 99px; background: var(--ink); color: var(--bg); font-size: 14px;
+  transition: all 180ms var(--ease);
+}
+.career-cta:hover { background: var(--accent-deep); transform: translateY(-2px); box-shadow: var(--shadow); }
+.career-cta .arr { transition: transform 180ms var(--ease); }
+.career-cta:hover .arr { transform: translateX(3px); }
+@media (max-width: 640px) { .career-cta { margin-left: 0; width: 100%; justify-content: center; } }
+@media (prefers-reduced-motion: reduce) {
+  .career-dot { animation: none; }
+  .career-cta:hover { transform: none; }
+}
+
+/* 导航里的「简历」：暖阳小点，作为唯一的求职入口标记 */
+.nav-links a.resume::before {
+  content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--sun); margin-right: 6px; vertical-align: 1px;
+}

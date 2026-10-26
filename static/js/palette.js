@@ -52,8 +52,12 @@
     { icon: "▤", title: "相册", sub: "Photos", href: "/photos/" },
     { icon: "✦", title: "路线", sub: "Learning tracks", href: "/tracks/" },
     { icon: "◎", title: "要事", sub: "Focus / Eisenhower", href: "/todo/" },
+    { icon: "▣", title: "简历", sub: "Resume / CV", href: "/resume/" },
     { icon: "✉", title: "关于", sub: "About", href: "/about/" },
-  ].map((p) => ({ ...p, kind: "page", href: base + p.href }));
+  ]
+    // 简历板块隐藏时（导航里没有 a.resume）命令面板也不给入口
+    .filter((p) => p.href !== "/resume/" || !!document.querySelector("a.resume"))
+    .map((p) => ({ ...p, kind: "page", href: base + p.href }));
 
   let posts = null; // 懒加载缓存
   let loadingIndex = false;

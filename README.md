@@ -2,7 +2,7 @@
 
 > 一个很懒的人的博客，想起来才更新。
 
-这里是 <https://xiaoheizi112.github.io> 的源码仓库——一座晴空暖阳色调的极简生活站，没有广告、没有算法推荐，只有一个人整理自己学过的东西、拍过的照片、听过的歌。
+这里是 <https://xiaoheizi112.github.io> 的源码仓库——一座晴空暖阳色调的极简生活站，没有广告、没有算法推荐，只有一个人整理自己学过的东西、拍过的照片、听过的歌。求职用的在线简历单独放在 `/resume/`。
 
 ## 站上有什么
 
@@ -13,6 +13,7 @@
 - **歌手电台** —— 首页放一位喜欢的歌手和一张循环播放的歌单，配图是手写的山间炊烟插画
 - **兴趣** —— 首页一排兴趣卡片（打球、睡觉、听歌……），滑到这里氛围光晕会换成暖橙调
 - **归档 / 搜索** —— 全量文章时间线（按年月分组），以及纯前端站内搜索
+- **简历** —— 在线简历（`/resume/`）：左栏身份卡 + 项目/技能/教育，网页与 PDF 同一份数据（`data/resume.yml`），`scripts/gen_resume_pdf.mjs` 一键导出 A4 一页纸
 - **关于** —— 个人介绍
 
 全站细节：自定义鼠标指针、深浅色双主题（全站统一，跟随系统 + 手动切换）、正文图片点开大图、代码块一键复制、每篇文章自带 OG 分享卡片、RSS 订阅、移动端自适应（含可折叠目录）。
@@ -27,6 +28,7 @@
 | 文章/归档/关于 | [Hugo](https://gohugo.io/) extended v0.166 + [PaperMod](https://github.com/adityatelange/hugo-PaperMod) 主题（submodule），覆盖全放项目侧 `layouts/_partials`、`layouts/_default`、`assets/css/extended/`，不动主题本体 |
 | 分享卡片 | 每篇文章构建一张品牌 OG 图（`scripts/gen_og_cards.py`），写入 frontmatter 的 `images` |
 | 搜索 | PaperMod 内置 fastsearch（`content/search.md` + 首页 JSON 输出） |
+| 简历 | 独立手写页（`layouts/resume/list.html` + `assets/css/resume.css`），数据在 `data/resume.yml`；`scripts/gen_resume_pdf.mjs` 用无头 Edge 导出 A4 一页 PDF |
 | 图片 | 构建时自动写入真实宽高（`render-image` 钩子），懒加载不撑动版面，目录点击落点精准 |
 | 部署 | 推 `main` 即触发 [GitHub Actions](.github/workflows/deploy.yml) 构建发布，约 1–2 分钟生效；线上产物只在 CI 生成 |
 
@@ -36,7 +38,8 @@ layouts/          首页 + 主题覆盖 + markdown 渲染钩子
 assets/css/home.css  全站风格唯一来源（:root 变量，走管线压缩指纹）
 data/home.yml     首页文案
 data/interests.yml  兴趣板块卡片（图标 + 名称 + 一句描述）
-scripts/          照片入库、OG 卡片等生成脚本
+data/resume.yml   简历数据（网页 /resume/ 与 PDF 同源）
+scripts/          照片入库、OG 卡片、简历 PDF 等生成脚本
 ```
 
 ## 本地跑起来
@@ -50,6 +53,16 @@ hugo server -D        # http://localhost:1313
 已 clone 过的补一句：`git submodule update --init --recursive`
 
 验证构建（不碰 `public/`）：`hugo --quiet -D -d _smoke`
+
+## 改简历
+
+在线简历在 `/resume/`，网页和 PDF 都读 `data/resume.yml`：
+
+```bash
+node scripts/gen_resume_pdf.mjs   # 重新导出 static/files/resume-qt-heyujie.pdf
+```
+
+跑之前确认 `hugo server` 在 `localhost:1313`。打印样式在 `assets/css/resume.css` 末尾：PDF 只保留 `print: 1` 的项目、隐藏「其他」区块，目标是一页 A4。
 
 ## 加照片
 

@@ -5,12 +5,21 @@ resources/_gen/
 _gh_login.log
 _hugo_server.log
 _smoke/
+_smoke2/
+_hugo_server.err.log
 
 # 本地验收工作区：CDP 驱动 Edge 的脚本、截图、浏览器 profile、临时构建产物
 .zcode/
 
 # 照片初筛中间产物（拼版图/候选表）
 scripts/_triage/
+
+# 截图转文字管线的本地诊断脚本与裁剪残渣（正式脚本不带下划线前缀）
+scripts/_*.py
+scripts/_*.png
+
+# 简历 PDF：简历板块隐藏中且含个人信息，不进公开仓库（恢复时去掉这行）
+static/files/
 
 # 飞书文案原始导出素材（docx/pptx/zip，本地留档，不入库）
 Myresource/

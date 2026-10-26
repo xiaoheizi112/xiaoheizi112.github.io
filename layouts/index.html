@@ -513,6 +513,19 @@
   </section>
   {{- end }}
 
+  {{- /* 求职条：一条细提示，不抢首屏主 CTA；文案在 data/home.yml 的 career */ -}}
+  {{- with $h.career }}{{ if .enabled }}
+  <section class="sec" id="career">
+    <div class="wrap">
+      <div class="career-strip rv">
+        <span class="career-state"><span class="career-dot" aria-hidden="true"></span><span data-zh="OPEN TO WORK · 求职中" data-en="OPEN TO WORK">OPEN TO WORK · 求职中</span></span>
+        <p class="career-line"><strong>{{ .name }}</strong> 在找 <em>{{ .role }}</em> 的工作<span class="career-note">· {{ .note }}</span></p>
+        <a class="career-cta" href="{{ .url | relURL }}" data-zh="{{ .cta }}" data-en="Resume">{{ .cta }} <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+  {{- end }}{{ end }}
+
   <section class="sec" id="contact">
     <div class="wrap">
       <div class="sec-head rv">

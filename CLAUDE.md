@@ -32,6 +32,7 @@
 - `layouts/index.html` —— 首页单页（笔记区「学习专栏」是手风琴列表，读 `data/columns.yml`：每个专栏按 tag 收同类笔记，点开看明细）
 - `layouts/photos/list.html` + `assets/css/photos-page.css` —— 相册瀑布流
 - `layouts/tracks/list.html` + `assets/css/tracks.css` —— 学习路线（读 `data/tracks.yml`）
+- `layouts/resume/list.html` + `assets/css/resume.css` —— 简历页（读 `data/resume.yml`，公开可索引；网页与打印/PDF 同一份数据，左栏身份卡 + 右栏正文，打印样式压在文件末尾）。简历页按站主要求**不放头像**（2026-10 明确）：身份卡只有姓名 + 状态 + 求职意向 + 信息 + 按钮 + 联系方式。曾画过一版手绘矢量头像（短发露额头、浓眉杏眼、黑西装白衬衫），备份在 `assets/images/avatar.svg`；要挂回来就把文件复制到 `static/images/` 并在简历模板的 `.res-id` 里加 `<img>`
 - `layouts/404.html` —— 晴空风 404 页（`buildFuture` 等无关）
 - 深色模式：这几页都在 `<head>` 最前内联 `dataset.theme` 初始化脚本，读同一个 `localStorage.pref-theme`（与 PaperMod 侧共用），无偏好则跟随系统。暗色变量定义在 `home.css` 的 `:root[data-theme="dark"]`。
 - 首页/相册/路线/404 导航的 `.theme-btn` 切换逻辑在 `extend_footer.html`；PaperMod 文章页用主题自带 `#theme-toggle`。
@@ -53,6 +54,7 @@
 - `scripts/gen_photo_thumbs.py` / `scripts/gen_photo_dims.py` —— 照片入库后生成缩略图与宽高缓存（见 README「加照片」）
 - `scripts/fix_image_alts.py` —— 把正文里无意义的图片 alt（截图 / image.png / 图）批量换成「文章标题 + 序号」
 - `scripts/add_descriptions.py` —— 给文章补 frontmatter `description`（搜索摘要 / OG 描述用）
+- `scripts/gen_resume_pdf.mjs` —— 改完 `data/resume.yml` 后跑一次，用无头 Edge 把 `/resume/` 的打印版导出成 A4 PDF（`static/files/resume-qt-heyujie.pdf`，网页「下载 PDF 简历」指向它）。需要 hugo server 在跑；会强制浅色主题 + print 媒体，隐藏第三张项目卡（`print: 2`）与「其他」区块，保证一页
 
 ## 新建文章
 
@@ -74,5 +76,6 @@ hugo new content/posts/文章名.md
 ## 本地/线上隔离
 
 - `hugo server` 自带把 baseURL 覆盖成 localhost 的行为，服务器渲染的链接天然隔离；污染源只可能是**手动构建写坏 `public/`**（服务器从磁盘服务）
+- **`assets/` 里新增**的 CSS/JS 文件不会被运行中的 `hugo server` 索引（日志报 `css-pipeline: 找不到资源 xxx.css`，页面样式整块丢失），必须重启服务器；改已有文件正常热更新
 - 若必须重建 `public/`（如清已删页面的残留），用 `hugo --quiet -D -b http://localhost:1313/`，让盘上产物和服务器一致；**线上域名的产物只在 GitHub Actions 里生成**
 - 页面右上角出现「LOCAL 测试」水印 = 你在本地站；线上构建产物里没有这个角标

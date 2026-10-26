@@ -1,0 +1,147 @@
+# ============================================================
+# 简历数据 —— 网页版与 PDF 的唯一来源，改这里就够了。
+# 页面：/resume/，模板：layouts/resume/list.html，样式：assets/css/resume.css
+# 字段留空即不显示（例如期望城市、照片）。
+# ============================================================
+
+# 更新日期（显示在页面与 PDF 页脚）
+updated: "2026-10"
+
+# 网页版正式地址：只在 PDF 页脚打印（本地生成 PDF 时不会被 localhost 污染）
+web: "https://xiaoheizi112.github.io/resume/"
+
+# 求职状态：open 控制绿点是否呼吸；availability 显示在状态旁边
+status:
+  open: true
+  text: "求职中"
+  availability: "随时到岗"
+
+basics:
+  name: "何宇杰"
+  mark: "何"               # 没有照片时头像位显示这个字
+  headline: "Qt / C++ 桌面客户端开发"
+  roles:                   # 求职意向，第一行是主投方向
+    - "Qt 开发工程师"
+    - "C++ 桌面应用 / 上位机软件"
+
+# 侧栏基本信息：value 留空则整行不显示
+facts:
+  - label: "学历"
+    value: "本科 · 电气工程及其自动化"
+  - label: "到岗"
+    value: "随时到岗"
+  - label: "城市"
+    value: ""              # 例如 "长沙 / 深圳"，填了才显示
+  - label: "年龄"
+    value: "23 岁 · 男"
+
+# 联系方式：public: false 的条目网页不显示（PDF 仍会打印 phone）
+contacts:
+  - key: email
+    label: "邮箱"
+    value: "1274077326@qq.com"
+    href: "mailto:1274077326@qq.com"
+  - key: phone
+    label: "电话"
+    value: "19892085595"
+    public: true
+  - key: github
+    label: "GitHub"
+    value: "github.com/xiaoheizi112"
+    href: "https://github.com/xiaoheizi112"
+  - key: blog
+    label: "博客"
+    value: "个人主页"
+    href: "/"
+
+# 首屏一句话概述：每条一件事 + 一个可验证的点，不写形容词
+summary:
+  - "独立完成 3 个 Qt / C++ 项目：人脸识别考勤系统（C/S + OpenCV + SQLite）、音乐播放器桌面前端、天气预报客户端。"
+  - "Qt 侧熟悉 Widgets / QML、信号与槽、自定义控件与多线程；能把 SQLite / MySQL 与 TCP/IP 串成完整的数据链路。"
+  - "本科课程覆盖 C 语言、PLC、单片机与 DSP，有工控与嵌入式的底子，能和设备侧对上话。"
+
+# 技能：按组罗列，只写有依据的（课程 / 项目里真正用过的）
+skills:
+  - group: "C / C++"
+    items:
+      - "熟悉指针与内存管理、常用 STL 容器"
+      - "了解单例、工厂、观察者等设计模式与现代 C++ 特性"
+      - "有良好的编程习惯，代码按模块组织"
+  - group: "Qt"
+    items:
+      - "Qt Widgets / QML 桌面应用开发"
+      - "信号与槽、事件处理、自定义控件"
+      - "Qt Quick Controls 2、Qt Graphical Effects、QRC 资源系统"
+      - "Qt JSON、QNetworkAccessManager 网络请求"
+  - group: "计算机基础"
+    items:
+      - "数据结构：顺序表 / 链表 / 栈 / 队列 / 树；冒泡 / 快排 / 堆排"
+      - "Linux 系统编程：进程、线程管理与线程通信，了解交叉编译"
+      - "数据库：SQLite / MySQL 常规操作"
+      - "网络协议：HTTP、TCP / UDP，熟悉三次握手与四次挥手"
+  - group: "开发工具"
+    items: ["Qt Creator", "VSCode", "CMake", "Git", "GCC", "MinGW", "MSVC", "XShell"]
+
+# 项目经历：print 控制是否进 PDF（1 = 进，2 = 只在网页），保证 PDF 一两页
+# post 填博客文章 slug 会自动反链到对应笔记
+projects:
+  - name: "基于人脸识别的考勤系统"
+    role: "服务器端设计与实现 · C/S 架构"
+    period: "2025.10 – 2025.11"
+    stack: ["Qt 5.15.2", "C++", "OpenCV 4.5.2", "SeetaFace 2.0", "SQLite", "TCP/IP", "多线程", "MinGW"]
+    headline: "客户端实时检测人脸，服务器完成识别、注册与考勤记录，一条链路跑通无人工干预考勤。"
+    bullets:
+      - "服务器端：基于 Qt 开发员工信息管理与考勤记录模块，用 SQLite 存员工信息和人脸特征，实现数据持久化。"
+      - "客户端：用 OpenCV Haar 级联分类器实时捕获并检测人脸，通过 TCP/IP 把人脸图像传给服务器。"
+      - "集成 SeetaFace 2.0 完成人脸特征提取、注册与匹配，调整参数优化识别准确率与响应速度。"
+    print: 1
+  - name: "坤易云音乐桌面前端设计项目"
+    role: "界面架构与核心功能开发"
+    period: "2025.08 – 2025.09"
+    stack: ["Qt 5.15.2", "QML", "C++", "Qt Quick Controls 2", "Qt Graphical Effects", "MSVC"]
+    headline: "用 QML 搭出完整的音乐播放器界面与自定义组件库，播放、登录、主题切换都能用。"
+    bullets:
+      - "搭左侧导航、右侧内容区、底部播放控制栏的三段式布局，封装 KYYWindow、KYYSearchBox 等自定义组件统一风格。"
+      - "实现播放控制、登录系统与主题切换，用信号与槽打通组件之间的通信。"
+      - "用 StackView 做页面导航、QRC 管资源，优化资源加载与界面响应速度。"
+    post: "qml-course-notes"
+    print: 1
+  - name: "天气预报桌面应用"
+    role: "桌面客户端开发"
+    period: "2025.07 – 2025.08"
+    stack: ["Qt 5.15.2", "C++", "QNetworkAccessManager", "Qt JSON", "Qt Designer", "MinGW"]
+    headline: "网络请求、数据解析到自绘温度曲线全部自己实现的小而完整的桌面客户端。"
+    bullets:
+      - "主窗口支持无边框、拖拽与右键菜单，用 QPainter 绘制温度曲线。"
+      - "用 QNetworkAccessManager 发 HTTP 请求、Qt JSON 解析天气数据，信号槽处理异步响应。"
+      - "城市搜索用 QMap + 延迟初始化，支持市 / 县 / 区后缀的快速匹配，并优化启动性能。"
+    post: "qt-cpp-course-notes"
+    print: 2
+
+education:
+  - school: "怀化学院"
+    major: "电气工程及其自动化"
+    degree: "本科"
+    period: "2021.09 – 2025.06"
+    courses: ["C 语言程序设计", "PLC", "单片机原理及其应用", "DSP 控制器及其应用"]
+    honors: ["大学英语四级（CET-4）"]
+
+# 其他：text 与 items 二选一；带 href 会渲染成链接
+extras:
+  - label: "证书"
+    items: ["大学英语四级（CET-4）"]
+  - label: "技术写作"
+    text: "在个人博客整理 Qt / PLC / 机器视觉 / Python 学习笔记"
+    href: "/"
+
+# PDF 下载：href 是站点内的文件路径，filename 是别人点下载时看到的文件名
+pdf:
+  href: "/files/resume-qt-heyujie.pdf"
+  filename: "简历-Qt开发工程师-何宇杰.pdf"
+  label: "下载 PDF 简历"
+
+# 搜索与分享
+seo:
+  title: "何宇杰的简历 · Qt / C++ 桌面开发"
+  description: "何宇杰的在线简历：求职 Qt 开发工程师，熟悉 Qt Widgets / QML、C++、OpenCV、SQLite 与 TCP/IP，含人脸识别考勤、音乐播放器前端、天气预报三个项目。"
+  knows_about: ["Qt", "QML", "C++", "OpenCV", "SQLite", "MySQL", "TCP/IP", "Linux", "多线程"]

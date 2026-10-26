@@ -6,7 +6,7 @@
 # note 可留空。四象限的 id 固定为 do / schedule / delegate / drop，不要改名。
 # motto 是卡片上的行动语，examples 是参考四象限图的示例说明（只展示，不参与任务列表）。
 
-updated: "2026-10-12"
+updated: "2026-10-26"
 
 quadrants:
   - id: do
@@ -16,55 +16,43 @@ quadrants:
     motto: "立刻做 | 优先处理"
     examples: "突发故障、临近截止任务、危机"
     tasks:
-      - text: "把新站的交互层推上线，确认 GitHub Pages 构建通过"
-        note: "今日内"
-        status: doing
-      - text: "备份相册原图到移动硬盘"
-        note: "照片只有一份，丢不起"
+      - text: "找工作"
         status: todo
-      - text: "修掉手机端导航换行时进度条错位"
+      - text: "学AI"
         status: todo
 
   - id: schedule
     title: 重要不紧急
-    hint: 计划做
+    hint: 排期做
     icon: "🌱"
     motto: "计划做 | 核心重心"
     examples: "学习成长、长期规划、健康、复盘"
     tasks:
-      - text: "把 Qt / 机器视觉那几摊笔记补齐目录与索引"
-        note: "决定这站能不能真帮到以后的自己"
-        status: doing
-      - text: "整理出一条完整的 C++ 复健路线"
+      - text: "学英语"
         status: todo
-      - text: "写一篇文章讲清这套站的设计取舍"
-        note: "趁记忆还新"
+      - text: "学厨艺"
         status: todo
-      - text: "认真学 Python 自动化，把重复活儿交给脚本"
+      - text: "办护照"
         status: todo
 
   - id: delegate
     title: 紧急不重要
-    hint: 授权做
+    hint: 交出去
     icon: "🍃"
     motto: "授权做 | 减少承接"
     examples: "临时消息、无关会议、他人琐事求助"
     tasks:
-      - text: "杂项图片压缩、缩略图重跑"
-        note: "写进构建流程，别手动做"
-        status: done
-      - text: "回复那些不痛不痒的咨询消息"
+      - text: "学摩托D证"
         status: todo
 
   - id: drop
     title: 不重要不紧急
-    hint: 少做/不做
+    hint: 可以放掉
     icon: "☁️"
     motto: "少做/不做 | 减少消耗"
     examples: "无意义刷短视频、闲聊、无效浏览"
     tasks:
-      - text: "再折腾一版配色"
-        note: "现在的晴空蓝已经够好了"
+      - text: "刷手机"
         status: todo
-      - text: "追一个还没想清楚做什么的小产品点子"
+      - text: "熬夜"
         status: todo

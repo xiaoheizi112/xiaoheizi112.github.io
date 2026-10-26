@@ -1,0 +1,282 @@
+/* ============ 简历页（layouts/resume/list.html）============
+   复用 home.css 的设计令牌：晴空底 + 一张「纸」，左栏身份卡、右栏正文。
+   三种形态都要成立：桌面 / 移动端 / 打印（PDF）。打印样式在文件最后。 */
+
+/* ---------- 页头与整体骨架 ---------- */
+.page-resume .res-wrap { max-width: 1120px; margin: 0 auto; padding: 132px 32px 46px; position: relative; z-index: 2; }
+.page-resume .res-head { margin-bottom: 26px; }
+.page-resume .res-head h1 { font: 600 clamp(2rem, 5vw, 3rem)/1.2 var(--font-display); letter-spacing: .01em; margin: 14px 0 10px; }
+.page-resume .res-head-sub { color: var(--accent-deep); font-size: .46em; font-weight: 500; white-space: nowrap; }
+.page-resume .res-head-desc { max-width: 620px; color: var(--ink-2); font-size: 15px; }
+
+/* 纸：左栏 + 右栏。不用 overflow:hidden，否则左栏 sticky 失效 */
+.page-resume .res-paper {
+  position: relative; display: grid; grid-template-columns: minmax(252px, 300px) 1fr;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 22px;
+  box-shadow: var(--shadow);
+}
+.page-resume .res-paper::before {
+  content: ""; position: absolute; inset: 0 0 auto; height: 4px; border-radius: 22px 22px 0 0;
+  background: linear-gradient(90deg, var(--accent), var(--sun));
+}
+
+/* ---------- 左栏：身份卡 ---------- */
+.page-resume .res-side {
+  position: sticky; top: 82px; align-self: start;
+  padding: 30px 26px 26px; border-right: 1px solid var(--border-soft); border-radius: 21px 0 0 21px;
+  background: linear-gradient(180deg, rgba(var(--mist-1), .07), transparent 46%);
+}
+.page-resume .res-id { display: block; }
+.page-resume .res-id-text { display: block; }
+.page-resume .res-name { font: 600 22px var(--font-display); letter-spacing: .01em; }
+
+.page-resume .res-status {
+  display: inline-flex; align-items: center; gap: 7px; margin-top: 16px;
+  padding: 5px 12px; border-radius: 99px; font-size: 13px;
+  color: var(--ink); background: rgba(var(--mist-1), .1); border: 1px solid rgba(var(--mist-1), .28);
+}
+.page-resume .res-status-sub { color: var(--ink-2); font-size: 12.5px; }
+.page-resume .res-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+.page-resume .res-status.open .res-dot { background: var(--grass); animation: res-pulse 2.6s var(--ease) infinite; }
+@keyframes res-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(92, 176, 115, .45); }
+  70% { box-shadow: 0 0 0 7px rgba(92, 176, 115, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(92, 176, 115, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .page-resume .res-status.open .res-dot { animation: none; } }
+
+.page-resume .res-roles { margin-top: 12px; font-size: 13.5px; color: var(--ink-2); line-height: 1.7; }
+.page-resume .res-role { color: var(--accent-deep); font-weight: 500; }
+.page-resume .res-roles-sep { margin: 0 6px; color: var(--ink-3); }
+
+.page-resume .res-facts { list-style: none; margin: 16px 0 0; padding: 14px 0 0; border-top: 1px dashed var(--border-soft); display: grid; gap: 7px; font-size: 13.5px; }
+.page-resume .res-facts li { display: flex; gap: 10px; }
+.page-resume .res-fact-label { flex: none; min-width: 40px; color: var(--ink-3); }
+.page-resume .res-fact-value { color: var(--ink-2); }
+
+.page-resume .res-actions { display: grid; gap: 9px; margin-top: 20px; }
+.page-resume .res-action { justify-content: center; width: 100%; padding: 11px 18px; font-size: 14px; }
+.page-resume .res-action .arr { font-size: 13px; }
+.page-resume .res-copy { font-family: var(--font-cn); }
+
+.page-resume .res-contacts { list-style: none; margin: 18px 0 0; padding: 14px 0 0; border-top: 1px dashed var(--border-soft); display: grid; gap: 8px; font-size: 13px; }
+.page-resume .res-contact { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.page-resume .res-contact-label { flex: none; min-width: 42px; color: var(--ink-3); font-size: 12px; }
+.page-resume .res-contact-value { color: var(--ink-2); overflow-wrap: anywhere; }
+.page-resume a.res-contact-value:hover { color: var(--accent-deep); }
+.page-resume .res-mini-copy {
+  margin-left: auto; flex: none; padding: 2px 9px; border-radius: 99px; cursor: pointer;
+  border: 1px solid var(--border-soft); background: transparent; color: var(--ink-3);
+  font: 500 11px var(--font-mono); transition: all 160ms var(--ease);
+}
+.page-resume .res-mini-copy:hover { border-color: var(--accent); color: var(--accent); }
+.page-resume .res-mini-copy.ok { background: var(--accent); border-color: var(--accent); color: #fff; }
+.page-resume .res-updated { margin-top: 16px; font: 500 11px var(--font-mono); letter-spacing: .08em; color: var(--ink-3); }
+
+/* ---------- 右栏：正文 ---------- */
+.page-resume .res-content { padding: 34px 36px 40px; min-width: 0; }
+.page-resume .res-sec + .res-sec { margin-top: 36px; padding-top: 28px; border-top: 1px dashed var(--border-soft); }
+.page-resume .res-sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+.page-resume .res-sec-no { font: 600 12px var(--font-mono); letter-spacing: .16em; color: var(--accent); }
+.page-resume .res-sec-head h2 { font: 600 20px var(--font-display); letter-spacing: .01em; }
+.page-resume .res-sec-note { margin-left: auto; font: 500 12px var(--font-mono); color: var(--ink-3); }
+
+.page-resume .res-summary { list-style: none; display: grid; gap: 10px; }
+.page-resume .res-summary li { position: relative; padding-left: 22px; color: var(--ink-2); font-size: 15px; }
+.page-resume .res-summary li::before {
+  content: ""; position: absolute; left: 5px; top: .72em; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--sun);
+}
+
+/* 项目卡 */
+.page-resume .res-projects { list-style: none; display: grid; gap: 16px; }
+.page-resume .res-proj {
+  min-width: 0; /* 网格项默认 min-width:auto，会被内部长文本顶宽 */
+  padding: 20px 22px; border: 1px solid var(--border-soft); border-radius: 16px; background: var(--bg-2);
+  transition: transform 220ms var(--ease), border-color 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .page-resume .res-proj:hover { transform: translateY(-2px); border-color: rgba(var(--mist-1), .5); box-shadow: var(--shadow); }
+}
+.page-resume .res-proj-top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.page-resume .res-proj-no { font: 600 12px var(--font-mono); color: var(--accent); letter-spacing: .06em; }
+.page-resume .res-proj-name { font: 600 17px var(--font-display); }
+.page-resume .res-proj-period { margin-left: auto; font: 500 12px var(--font-mono); color: var(--ink-3); white-space: nowrap; }
+.page-resume .res-proj-role { margin-top: 3px; font-size: 13px; color: var(--accent-deep); }
+.page-resume .res-proj-headline { margin-top: 10px; font-size: 15px; color: var(--ink); }
+.page-resume .res-proj-list { list-style: none; margin-top: 9px; display: grid; gap: 6px; }
+.page-resume .res-proj-list li { position: relative; padding-left: 16px; font-size: 14.5px; color: var(--ink-2); }
+.page-resume .res-proj-list li::before { content: "·"; position: absolute; left: 3px; color: var(--accent); font-weight: 700; }
+.page-resume .res-proj-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-soft); }
+.page-resume .res-stack { display: flex; flex-wrap: wrap; gap: 6px; }
+.page-resume .res-chip {
+  font: 500 11.5px var(--font-mono); color: var(--ink-2); background: var(--bg-3);
+  border: 1px solid var(--border-soft); border-radius: 99px; padding: 3px 9px; white-space: nowrap;
+}
+/* 链接里带文章全名，窄屏允许折行——否则单条 min-content 就能把项目卡顶出视口 */
+.page-resume .res-link { min-width: 0; margin-left: auto; font-size: 13px; color: var(--accent-deep); }
+.page-resume .res-link .arr { display: inline-block; transition: transform 180ms var(--ease); }
+.page-resume .res-link:hover .arr { transform: translateX(3px); }
+
+/* 技能 */
+.page-resume .res-skills { display: grid; gap: 14px; }
+.page-resume .res-skill { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: start; }
+.page-resume .res-skill-name { font: 600 14.5px var(--font-display); color: var(--ink); padding-top: 1px; }
+.page-resume .res-skill-list { list-style: none; display: grid; gap: 5px; }
+.page-resume .res-skill-list li { position: relative; padding-left: 14px; font-size: 14px; color: var(--ink-2); }
+.page-resume .res-skill-list li::before { content: ""; position: absolute; left: 1px; top: .68em; width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); }
+
+/* 教育 */
+.page-resume .res-edu { padding: 16px 18px; border: 1px solid var(--border-soft); border-radius: 14px; background: var(--bg-2); }
+.page-resume .res-edu-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.page-resume .res-edu-top h3 { font: 600 16px var(--font-display); }
+.page-resume .res-edu-top time { margin-left: auto; font: 500 12px var(--font-mono); color: var(--ink-3); }
+.page-resume .res-edu-line { margin-top: 3px; font-size: 13.5px; color: var(--accent-deep); }
+.page-resume .res-edu-sub { margin-top: 8px; font-size: 13.5px; color: var(--ink-2); }
+.page-resume .res-edu-sub span { display: inline-block; min-width: 62px; color: var(--ink-3); font-size: 12.5px; }
+
+/* 其他 */
+.page-resume .res-extras { display: grid; gap: 10px; }
+.page-resume .res-extra { display: grid; grid-template-columns: 120px 1fr; gap: 14px; font-size: 14px; }
+.page-resume .res-extra-label { color: var(--ink-3); }
+.page-resume .res-extra-value { color: var(--ink-2); }
+.page-resume .res-extra .res-link { font-size: 13px; }
+
+/* 页脚小字 */
+.page-resume .res-foot { margin-top: 20px; font: 12px var(--font-mono); color: var(--ink-3); display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.page-resume .res-foot code { font: inherit; padding: 1px 6px; border-radius: 6px; background: var(--bg-2); border: 1px solid var(--border-soft); }
+.page-resume .res-print-link {
+  padding: 0; border: 0; background: none; cursor: pointer;
+  font: 500 12px var(--font-mono); color: var(--accent-deep); text-decoration: underline;
+  text-underline-offset: 3px; text-decoration-style: dotted;
+}
+/* 打印版专属页脚：屏幕上不出现 */
+.page-resume .res-print-foot { display: none; }
+
+/* 进场：只做一次轻微上浮，尊重减动效 */
+@media (prefers-reduced-motion: no-preference) {
+  .page-resume .res-paper { animation: res-in 600ms var(--ease) both; }
+  .page-resume .res-proj { animation: res-in 500ms var(--ease) both; }
+  .page-resume .res-proj:nth-child(2) { animation-delay: 70ms; }
+  .page-resume .res-proj:nth-child(3) { animation-delay: 140ms; }
+}
+@keyframes res-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 980px) {
+  .page-resume .res-wrap { padding: 116px 22px 40px; }
+  .page-resume .res-paper { grid-template-columns: 1fr; }
+  .page-resume .res-side {
+    position: static; border-right: 0; border-bottom: 1px solid var(--border-soft);
+    border-radius: 21px 21px 0 0; padding: 26px 24px 22px;
+    background: linear-gradient(180deg, rgba(var(--mist-1), .08), transparent 62%);
+  }
+  .page-resume .res-content { padding: 26px 24px 30px; }
+  .page-resume .res-actions { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .page-resume .res-skill, .page-resume .res-extra { grid-template-columns: 1fr; gap: 4px; }
+  .page-resume .res-skill-name { padding-top: 0; }
+}
+@media (max-width: 520px) {
+  .page-resume .res-wrap { padding: 108px 16px 36px; }
+  .page-resume .res-head-sub { display: block; margin-top: 4px; font-size: .5em; }
+  .page-resume .res-proj { padding: 17px 16px; }
+  .page-resume .res-proj-period { margin-left: 0; width: 100%; }
+  .page-resume .res-link { margin-left: 0; }
+}
+
+/* ============ 打印 / PDF ============
+   单栏、A4、无底色无导航；侧栏变顶部信息块，项目只留 print=1 的，
+   技能压成「组名：条目、条目」。目标是 1–2 页纸。 */
+@media print {
+  @page { size: A4; margin: 10mm 12mm; }
+  .page-resume { background: #fff !important; color: #111 !important; }
+  .page-resume::before, .page-resume::after { display: none !important; }
+  .page-resume .ambient, .page-resume .spotlight { display: none !important; }
+  .page-resume .nav, .page-resume .footer, .page-resume .to-top, .page-resume #tape,
+  .page-resume .res-foot, #local-badge { display: none !important; }
+  .page-resume .res-print-foot {
+    display: block !important; margin-top: 8pt; padding-top: 4pt;
+    border-top: .6pt solid #ddd; font: 7.5pt/1.5 var(--font-mono); color: #777;
+  }
+  .page-resume .res-wrap { max-width: none; margin: 0; padding: 0; }
+  .page-resume .res-head, .page-resume .res-actions, .page-resume .res-print-link,
+  .page-resume .res-updated, .page-resume .res-sec-note { display: none !important; }
+  .page-resume .res-paper { display: block; border: 0; border-radius: 0; box-shadow: none; background: none; }
+  .page-resume .res-paper::before { display: none !important; }
+  .page-resume * { animation: none !important; transform: none !important; opacity: 1 !important; }
+
+  /* 顶部信息块 */
+  .page-resume .res-side {
+    position: static; display: block; padding: 0 0 7pt; margin-bottom: 8pt;
+    border: 0; border-bottom: .6pt solid #bbb; border-radius: 0; background: none;
+  }
+  .page-resume .res-id { display: block; }
+  .page-resume .res-id-text { display: block; }
+  .page-resume .res-name { font: 700 15pt/1.25 var(--font-display); color: #111; }
+  .page-resume .res-status { display: inline-block; margin: 2pt 8pt 0 0; padding: 0; border: 0; background: none; font-size: 9pt; color: #111; }
+  .page-resume .res-status .res-dot { display: none; }
+  .page-resume .res-status-sub { margin-left: 2pt; }
+  .page-resume .res-roles { margin: 2pt 0 0; font-size: 9.5pt; color: #333; }
+  .page-resume .res-roles-sep { color: #999; }
+  .page-resume .res-facts { display: block; margin: 4pt 0 0; padding: 0; border: 0; font-size: 8.5pt; }
+  .page-resume .res-facts li { display: inline; margin-right: 12pt; }
+  .page-resume .res-fact-label { min-width: 0; color: #666; }
+  .page-resume .res-fact-label::after { content: "："; }
+  .page-resume .res-fact-value { color: #111; }
+  .page-resume .res-contacts { display: block; margin: 4pt 0 0; padding: 0; border: 0; font-size: 8.5pt; }
+  .page-resume .res-contact { display: inline; margin-right: 14pt; }
+  .page-resume .res-contact-label { min-width: 0; color: #666; }
+  .page-resume .res-contact-label::after { content: "："; }
+  .page-resume .res-contact-value { color: #111; }
+  .page-resume .res-mini-copy { display: none !important; }
+
+  /* 正文 */
+  .page-resume .res-content { padding: 0; }
+  .page-resume .res-sec + .res-sec { margin-top: 6pt; padding-top: 5pt; border-top: 0; }
+  .page-resume .res-sec-head { margin-bottom: 3pt; }
+  .page-resume .res-sec-no { font-size: 8pt; letter-spacing: 0; }
+  /* 「其他」里的证书已在教育背景里，技术写作已在联系方式里——打印时整块省掉，PDF 压到一页 */
+  .page-resume #extras { display: none !important; }
+  .page-resume .res-sec-head h2 { font-size: 11.5pt; }
+  .page-resume .res-summary { gap: 2pt; }
+  .page-resume .res-summary li { padding-left: 10pt; font-size: 9pt; color: #111; }
+  .page-resume .res-summary li::before { left: 0; top: .5em; width: 4pt; height: 4pt; background: #999; }
+
+  .page-resume .res-projects { gap: 7pt; }
+  .page-resume .res-proj { break-inside: avoid; page-break-inside: avoid; padding: 0 0 0 8pt; border: 0; border-left: 1.5pt solid #ccc; border-radius: 0; background: none; }
+  .page-resume .res-proj[data-print="2"] { display: none !important; }
+  .page-resume .res-proj-top { gap: 6pt; }
+  .page-resume .res-proj-no { font-size: 8pt; color: #666; }
+  .page-resume .res-proj-name { font-size: 10.5pt; }
+  .page-resume .res-proj-period { font-size: 8pt; color: #666; }
+  .page-resume .res-proj-role { margin-top: 1pt; font-size: 8.5pt; color: #444; }
+  .page-resume .res-proj-headline { margin-top: 3pt; font-size: 9pt; color: #111; }
+  .page-resume .res-proj-list { margin-top: 2.5pt; gap: 1pt; }
+  .page-resume .res-proj-list li { padding-left: 9pt; font-size: 8.4pt; line-height: 1.45; color: #222; }
+  .page-resume .res-proj-list li::before { left: 1pt; color: #999; }
+  .page-resume .res-proj-foot { margin-top: 4pt; padding-top: 3pt; border-top: 0; gap: 4pt 8pt; }
+  .page-resume .res-stack { gap: 0; }
+  .page-resume .res-chip { padding: 0; border: 0; background: none; font-size: 7.5pt; color: #555; }
+  .page-resume .res-chip + .res-chip::before { content: "、"; color: #999; }
+  .page-resume .res-link { display: none !important; }
+
+  .page-resume .res-skills { gap: 2.5pt; }
+  .page-resume .res-skill { display: block; }
+  .page-resume .res-skill-name { display: inline; font-size: 9pt; color: #111; }
+  .page-resume .res-skill-name::after { content: "："; }
+  .page-resume .res-skill-list { display: inline; }
+  .page-resume .res-skill-list li { display: inline; padding-left: 0; font-size: 8.5pt; color: #222; }
+  .page-resume .res-skill-list li::before { display: none; }
+  .page-resume .res-skill-list li + li::before { content: "、"; }
+
+  .page-resume .res-edu { padding: 0; border: 0; background: none; }
+  .page-resume .res-edu-top h3 { font-size: 10pt; }
+  .page-resume .res-edu-top time, .page-resume .res-edu-line, .page-resume .res-edu-sub { font-size: 8.5pt; color: #222; }
+  .page-resume .res-edu-line { color: #444; }
+  .page-resume .res-edu-sub span { min-width: 0; color: #666; }
+  .page-resume .res-edu-sub span::after { content: "："; }
+  .page-resume .res-extra { display: block; font-size: 8.5pt; }
+  .page-resume .res-extra-label { display: inline; color: #666; }
+  .page-resume .res-extra-label::after { content: "："; }
+  .page-resume .res-extra-value { display: inline; color: #222; }
+}
