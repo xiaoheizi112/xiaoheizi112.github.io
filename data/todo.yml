@@ -6,53 +6,37 @@
 # note 可留空。四象限的 id 固定为 do / schedule / delegate / drop，不要改名。
 # motto 是卡片上的行动语，examples 是参考四象限图的示例说明（只展示，不参与任务列表）。
 
-updated: "2026-10-26"
+updated: "2026-10-27"
 
 quadrants:
   - id: do
-    title: 重要且紧急
-    hint: 立刻做
+    title: "重要且紧急"
+    hint: "立刻做"
     icon: "🔥"
     motto: "立刻做 | 优先处理"
     examples: "突发故障、临近截止任务、危机"
-    tasks:
-      - text: "找工作"
-        status: todo
-      - text: "学AI"
-        status: todo
+    tasks: []
 
   - id: schedule
-    title: 重要不紧急
-    hint: 排期做
+    title: "重要不紧急"
+    hint: "排期做"
     icon: "🌱"
     motto: "计划做 | 核心重心"
     examples: "学习成长、长期规划、健康、复盘"
-    tasks:
-      - text: "学英语"
-        status: todo
-      - text: "学厨艺"
-        status: todo
-      - text: "办护照"
-        status: todo
+    tasks: []
 
   - id: delegate
-    title: 紧急不重要
-    hint: 交出去
+    title: "紧急不重要"
+    hint: "交出去"
     icon: "🍃"
     motto: "授权做 | 减少承接"
     examples: "临时消息、无关会议、他人琐事求助"
-    tasks:
-      - text: "学摩托D证"
-        status: todo
+    tasks: []
 
   - id: drop
-    title: 不重要不紧急
-    hint: 可以放掉
+    title: "不重要不紧急"
+    hint: "可以放掉"
     icon: "☁️"
     motto: "少做/不做 | 减少消耗"
     examples: "无意义刷短视频、闲聊、无效浏览"
-    tasks:
-      - text: "刷手机"
-        status: todo
-      - text: "熬夜"
-        status: todo
+    tasks: []
