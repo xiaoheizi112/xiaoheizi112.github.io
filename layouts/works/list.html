@@ -1,0 +1,113 @@
+{{- /* 作品展示页：读 data/works.yml，AI 开发作品的图文橱窗。
+       独立于 PaperMod（与首页/相册/路线页同款手写风格），复用 home.css 的设计令牌与导航。 */ -}}
+{{- $h := hugo.Data.home -}}
+{{- $w := hugo.Data.works -}}
+<!doctype html>
+<html lang="{{ site.Language.Locale }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F7FBFC" />
+  <meta name="color-scheme" content="light dark" />
+  {{- /* 主题初始化：与全站共用 pref-theme */ -}}
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("pref-theme"); } catch (e) {}
+      var dark = t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    })();
+  </script>
+  <title>作品展示 · {{ site.Title }}</title>
+  <meta name="description" content="AI 结对开发的三件作品：睡眠打卡 App、深渊幸存者游戏、EmuHive 多开挂机框架。可下载体验。" />
+  <link rel="canonical" href="{{ .Permalink }}" />
+  {{- $ogimg := "images/og-cover.png" | absURL }}
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{ site.Title }}" />
+  <meta property="og:title" content="作品展示 · {{ site.Title }}" />
+  <meta property="og:description" content="AI 结对开发的三件作品：睡眠打卡 App、深渊幸存者游戏、EmuHive 多开挂机框架。可下载体验。" />
+  <meta property="og:url" content="{{ .Permalink }}" />
+  <meta property="og:image" content="{{ $ogimg }}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="作品展示 · {{ site.Title }}" />
+  <meta name="twitter:description" content="AI 结对开发的三件作品：睡眠打卡 App、深渊幸存者游戏、EmuHive 多开挂机框架。可下载体验。" />
+  <meta name="twitter:image" content="{{ $ogimg }}" />
+  <link rel="preconnect" href="https://fonts.loli.net" />
+  <link rel="preload" as="style" href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" />
+  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
+  {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
+  {{ partialCached "css.html" (dict "path" "css/palette.css") "palette.css" }}
+  {{ partialCached "css.html" (dict "path" "css/works-page.css") "works-page.css" }}
+</head>
+<body class="page-works">
+{{ partial "site_nav.html" (dict "page" .) }}
+
+<header class="page-head">
+  <p class="sec-eyebrow"><span class="dot"></span>{{ $w.pageHead.eyebrow }}</p>
+  <h1>{{ $w.pageHead.h1a }}<br />{{ $w.pageHead.h1b }}</h1>
+  <p class="sec-desc">{{ $w.pageHead.desc }}</p>
+</header>
+
+<main class="wrap" id="main">
+  {{- range $i, $w2 := $w.works }}
+  <article class="work-card">
+    <div class="work-media">
+      <span class="work-idx">{{ printf "%02d" (add $i 1) }}</span>
+      <img src="{{ $w2.media }}" alt="{{ $w2.mediaAlt }}" loading="lazy" decoding="async" />
+    </div>
+    <div class="work-body">
+      <h2 class="work-title">{{ $w2.name }}<span class="work-en">{{ $w2.en }}</span></h2>
+      <p class="work-tagline">{{ $w2.tagline }}</p>
+      <p class="work-intro">{{ $w2.intro }}</p>
+      <ul class="work-points">
+        {{- range $w2.highlights }}
+        <li>{{ . }}</li>
+        {{- end }}
+      </ul>
+      <div class="work-stack">
+        {{- range $w2.stack }}<span class="chip">{{ . }}</span>{{ end }}
+      </div>
+      <div class="work-links">
+        {{- range $j, $l := $w2.links }}
+        <a class="btn{{ if eq $j 0 }} primary{{ end }}" href="{{ $l.url }}" target="_blank" rel="noopener noreferrer">{{ $l.label }}</a>
+        {{- end }}
+      </div>
+    </div>
+  </article>
+  {{- end }}
+
+  <p class="work-archive">
+    {{ $w.archiveNote.text }}
+    <a href="{{ $w.archiveNote.url }}" target="_blank" rel="noopener noreferrer">{{ $w.archiveNote.label }} →</a>
+  </p>
+  <p class="work-updated">更新于 {{ $w.updated }}</p>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <span>{{ $h.footer.line }}</span>
+    <span class="footer-links">
+      <a href="{{ "/posts/" | relURL }}">文章</a>
+      <a href="{{ "/archives/" | relURL }}">归档</a>
+      <a href="https://github.com/xiaoheizi112" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </span>
+  </div>
+</footer>
+<button class="to-top" id="to-top" type="button" aria-label="返回顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>
+</button>
+<script>
+(function () {
+  var b = document.getElementById("to-top");
+  var chk = function () { b.classList.toggle("show", scrollY > innerHeight * .8); };
+  addEventListener("scroll", chk, { passive: true }); chk();
+  b.addEventListener("click", function () { scrollTo({ top: 0, behavior: "smooth" }); });
+})();
+</script>
+{{ partial "extend_footer.html" . }}
+</body>
+</html>
