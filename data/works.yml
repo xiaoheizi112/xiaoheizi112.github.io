@@ -1,0 +1,66 @@
+# ============================================================
+# 作品展示页数据 —— 页面：/works/，模板：layouts/works/list.html，样式：assets/css/works-page.css
+# 新增作品：往 works 列表加一条即可；media 放 static/images/works/ 下用站内路径。
+# links 第一个按钮渲染为主按钮（accent 底），其余为描边按钮。
+# ============================================================
+
+updated: "2026-11"
+
+pageHead:
+  eyebrow: "WORKS · 作品展示"
+  h1a: "把想法，"
+  h1b: "做成能用的产品。"
+  desc: "这三件都是用 AI 结对开发独立走通的：从设计、编码、测试到打包发布。每一张图都是真实运行画面，点按钮就能下载体验。"
+
+works:
+  - name: "睡眠打卡"
+    en: "Sleep Check-in"
+    tagline: "Flutter 完整应用：打卡 · 统计分析 · 睡眠质量测评"
+    intro: "市面上记录睡眠的 App 都太拥挤，我只需要「记录、看见、坚持、留梦」四件事——于是给自己写了一个。"
+    media: "/images/works/sleep-demo.gif"
+    mediaAlt: "睡眠打卡 App 五个界面轮播：打卡、统计、测评、星夜主题、设置"
+    highlights:
+      - "自研睡眠质量测评算法，应用内直接出分，附测评依据"
+      - "零外部依赖：无账号无登录无后端，数据全存手机本地"
+      - "星夜主题与交互动效，10 秒完成一次打卡"
+      - "CI 自动跑测试，仓库含产品计划书与版本记录"
+    stack: ["Flutter", "Dart", "SQLite", "AI 结对开发"]
+    links:
+      - { label: "下载试玩（APK）", url: "https://github.com/xiaoheizi112/sleep-checkin-app/releases" }
+      - { label: "GitHub 仓库", url: "https://github.com/xiaoheizi112/sleep-checkin-app" }
+
+  - name: "深渊幸存者"
+    en: "Abyss Survivor"
+    tagline: "Godot 4.6 / GDScript 全程 AI 结对的吸血鬼幸存者 Like"
+    intro: "一局 6 分钟、12 波怪、双 Boss 收尾的像素割草游戏。约 1.4 万行代码全部由 AI 编码代理编写，靠无头自检体系保证每改一版都能重放验证。"
+    media: "/images/works/abyss-demo.gif"
+    mediaAlt: "深渊幸存者游戏画面轮播：选角色、战斗、精英怪、进化、升级三选一、波次商店、图鉴、通关"
+    highlights:
+      - "1.4 万行 GDScript、30 个脚本，全部代码构建（场景文件只有一个空壳）"
+      - "9 套可重放的无头自检：AI 写完代码先自己跑验证矩阵，再交人试玩"
+      - "5 角色 × 7 武器 × 进化链 × 词缀系统 × 双 Boss，一局约 6 分钟"
+      - "Windows 免安装，Releases 下载解压双击即玩"
+    stack: ["Godot 4.6", "GDScript", "像素美术管线", "AI 结对开发"]
+    links:
+      - { label: "下载即玩（Win）", url: "https://github.com/xiaoheizi112/AbyssSurvivor/releases" }
+      - { label: "GitHub 仓库", url: "https://github.com/xiaoheizi112/AbyssSurvivor" }
+
+  - name: "EmuHive 多开挂机框架"
+    en: "EmuHive"
+    tagline: "PySide6 + OpenCV + 节点图 DSL 的通用图色自动化框架"
+    intro: "给游戏工作室场景做的多开挂机：不写代码，用可视化节点图把等图、点图、判断、循环拼成完整脚本，一台电脑挂 20~30 个模拟器实例。"
+    media: "/images/works/emu-workbench.png"
+    mediaAlt: "EmuHive 流程编排工作台：左侧模拟器画面，中间节点图画布，右侧属性面板"
+    highlights:
+      - "每实例独立线程错峰调度，adb 单帧截图约 140ms，不依赖窗口前台"
+      - "节点图 DSL：8 类节点拼脚本，可存成流程包 zip 直接分发"
+      - "账本保险丝与压测工具，挂机事故可追溯"
+      - "70+ 离屏冒烟自检常驻，改完即跑"
+    stack: ["Python", "PySide6", "OpenCV", "ADB", "AI 结对开发"]
+    links:
+      - { label: "GitHub 仓库", url: "https://github.com/xiaoheizi112/EmuHive" }
+
+archiveNote:
+  text: "另有 7 个 Qt 桌面课设（记事本 / 天气预报 / 音乐播放器 / 串口调试等）已完成使命，归档在 GitHub 只读保留。"
+  label: "去 GitHub 看看"
+  url: "https://github.com/xiaoheizi112?tab=repositories"
