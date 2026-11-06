@@ -26,7 +26,7 @@ works:
       - "CI 自动跑测试，仓库含产品计划书与版本记录"
     stack: ["Flutter", "Dart", "SQLite", "AI 结对开发"]
     links:
-      - { label: "下载试玩（APK）", url: "https://github.com/xiaoheizi112/sleep-checkin-app/releases" }
+      - { label: "下载体验（APK）", url: "https://github.com/xiaoheizi112/sleep-checkin-app/releases" }
       - { label: "GitHub 仓库", url: "https://github.com/xiaoheizi112/sleep-checkin-app" }
 
   - name: "深渊幸存者"
@@ -49,8 +49,8 @@ works:
     en: "EmuHive"
     tagline: "PySide6 + OpenCV + 节点图 DSL 的通用图色自动化框架"
     intro: "给游戏工作室场景做的多开挂机：不写代码，用可视化节点图把等图、点图、判断、循环拼成完整脚本，一台电脑挂 20~30 个模拟器实例。"
-    media: "/images/works/emu-workbench.png"
-    mediaAlt: "EmuHive 流程编排工作台：左侧模拟器画面，中间节点图画布，右侧属性面板"
+    media: "/images/works/emu-demo.gif"
+    mediaAlt: "EmuHive 演示轮播：总控台多实例调度、节点图流程编排、采集与图比取证"
     highlights:
       - "每实例独立线程错峰调度，adb 单帧截图约 140ms，不依赖窗口前台"
       - "节点图 DSL：8 类节点拼脚本，可存成流程包 zip 直接分发"
