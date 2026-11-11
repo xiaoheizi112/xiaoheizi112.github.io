@@ -1,8 +1,43 @@
-# 产品板块数据：kind: self = 自己做的 / rec = 推荐的
-# 目前留空 —— 首页「产品」区会自动隐藏。想清楚一个就按下面格式加一条，卡片会自动出现。
-# - kind: self
-#   name: 产品名
-#   desc: 它是什么、解决什么问题、给谁用。
-# - kind: rec
-#   name: 产品名
-#   desc: 为什么值得推荐。
+# 05 WORKS 作品屏数据 —— layouts/index.html 的 #c-works 卡读取，数组顺序 = 屏上顺序。
+# 字段：name 项目名 · sub 一行中文简介 · tech 技术栈 · url 仓库地址
+#       updated 更新年月（原样字符串）· photo hover 预览底图（static 直链）
+#       ar 预览框宽高比（CSS aspect-ratio 值，缺省 16 / 10）
+#       tall: true 竖屏截图（预览框改按高度定宽）· wire: true 无真实截图，保留全息线框浮层
+#       shots 放映机灯箱原图（proj.js 经行上 data-shots 读取；README 正文截图，
+#             存 static/images/works/，文件名尾号 = 数组位次；与 hover 底图同字节的直接复用现有文件）
+- name: EmuHive
+  sub: 通用多开图色挂机框架：不写代码，节点图编排自动化
+  tech: Python · PySide6 · OpenCV
+  url: https://github.com/xiaoheizi112/EmuHive
+  updated: 2026-11
+  photo: /images/works/emuhive.png
+  ar: 1388 / 1008
+  shots:
+    - /images/works/emuhive-1.png   # README 主界面·多开总控（docs/imgs/shot_main.png 1240x800）
+    - /images/works/emuhive.png     # README 工作台·流程编排（docs/imgs/shot_workbench.png 1388x1008，与 hover 底图同文件）
+    - /images/works/emuhive-3.png   # README 工作台·模板采集（docs/imgs/shot_collect.png 1388x1008）
+- name: AbyssSurvivor
+  sub: AI 结对全程开发的幸存者 Like：1.4 万行 GDScript，12 波 6 分钟一局
+  tech: Godot 4.6
+  url: https://github.com/xiaoheizi112/AbyssSurvivor
+  updated: 2026-11
+  photo: /images/works/abyss-menu.png
+  ar: 16 / 9
+  shots:
+    - /images/works/abyss-menu.png  # README 主菜单与存档（docs/screenshots/01_menu.png 1280x720，与 hover 底图同文件）
+    - /images/works/abyss-2.png     # README 战斗 HUD（docs/screenshots/03_battle.png 1280x720）
+    - /images/works/abyss-3.png     # README 升级三选一（docs/screenshots/05_levelup.png 1280x720）
+    - /images/works/abyss-4.png     # README Boss 战（docs/screenshots/04_boss.png 1280x720）
+- name: sleep-checkin-app
+  sub: 本地优先的安卓睡眠打卡 App：统计报表 + 徽章激励 + 质量测评
+  tech: Flutter · Dart
+  url: https://github.com/xiaoheizi112/sleep-checkin-app
+  updated: 2026-11
+  photo: /images/works/sleep.png
+  ar: 9 / 20
+  tall: true
+  shots:
+    - /images/works/sleep.png       # README 深色首页（docs/screenshots/home-dark.png 1080x2400，与 hover 底图同文件）
+    - /images/works/sleep-2.png     # README 起床打卡浮层（docs/screenshots/wake-sheet.png 1080x2400）
+    - /images/works/sleep-3.png     # README 统计日历（docs/screenshots/stats-calendar.png 1080x2400）
+    - /images/works/sleep-4.png     # README 徽章墙（docs/screenshots/badges.png 1080x2400）

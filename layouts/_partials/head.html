@@ -1,0 +1,39 @@
+{{- /* 文档头（Phase 0 重写）：meta → OG → 字体 → CSS 管线
+     CSS 管线：assets/css/deck/*.css 按文件名序拼接 → minify → fingerprint。
+     编号即层序：10 令牌基座 / 20 deck / 30 fx / 40 卡片内容 / 50 子页 / 60 代码 / 70 giscus / 90 响应式 */ -}}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+{{- if hugo.IsProduction | or (eq site.Params.env "production") }}
+<meta name="robots" content="index, follow, max-image-preview:large">
+{{- else }}
+<meta name="robots" content="noindex, nofollow">
+{{- end }}
+{{- $title := site.Title }}{{ if not .IsHome }}{{ $title = printf "%s · %s" .Title site.Title }}{{ end }}
+<title>{{ $title }}</title>
+<link rel="canonical" href="{{ .Permalink }}">
+{{- $desc := .Description | default site.Params.description }}
+<meta name="description" content="{{ $desc }}">
+<meta name="theme-color" content="#050607">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+{{- with .OutputFormats.Get "rss" }}
+<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">
+{{- end }}
+{{- $img := "" }}{{ with .Params.images }}{{ $img = index . 0 | absURL }}{{ end }}
+{{- if not $img }}{{ with site.Params.images }}{{ $img = index . 0 | absURL }}{{ end }}{{ end }}
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:description" content="{{ $desc }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ site.Title }}">
+{{- with $img }}
+<meta property="og:image" content="{{ . }}">
+<meta name="twitter:card" content="summary_large_image">
+{{- end }}
+{{- /* 字体：Anton 超大标题 / JetBrains Mono 编号与标签 / Noto Sans SC 正文 */ -}}
+<link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+<link rel="stylesheet" href="https://fonts.loli.net/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
+{{- $css := resources.Match "css/deck/*.css" | sort | resources.Concat "css/deck.min.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+{{- /* 页间转场（到达侧）：首绘前挂 html.wipeout，CSS 把 fx.js 盖上来的绿幕拉下，防新页闪现 */ -}}
+<script>try{if(sessionStorage.getItem("deck-wipe")==="1"&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("wipeout")}catch(e){}</script>

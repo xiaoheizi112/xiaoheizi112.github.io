@@ -1,0 +1,306 @@
+/* ============================================================
+   42-works.css —— 05 WORKS 放映机（W1 灯箱 + W3 巨字编号 + 左缘 glint 走线）
+   契约类名（layouts/index.html #c-works 段 + assets/js/proj.js 生成体，勿改名）:
+     .wr-glint(行内走线元件) / .work-row::after(CSS counter 巨字衬底)
+     .pj .pj.on .pj-scrim .pj-frame .pj-col-main .pj-stage .pj-img .pj-wait
+     .pj-bar .pj-read .pj-thumbs .pj-thumb(.on) .pj-meta .pj-kicker .pj-name
+     .pj-sub .pj-tech .pj-stats .pj-count .pj-acts .pj-btn .pj-open .pj-close
+   层级定标（grep 实测）: .tape=88、.boot=90、.gate=110、.cur=70 → 灯箱 z-index 89，
+   高于播放器、低于 LOADING 幕布与进场门；十字光标会被灯箱盖住属预期（模态层自绘光标）。
+   minifier 坑位遵守: 归零态全走 --* 自定义属性(--pj-o/--pj-y/--pi/--piy/--wr-gh/--wgi/--pt)，
+   不直写 opacity:1 / translate:0 这类初始值声明。
+   移动端降级按任务要求写在本文件 @media 内（1024/720/480 + hover:none + reduced-motion），
+   不进 90-media.css。
+   ============================================================ */
+
+/* ---------- W3 · 巨字空心编号衬底 ----------
+   counter 与行号解耦：内容 = counter(wk) 补零两位，天然等于 .wr-no 的 01/02/03。
+   z-index:-1：.card 是层叠上下文(z-index:1)且行/卡体无底色，衬底落在卡背景之上、
+   行文字之下，正好当水印；hover 预览(.wk-preview z-index 6)浮在其上。
+   ⚠ 尺寸契约（2026-11 修复）：衬底必须**装进行自身的高度带**——行距只有 ~115px，
+   旧版 240px 巨号按 20vw 走，字高 ~173px 远超行距，三行数字必然叠成一坨（站主报的 bug）。
+   现改为 inset:0 + flex 居中钉在行带正中，字号上限 116px（Anton 数字墨高 ≈0.73em ≈85px，
+   留出行带上下气口）。**别再按 vw 放大回 200px 量级**，除非同时把行距拉高。 */
+
+.works-list {
+  counter-reset: wk;
+}
+.work-row {
+  counter-increment: wk;
+}
+.work-row::after {
+  content: counter(wk, decimal-leading-zero);
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: clamp(8px, 4.5vw, 88px);
+  font-family: var(--f-display);
+  font-size: clamp(84px, 9.2vw, 116px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--d-line-2);
+  opacity: var(--wr-gh, 0.34);
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.5s var(--ease), -webkit-text-stroke-color 0.5s var(--ease);
+}
+.work-row:hover::after {
+  --wr-gh: 0.62;
+  -webkit-text-stroke-color: var(--d-acid);
+}
+
+/* ---------- hover 左缘 glint 走线 ----------
+   现有 .glint 元件是给 04 散卡角标用的（30-fx），行上另新写一条：
+   1px 宽竖轨内跑一段 亮头(白芯+酸绿晕) 光包，background-position 动画上下扫。
+   静止时光包停在轨顶外侧(背景画在元素外)，hover 时 --wgi 亮轨、动画扫一遭。 */
+
+.wr-glint {
+  position: absolute;
+  left: 0;
+  top: 10%;
+  bottom: 10%;
+  width: 1px;
+  pointer-events: none;
+  opacity: var(--wgi, 0);
+  background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(58, 227, 92, 0.35) 38%,
+      var(--d-acid) 48%,
+      var(--d-white) 50%,
+      var(--d-acid) 52%,
+      rgba(58, 227, 92, 0.35) 62%,
+      transparent 100%) no-repeat;
+  background-size: 100% 46%;
+  background-position: 0 -46%;
+  transition: opacity 0.3s;
+}
+.work-row:hover .wr-glint {
+  --wgi: 1;
+  animation: wr-glint-run 1.15s var(--ease);
+}
+@keyframes wr-glint-run {
+  from { background-position: 0 -46%; }
+  to   { background-position: 0 146%; }
+}
+
+/* ---------- W1 · 放映机灯箱 ---------- */
+
+.pj {
+  position: fixed;
+  inset: 0;
+  z-index: 89;
+  display: grid;
+  place-items: center;
+  padding: clamp(14px, 3.5vh, 40px) var(--pad-x);
+  opacity: var(--pj-o, 0);
+  transition: opacity 0.4s var(--ease);
+}
+.pj.on { --pj-o: 1; }
+.pj:focus { outline: none; }
+
+.pj-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 6, 7, 0.88);   /* --d-void 半透：只此一处理性化，压黑全场 */
+  backdrop-filter: blur(14px) saturate(0.7);
+  -webkit-backdrop-filter: blur(14px) saturate(0.7);
+}
+
+.pj-frame {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(232px, 25vw, 356px);
+  gap: clamp(18px, 3vw, 44px);
+  align-items: center;
+  width: 100%;
+  max-width: 1460px;
+  max-height: 100%;
+  --pj-y: 18px;
+  translate: 0 var(--pj-y);
+  transition: translate 0.5s var(--ease);
+}
+.pj.on .pj-frame { --pj-y: 0px; }
+
+.pj-col-main {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: clamp(10px, 1.6vh, 16px);
+  min-width: 0;
+  min-height: 0;
+}
+
+.pj-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+.pj-img {
+  max-width: 100%;
+  max-height: 82vh;                    /* 原分辨率呈现：不放大、允许缩小，contain 零裁切 */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  background: var(--d-card);
+  border: 1px solid var(--d-line-2);
+  border-radius: 10px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65), 0 0 0 4px rgba(58, 227, 92, 0.05);
+  cursor: zoom-in;
+  opacity: var(--pi, 0);
+  translate: 0 var(--piy, 10px);
+  transition: opacity 0.45s var(--ease), translate 0.45s var(--ease);
+}
+.pj-img.pj-ok { --pi: 1; --piy: 0px; }
+.pj-wait {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  animation: pj-pulse 1.3s ease-in-out infinite alternate;
+}
+@keyframes pj-pulse { from { opacity: 0.35; } to { opacity: 1; } }
+
+.pj-bar {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 26px);
+  min-width: 0;
+}
+.pj-read {
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  text-transform: uppercase;
+}
+.pj-thumbs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  min-width: 0;
+  scrollbar-width: none;
+}
+.pj-thumbs::-webkit-scrollbar { display: none; }
+.pj-thumb {
+  flex: 0 0 auto;
+  width: clamp(60px, 6.5vw, 92px);
+  aspect-ratio: 16 / 10;               /* 竖屏图由其 img.onload 覆写行内比例 */
+  padding: 0;
+  border: 1px solid var(--d-line);
+  border-radius: 6px;
+  overflow: hidden;
+  opacity: var(--pt, 0.45);
+  transition: opacity 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.pj-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7) saturate(0.6);
+}
+.pj-thumb:hover { --pt: 0.9; }
+.pj-thumb.on {
+  --pt: 1;
+  border-color: var(--d-acid);
+  box-shadow: 0 0 12px rgba(58, 227, 92, 0.4);
+}
+.pj-thumb.on img { filter: brightness(1) saturate(1); }
+.pj-thumb:focus-visible { outline: 1px solid var(--d-acid); outline-offset: 2px; }
+
+.pj-meta {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(9px, 1.5vh, 16px);
+  min-width: 0;
+}
+.pj-kicker {
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+.pj-name {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(30px, 3.6vw, 56px);
+  line-height: 1.02;
+  letter-spacing: 0.015em;
+  color: var(--d-white);
+  overflow-wrap: anywhere;
+}
+.pj-sub {
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--d-mute);
+}
+.pj-tech {
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-dim);
+}
+.pj-stats {
+  font-size: 11px;
+}
+.pj-count {
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+}
+.pj-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+.pj-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--d-line-2);
+  border-radius: 999px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-white);
+  transition: border-color 0.3s, color 0.3s, background-color 0.3s, box-shadow 0.3s;
+}
+.pj-btn.pj-open {
+  border-color: rgba(58, 227, 92, 0.55);
+  color: var(--d-acid);
+}
+.pj-btn.pj-open:hover {
+  background: var(--d-acid-soft);
+  box-shadow: var(--d-acid-glow);
+}
+.pj-btn.pj-close:hover { border-color: var(--d-white); }
+.pj-btn:focus-visible { outline: 1px solid var(--d-acid); outline-offset: 3px; }
+
+/* ---------- 触屏：无 hover，衬底与走线回到静态 ---------- */
+
+@media (hover: none) {
+  .wr-glint { display: none; }
+  .work-row::after { --wr-gh: 0.24; }
+}
+
+/* ---------- reduced-motion：无动画直接显隐 ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .pj, .pj-frame, .pj-img, .pj-thumb, .work-row::after { transition: none; }
+  .pj { --pj-o: 1; }
+  .pj-frame { --pj-y: 0px; }
+  .pj-img { --pi: 1; --piy: 0px; }
+  .pj-wait { animation: none; }
+  .work-row:hover .wr-glint { animation: none; }
+}

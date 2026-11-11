@@ -2,80 +2,87 @@
 
 > 一个很懒的人的博客，想起来才更新。
 
-这里是 <https://xiaoheizi112.github.io> 的源码仓库——一座晴空暖阳色调的极简生活站，没有广告、没有算法推荐，只有一个人整理自己学过的东西、拍过的照片、听过的歌。求职用的在线简历单独放在 `/resume/`。
+这里是 <https://xiaoheizi112.github.io> 的源码仓库。一座**黑底荧光绿**的个人站：整站就是一份六屏的 deck（演示稿），Anton 大字 + 等宽小字 + 激光、辉光、准星光标，没有广告、没有算法推荐、没有文章列表。
+
+技术栈：[Hugo](https://gohugo.io/) extended v0.166 + 手写 CSS/JS，**不用主题、不用前端框架、不装 npm 依赖**。
 
 ## 站上有什么
 
-- **学习笔记** —— 上课听过、夜里啃过的知识，全部整理成文：Python、Qt/QML、机器视觉、PLC、易语言……每篇自动生成侧栏目录，点哪跳哪
-- **学习路线** —— 把散落的笔记按主题串成有顺序的路线（`/tracks/`），跟着走不迷路
-- **照片墙** —— 瀑布流展示，入库自动压缩、转正、抹除 GPS，只留画面不留隐私
-- **要事** —— 四象限看板（`/todo/`），按重要/紧急把事摆对位置；本机可编辑，导出 YAML 粘回仓库即发布
-- **歌手电台** —— 首页放一位喜欢的歌手和一张循环播放的歌单，配图是手写的山间炊烟插画
-- **兴趣** —— 首页一排兴趣卡片（打球、睡觉、听歌……），滑到这里氛围光晕会换成暖橙调
-- **归档 / 搜索** —— 全量文章时间线（按年月分组），以及纯前端站内搜索
-- **简历** —— 在线简历（`/resume/`）：左栏身份卡 + 项目/技能/教育，网页与 PDF 同一份数据（`data/resume.yml`），`scripts/gen_resume_pdf.mjs` 一键导出 A4 一页纸
-- **关于** —— 个人介绍
+首页是一屏一卡的 deck，鼠标滚轮 / 触屏滑动 / 方向键 / 右侧进度点都能换卡，地址栏 `#c-signals` 之类可直接跳到某屏：
 
-全站细节：自定义鼠标指针、深浅色双主题（全站统一，跟随系统 + 手动切换）、正文图片点开大图、代码块一键复制、每篇文章自带 OG 分享卡片、RSS 订阅、移动端自适应（含可折叠目录）。
-
-## 怎么做的
-
-纯静态站，无前端框架，风格令牌集中在 `assets/css/home.css` 的 CSS 变量里（经 Hugo 管线压缩 + 指纹输出）。
-
-| 部分 | 实现 |
+| 屏 | 内容 |
 |---|---|
-| 首页 | 独立手写单页（`layouts/index.html`），不走主题 |
-| 文章/归档/关于 | [Hugo](https://gohugo.io/) extended v0.166 + [PaperMod](https://github.com/adityatelange/hugo-PaperMod) 主题（submodule），覆盖全放项目侧 `layouts/_partials`、`layouts/_default`、`assets/css/extended/`，不动主题本体 |
-| 分享卡片 | 每篇文章构建一张品牌 OG 图（`scripts/gen_og_cards.py`），写入 frontmatter 的 `images` |
-| 搜索 | PaperMod 内置 fastsearch（`content/search.md` + 首页 JSON 输出） |
-| 简历 | 独立手写页（`layouts/resume/list.html` + `assets/css/resume.css`），数据在 `data/resume.yml`；`scripts/gen_resume_pdf.mjs` 用无头 Edge 导出 A4 一页 PDF |
-| 图片 | 构建时自动写入真实宽高（`render-image` 钩子），懒加载不撑动版面，目录点击落点精准 |
-| 部署 | 推 `main` 即触发 [GitHub Actions](.github/workflows/deploy.yml) 构建发布，约 1–2 分钟生效；线上产物只在 CI 生成 |
+| 01 HOME | 三行大字 `Think wild! / Build cool! / Ship slow!` + 一句话自介 |
+| 02 ABOUT | 我是谁、在做什么，下面一行行「标签—值」的信息表 |
+| 03 SIGNALS | 最近在听的歌：扇形铺开五张专辑卡，点一下就播（底部会滑出 `.tape` 播放器） |
+| 04 INTERESTS | 兴趣散卡（打球、睡觉、听歌、散步、做饭、AI），轻微歪斜的散落排布 |
+| 05 GUESTBOOK | 留言板的入口，点进去是 `/message/` |
+| 06 CONTACT | 联系方式与页脚 |
+
+子页共用同一套壳（左上角 `← BACK HOME` 回首页）：
+
+- **`/about/`** —— 详细版自我介绍，带代码块
+- **`/message/`** —— 留言板（giscus，需用 GitHub 账号登录发言）
+- **`/resume/`** —— 在线简历，数据在 `data/resume.yml`
+- **404** —— 同款黑底绿字，一个描边的 `404`
+
+移动端做了整套降级（≤720px 收字号与留白、隐藏进度点、扇形改成左右滑的一列、信息表上下两行；手机横屏这种矮视口会把换卡吸附放松成「就近吸附」，免得长内容读不到尾巴）。细节规则见 [CLAUDE.md](CLAUDE.md)。
+
+## 目录长这样
 
 ```
-content/          文章、照片、关于页
-layouts/          首页 + 主题覆盖 + markdown 渲染钩子
-assets/css/home.css  全站风格唯一来源（:root 变量，走管线压缩指纹）
-data/home.yml     首页文案
-data/interests.yml  兴趣板块卡片（图标 + 名称 + 一句描述）
-data/resume.yml   简历数据（网页 /resume/ 与 PDF 同源）
-scripts/          照片入库、OG 卡片、简历 PDF 等生成脚本
+layouts/               首页 + 子页壳 + 常驻层 partials（chrome/head/scripts/comments）
+assets/css/deck/       样式按编号分层：10 令牌 → 20 deck → 30 特效 → 40 卡内组件
+                       → 50 子页正文 → 60 代码高亮 → 70 giscus → 90 移动端降级
+assets/js/             引擎：boot / fx / deck / tape
+static/favicon.svg     站标（黑底 + 荧光绿准星）
+data/                  文案与数据：home.yml、interests.yml、music.yml、
+                       products.yml、resume.yml（+ _en 两份）
+content/               about.md、message/、resume/（文章与 todo 体系已删除）
+.github/workflows/     GitHub Pages 部署
 ```
+
+配色、字体、缓动的**唯一来源**是 `assets/css/deck/10-base.css` 里的 CSS 变量；改样式请先在那里找令牌，别在组件里写死色值。
+
+## 怎么改
+
+| 想做的事 | 动哪里 |
+|---|---|
+| 改首页文案 / 联系方式 / 兴趣卡 / 歌单 | `data/home.yml`、`data/interests.yml`、`data/music.yml`（不用碰模板） |
+| 改简历内容 | `data/resume.yml`（网页即最终形态，Ctrl+P 可直印） |
+| 改配色、字体、缓动 | `assets/css/deck/10-base.css` 的 `:root` |
+| 改某一屏的版式 | 对应层：卡内组件在 `40-cards.css`，子页正文在 `50-sub.css` |
+| 改手机端表现 | **只写 `assets/css/deck/90-media.css`**，用媒体查询覆盖，别回去改前面的层 |
+| 换卡/光标/播放器等行为 | `assets/js/deck.js`、`fx.js`、`tape.js` |
+
+两个坑值得先知道：
+
+1. **新加的 CSS/JS 文件不会被正在跑的 `hugo server` 索引**（日志会报 `css-pipeline: 找不到资源 xxx.css`，页面样式整块丢失）——新增文件后要重启服务器；只改已有文件则正常热更新。
+2. Hugo 的 CSS 压缩器会把「等于初始值」的声明当冗余删掉（比如 `rotate:0deg`）。要重置成初始值，请写成 `initial` / `none`，或者走自定义属性（`--hr:0deg` 再 `rotate:var(--hr)`）。改完抓一次产物 `css/deck.min.min.*.css` 核对最稳。
 
 ## 本地跑起来
 
 ```bash
-git clone --recursive https://github.com/xiaoheizi112.github.io.git
+git clone https://github.com/xiaoheizi112/xiaoheizi112.github.io.git
 cd xiaoheizi112.github.io
-hugo server -D        # http://localhost:1313
+hugo server -D                 # http://localhost:1313
 ```
 
-已 clone 过的补一句：`git submodule update --init --recursive`
-
-验证构建（不碰 `public/`）：`hugo --quiet -D -d _smoke`
-
-## 改简历
-
-在线简历在 `/resume/`，网页和 PDF 都读 `data/resume.yml`：
+只想确认能构建、不生成线上链接：
 
 ```bash
-node scripts/gen_resume_pdf.mjs   # 重新导出 static/files/resume-qt-heyujie.pdf
+hugo --quiet -D -d _smoke      # 产物写到临时目录 _smoke，看完就删
 ```
 
-跑之前确认 `hugo server` 在 `localhost:1313`。打印样式在 `assets/css/resume.css` 末尾：PDF 只保留 `print: 1` 的项目、隐藏「其他」区块，目标是一页 A4。
+**不要**直接跑 `hugo` 构建到 `public/`——那会把线上域名的绝对链接写进本地服务器正在服务的目录，本地测试时点一下就跳到 github.io 线上站。
 
-## 加照片
+## 部署
 
-```bash
-python scripts/add_photos.py <图片路径...>
-```
+推送到 `main`（或在 Actions 里手动 `workflow_dispatch`）即触发 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)：
 
-压缩 webp（最长边 1600px）、EXIF 转正、剥除全部元数据，存入 `static/photos/<年份>/` 并登记进 `data/photos.yml`。入库后再跑一步生成缩略图与尺寸缓存：
+`actions/checkout@v4` → `peaceiris/actions-hugo@v3`（hugo 0.166.0 extended）→ `hugo --gc --minify` → `upload-pages-artifact`（`public/`）→ `actions/deploy-pages@v4` 发到 GitHub Pages，约 1–2 分钟生效。
 
-```bash
-python scripts/gen_photo_thumbs.py   # 生成 static/photos/thumbs/ 缩略图（网格用，灯箱仍开原图）
-python scripts/gen_photo_dims.py     # 记录原图宽高 → data/photo_dims.yml（防懒加载撑动版面）
-```
+线上产物只在 CI 里生成，本地不需要也不应该构建 `public/`。
 
 ## License
 

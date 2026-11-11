@@ -1,0 +1,10 @@
+{{- /* 引擎挂载（Phase 0）：boot 启动 → fx 常驻特效 → deck 卡片交互
+     页面专属脚本（如 tape 播放器、todo 面板）由各自模板在 main 块里自行挂。
+     radio.js 靠 defer 的文档序在 tape.js（main 块内）之后执行，可直接订阅总线。
+     管线：minify + fingerprint；defer 保证不阻塞首屏。 */ -}}
+{{- range $p := slice "js/boot.js" "js/fx.js" "js/deck.js" "js/core.js" "js/id.js" "js/htop.js" "js/works.js" "js/proj.js" "js/radio.js" "js/term.js" "js/welcome.js" "js/rocket.js" }}
+  {{- with resources.Get $p }}
+    {{- $f := . | minify | fingerprint }}
+<script src="{{ $f.RelPermalink }}" integrity="{{ $f.Data.Integrity }}" defer></script>
+  {{- end }}
+{{- end }}

@@ -1,0 +1,20 @@
+{{- /* 全站骨架（2026-11 jiejoe 风重构，Phase 0）
+     首页 = 竖向卡片甲板（deck），子页 = 同视觉语言的普通滚动页。
+     chrome.html 提供常驻层（辉光/激光/光标/启动遮罩/进度点），
+     scripts.html 挂载引擎（boot/fx/deck）。 */ -}}
+<!DOCTYPE html>
+<html lang="{{ site.Language.Locale | default "zh-CN" }}" data-theme="dark">
+
+<head>
+  {{- partial "head.html" . }}
+</head>
+
+<body class="{{ if .IsHome }}is-home{{ else }}is-sub{{ end }}" data-kind="{{ .Kind }}">
+  {{- partial "chrome.html" . }}
+  <main id="main">
+    {{- block "main" . }}{{ end }}
+  </main>
+  {{- partial "scripts.html" . }}
+</body>
+
+</html>

@@ -1,0 +1,586 @@
+/* ============================================================
+   30-fx.css —— 常驻特效层（Phase 0，主会话）
+   角落辉光 / 激光 canvas / 纸飞机光标 / 磁吸 / 倾斜 / 降级。
+   行为在 assets/js/fx.js，这里只管外观（光标段连外观带声明，见文件尾）。
+   ============================================================ */
+
+.fx {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.laser { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.55; }
+
+/* 角落巨大柔光：jiejoe 式，两块对置，缓慢漂移。
+   AMB-REACT（2026-11）：--rms 让辉光随音乐能量呼吸（透明度），--bass 给它
+   体积（scale 独立属性，不吃 glow-drift 的 transform，互不打架）；
+   --pulse 是换卡泄压的一口回光。无 JS/无音频时 var(x,0) 兜底=原静态值。 */
+.glow {
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(58, 227, 92, 0.5), rgba(58, 227, 92, 0.12) 42%, transparent 68%);
+  filter: blur(10px);
+  mix-blend-mode: screen;
+  opacity: calc(0.5 + var(--rms, 0) * 0.32 + var(--pulse, 0) * 0.1);
+  scale: calc(1 + var(--bass, 0) * 0.05);
+  animation: glow-drift 30s var(--ease) infinite alternate;
+}
+.glow-a { top: -34vmax; left: -30vmax; }
+.glow-b { bottom: -36vmax; right: -32vmax; animation-delay: -15s; animation-duration: 38s; }
+@keyframes glow-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(6vmax, 4vmax, 0) scale(1.12); }
+}
+
+/* AMB-REACT：音乐越响、换卡脉冲越重，暗角的透明内圈收得越紧（画面呼吸） */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 45%, transparent calc(55% - var(--rms, 0) * 6% - var(--pulse, 0) * 10%), rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* ---------- 透视网格地板（环境层①，纯 CSS） ----------
+   双向 1px 网格（酸绿 ~.07，线距 48px），绕底边 rotateX(62deg) 压成地平线：
+   元素本体 150vh、底边探出视口 12vh，投影后近端没出屏幕、远端约收到底部 45vh 带；
+   mask 让上缘（地平线一侧）渐隐；background-position 每 20s 走完一格=行进感。
+   两端关键帧都是长度值（0 -48px → 0 0），minifier 即便丢等于初始值的
+   `to` 声明，缺帧也回落到同样的初始值，行为不变。
+   AMB-REACT（2026-11）：追加 240px 粗线主格（工程图纸的主次网格，构图不再
+   一片均匀）；--bass 把地板沿斜面向观察者推 14px、--pulse 换卡时猛推 30px
+   （translateY 排在 rotateX 之后=走在倾斜面上，是"加速前进"不是平移贴图）；
+   --rms/--pulse 同时抬整体亮度。 */
+.grid-floor {
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  bottom: -12vh;
+  height: 150vh;
+  transform-origin: 50% 100%;
+  transform: perspective(1200px) rotateX(62deg) translateY(var(--gf-y, 0px)) translateY(calc(var(--bass, 0) * -14px + var(--pulse, 0) * -30px)); /* --gf-y：deck.js 随滚动进度下沉，地板"加速前进" */
+  background-image:
+    linear-gradient(rgba(58, 227, 92, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(58, 227, 92, 0.12) 1px, transparent 1px),
+    linear-gradient(rgba(58, 227, 92, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(58, 227, 92, 0.07) 1px, transparent 1px);
+  background-size: 240px 240px, 240px 240px, 48px 48px, 48px 48px;
+  filter: brightness(calc(1 + var(--rms, 0) * 1.4 + var(--pulse, 0) * 0.8));
+  -webkit-mask-image: linear-gradient(180deg, transparent 6%, #000 30%, #000 100%);
+  mask-image: linear-gradient(180deg, transparent 6%, #000 30%, #000 100%);
+  animation: gf-flow 100s linear infinite; /* 240px=5 个细格=1 个粗格：一层动画两种网格同速（2.4px/s，与旧 48px/20s 一致）且都整格无缝 */
+}
+@keyframes gf-flow {
+  from { background-position: 0 -240px, 0 -240px, 0 -48px, 0 -48px; }
+  to { background-position: 0 0, 0 0, 0 0, 0 0; }
+}
+
+/* CRT 光栅：整屏一层 3px 周期的极淡横纹（.028，几乎不可读出来但压出
+   "工程机屏幕"质感）；只罩背景层（.fx 内，z0，在内容之下），不糊正文。 */
+.fx::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(58, 227, 92, 0.028) 0 1px, transparent 1px 3px);
+}
+
+/* ---------- 偶发扫描线（环境层③，纯 CSS） ----------
+   一条 2px 柔光横线，两端渐隐、峰值透明度 .06；单个 39s 循环里排三段行程
+   （0% / 31% / 64% 起步 ≈ 每 12.1s 扫一次，落在 9~14s 目标带内），
+   行程间贴底停歇且 opacity 0，循环回卷时无闪现。reduced-motion 关动画后
+   基态 opacity:0（非初始值，minifier 不会丢），线直接隐身。 */
+.scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(58, 227, 92, 0.55) 28%, rgba(58, 227, 92, 0.55) 72%, transparent);
+  box-shadow: 0 0 12px rgba(58, 227, 92, 0.35);
+  animation: scan-run 39s linear infinite;
+}
+@keyframes scan-run {
+  0% { opacity: 0; translate: 0 -6px; }
+  3% { opacity: 0.06; }
+  14% { opacity: 0.06; }
+  17% { opacity: 0; translate: 0 calc(100vh + 6px); }
+  31% { opacity: 0; translate: 0 -6px; }
+  34% { opacity: 0.06; }
+  45% { opacity: 0.06; }
+  48% { opacity: 0; translate: 0 calc(100vh + 6px); }
+  62% { opacity: 0; translate: 0 -6px; }
+  65% { opacity: 0.06; }
+  76% { opacity: 0.06; }
+  79% { opacity: 0; translate: 0 calc(100vh + 6px); }
+  100% { opacity: 0; translate: 0 calc(100vh + 6px); }
+}
+
+/* ---------- HUD 四角括号（环境层④，纯静态） ----------
+   z 39：压在卡内容（deck z1）之上、chrome（z40）/ grain（65）之下；
+   pointer-events:none，safe-area 让开刘海/圆角，窄屏收小一档避免贴脸。 */
+.hud-frame { position: fixed; inset: 0; z-index: 39; pointer-events: none; }
+.hf { position: absolute; width: 22px; height: 22px; opacity: 0.5; }
+.hf-tl {
+  top: calc(10px + env(safe-area-inset-top));
+  left: calc(10px + env(safe-area-inset-left));
+  border-top: 1px solid var(--d-line-2);
+  border-left: 1px solid var(--d-line-2);
+}
+.hf-tr {
+  top: calc(10px + env(safe-area-inset-top));
+  right: calc(10px + env(safe-area-inset-right));
+  border-top: 1px solid var(--d-line-2);
+  border-right: 1px solid var(--d-line-2);
+}
+.hf-br {
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  right: calc(10px + env(safe-area-inset-right));
+  border-bottom: 1px solid var(--d-line-2);
+  border-right: 1px solid var(--d-line-2);
+}
+.hf-bl {
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  left: calc(10px + env(safe-area-inset-left));
+  border-bottom: 1px solid var(--d-line-2);
+  border-left: 1px solid var(--d-line-2);
+}
+/* ≤720px 的 .hf 降级已后移至 90-media.css（媒体查询集中原则） */
+
+/* ---------- 胶片噪点（常驻颗粒，压在内容上、原生光标下） ---------- */
+.grain {
+  position: fixed;
+  inset: -60%;
+  z-index: 65;
+  pointer-events: none;
+  opacity: calc(0.045 + var(--rms, 0) * 0.05); /* AMB-REACT：音乐越响颗粒越粗（磁带噪底变厚） */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 9s steps(9) infinite;
+}
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  12% { transform: translate(-3%, 2%); }
+  25% { transform: translate(2%, -4%); }
+  37% { transform: translate(-4%, -2%); }
+  50% { transform: translate(3%, 3%); }
+  62% { transform: translate(-2%, 4%); }
+  75% { transform: translate(4%, -3%); }
+  87% { transform: translate(-3%, 1%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* 磁吸/倾斜目标由 JS 加 transform；这里给透视与过渡 */
+[data-tilt] { transform-style: preserve-3d; will-change: transform; transition: transform 0.5s var(--ease), box-shadow 0.5s, border-color 0.5s; }
+[data-tilt]:hover { border-color: rgba(58, 227, 92, 0.55); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(58, 227, 92, 0.12); }
+[data-magnet] { will-change: transform; }
+
+/* hover 时卡片边缘泛光的小角标（纯 CSS 装饰） */
+.glint {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-top: 1px solid var(--d-acid);
+  border-left: 1px solid var(--d-acid);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+[data-tilt]:hover .glint { opacity: 1; }
+.glint.tl { top: 8px; left: 8px; }
+.glint.tr { top: 8px; right: 8px; transform: rotate(90deg); }
+.glint.bl { bottom: 8px; left: 8px; transform: rotate(-90deg); }
+.glint.br { bottom: 8px; right: 8px; transform: rotate(180deg); }
+
+/* ---------- 04 兴趣线框图标微动画（layouts/_partials/hob-icon.html 提供 .hb-* 元素） ----------
+   全部低速柔和、无限循环；SVG 子元素动画必须配 transform-box: fill-box 才能按自身包围盒变换。 */
+.hob-svg {
+  display: block;
+  width: 40px;
+  height: 40px;
+  color: var(--d-acid);
+  filter: drop-shadow(0 0 6px rgba(58, 227, 92, 0.45));
+}
+.hb-ball, .hb-shadow, .hb-z1, .hb-z2, .hb-z3, .hb-w1, .hb-w2, .hb-w3, .hb-foot1, .hb-foot2, .hb-s1, .hb-s2, .hb-s3, .hb-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.hb-ball { animation: hb-bounce 2.4s var(--ease-ball) infinite; }
+@keyframes hb-bounce {
+  0%, 100% { transform: translateY(0); }
+  42%      { transform: translateY(-9px); }
+  62%      { transform: translateY(-9px); }
+}
+.hb-shadow { animation: hb-squash 2.4s ease-in-out infinite; }
+@keyframes hb-squash {
+  0%, 100% { transform: scaleX(1); opacity: 0.35; }
+  52%      { transform: scaleX(0.45); opacity: 0.15; }
+}
+.hb-z1 { animation: hb-zzz 3.2s ease-out infinite; }
+.hb-z2 { animation: hb-zzz 3.2s ease-out 0.5s infinite; }
+.hb-z3 { animation: hb-zzz 3.2s ease-out 1s infinite; }
+@keyframes hb-zzz {
+  0%   { opacity: 0; transform: translateY(3px); }
+  25%  { opacity: 0.9; }
+  70%  { opacity: 0; transform: translateY(-7px); }
+  100% { opacity: 0; transform: translateY(-7px); }
+}
+.hb-w1 { animation: hb-wave 1.8s ease-in-out infinite; }
+.hb-w2 { animation: hb-wave 1.8s ease-in-out 0.22s infinite; }
+.hb-w3 { animation: hb-wave 1.8s ease-in-out 0.44s infinite; }
+@keyframes hb-wave {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.45); }
+}
+.hb-foot1 { animation: hb-step 2.8s ease-in-out infinite; }
+.hb-foot2 { animation: hb-step 2.8s ease-in-out 1.4s infinite; }
+@keyframes hb-step {
+  0%, 55%   { opacity: 0.25; }
+  12%, 40%  { opacity: 1; }
+  100%      { opacity: 0.25; }
+}
+.hb-s1 { animation: hb-steam 3.4s ease-out infinite; }
+.hb-s2 { animation: hb-steam 3.4s ease-out 0.6s infinite; }
+.hb-s3 { animation: hb-steam 3.4s ease-out 1.2s infinite; }
+@keyframes hb-steam {
+  0%   { opacity: 0; transform: translateY(2px); }
+  30%  { opacity: 0.8; }
+  80%  { opacity: 0; transform: translateY(-6px); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+.hb-eye { animation: hb-blink 4.6s ease-in-out infinite; }
+.hb-eye2 { animation: hb-blink 4.6s ease-in-out 0.12s infinite; }
+@keyframes hb-blink {
+  0%, 42%, 52%, 100% { transform: scaleY(1); }
+  47%               { transform: scaleY(0.12); }
+}
+
+/* ---------- 入场气闸（第四批重构；boot.js 运行时 createElement 注入，模板零改动） ----------
+   层级：.boot/.wipe 是 90，门要压过它们 → 110。
+   不再是黑墙：两扇深色半透玻璃 + backdrop-filter 起雾，让 .fx 的透视网格地板 /
+   激光尘点 / 角落辉光 / 噪点 / HUD 括号全部透出来照常流动；内容被 html.gate-lock
+   扣在 opacity 0（10-base.css），所以门后读作"机器在转、灯还没开"。
+   中央缝线是全屏唯一主光源：本体辉光 + ::before 上下巡扫高光 + ::after 鼠标聚能；
+   .gate-rungs 是缝两侧的压力刻度，鼠标所在高度那几格额外点亮。
+   --e（0..1 靠近缝的能量）/ --my（鼠标纵向位置）/ --ready（0..1 真就绪进度）
+   三个变量由 boot.js 写：pointermove + rAF 节流，只改 CSS 变量不改布局。
+   .armed = 泄压爆闪，.open = 撕裂开幕（内缘光刃 + 幕面 CRT 扫描纹随扇滑走），
+   起雾在 .open 一并摘掉（backdrop-filter 不参与补间，滑开过程不再重算模糊）。
+   只写"起始态"关键帧（animation both），100% 落到元素基值，避开 minifier
+   删"等于初始值声明"的坑；巡扫的 from 用 translateY(-8%) 而不是 0——恒等值
+   同样有被当冗余丢弃的风险。 */
+.gate {
+  position: fixed; inset: 0; z-index: 110;
+  --e: 0; --my: 50%; --ready: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  perspective: 1400px; /* 幕布的 rotateY 牵引要有真纵深，透视挂在父层 */
+}
+/* 门后的机器：一层自带流动的透视地板。站里真地板 .grid-floor 的位移 --gf-y 只由
+   deck.js 在滚动时写，待机时它是死的；幕布又糊了 9px，于是「机器在背后活着」这件
+   事完全看不出来。这层画在幕布之上、仪表之下，摘门即消失，不去改 deck.js。
+   配方抄 .grid-floor（perspective(1200px) rotateX(62deg)），但只留两格线：
+   一格 120px / 5.5s = 21.8px/s，比真地板（2.4px/s）快近 10 倍——空转的气闸。
+   --gd 必须用 @property 注册才能被关键帧插值；位移只碰 transform（合成器属性）。 */
+@property --gd {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+.gate-depth {
+  position: absolute; left: -30%; right: -30%; bottom: -14vh; height: 130vh;
+  transform-origin: 50% 100%;
+  transform: perspective(1200px) rotateX(62deg) translateY(var(--gd));
+  background-image:
+    linear-gradient(rgba(58, 227, 92, .2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(58, 227, 92, .2) 1px, transparent 1px);
+  background-size: 120px 120px;
+  -webkit-mask-image: linear-gradient(180deg, transparent 8%, #000 42%, #000 100%);
+  mask-image: linear-gradient(180deg, transparent 8%, #000 42%, #000 100%);
+  opacity: calc(.5 + var(--e) * .5);
+  pointer-events: none;
+  animation: gate-depth-run 5.5s linear infinite;
+}
+@keyframes gate-depth-run {
+  from { --gd: 0px; }
+  to { --gd: 120px; }
+}
+.gate-c {
+  position: absolute; top: 0; bottom: 0; width: 50.5%;
+  background: linear-gradient(180deg, rgba(5, 6, 7, .55), rgba(5, 6, 7, .72)),
+    radial-gradient(130% 82% at 50% 108%, rgba(58, 227, 92, .07), transparent 62%);
+  /* 去糊：blur(9px) 把 #laser 粒子、真地板、扫描线全糊成一片雾——赛博朋克要的
+     「机器在门后活着」就是这么被自己抹掉的。2px 只留一层玻璃的呼吸感。 */
+  -webkit-backdrop-filter: blur(2px) saturate(1.2);
+  backdrop-filter: blur(2px) saturate(1.2);
+  transition: transform 0.78s var(--ease), rotate 0.25s linear;
+  will-change: transform;
+}
+/* 鼠标牵引：越靠近中缝（--e→1）两扇越被气压拽向缝线，像被吸住。开幕要松开，但
+   不能写 `rotate: y 0deg`——等于初始值会被 minifier 当冗余删掉，所以乘 var(--e)
+   让它算不出常量（0.02deg 读不出来，等价于归零）。 */
+.gate-l { left: 0; rotate: y calc(var(--e) * 2.4deg); }
+.gate-r { right: 0; rotate: y calc(var(--e) * -2.4deg); }
+.gate.open .gate-c { rotate: y calc(var(--e) * 0.02deg); }
+/* 幕面扫描纹：待机时几乎看不出，开幕随两扇一起滑走 */
+.gate-c::before {
+  content: ""; position: absolute; inset: 0; opacity: 0;
+  background: repeating-linear-gradient(180deg, transparent 0 3px, rgba(58, 227, 92, .045) 3px 4px);
+  transition: opacity 0.2s linear;
+}
+/* 内缘光刃：两扇的接缝边，开幕瞬间亮成一条高压光刃 */
+.gate-c::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 2px; opacity: 0;
+  background: linear-gradient(180deg, rgba(58, 227, 92, .15), var(--d-acid) 26%, var(--d-acid-2) 50%, var(--d-acid) 74%, rgba(58, 227, 92, .15));
+  box-shadow: 0 0 18px rgba(58, 227, 92, .65), 0 0 46px rgba(58, 227, 92, .3);
+  transition: opacity 0.18s linear;
+}
+.gate-l::after { right: 0; }
+.gate-r::after { left: 0; }
+.gate.open .gate-c::before, .gate.open .gate-c::after,
+.gate.armed .gate-c::before, .gate.armed .gate-c::after { opacity: 1; }
+/* .armed = 泄压那 100ms：缝线过曝成偏白的酸绿、内缘光刃提前亮、起雾先散，
+   给"闸要开了"的先导信号；.open 紧接着接手两扇的 transform */
+.gate.armed .gate-seam {
+  background: var(--d-acid-2);
+  /* 泄压那 100ms 顺手做一次 RGB 通道分离：青/品红各偏 3px，是全站唯一一次非绿像素
+     ——它是光学现象不是配色，两帧就随 .open 归位，所以不违反「语法唯一」。 */
+  box-shadow: -3px 0 0 rgba(0, 229, 255, .5), 3px 0 0 rgba(255, 42, 138, .42),
+    0 0 44px rgba(58, 227, 92, .85), 0 0 130px rgba(58, 227, 92, .45);
+}
+/* 色散打在 .gh-label（文案自己的节点）上，不打 .gh-txt：后者被
+   `.gate-hint.live .gh-txt { animation: gh-ready }` 占着，同特异度后来者胜，
+   写在那儿会被 ready 呼吸循环顶掉，等于没做。 */
+.gate.armed .gh-label { animation: gh-aberr .12s steps(2, end) both; }
+@keyframes gh-aberr {
+  from { text-shadow: -2px 0 rgba(0, 229, 255, .85), 2px 0 rgba(255, 42, 138, .7); }
+  to { text-shadow: 0 0 rgba(0, 229, 255, 0), 0 0 rgba(255, 42, 138, 0); }
+}
+.gate.armed .gate-c {
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  background: linear-gradient(180deg, rgba(5, 6, 7, .4), rgba(5, 6, 7, .56));
+}
+.gate.open .gate-c {
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  background: linear-gradient(180deg, rgba(5, 6, 7, .26), rgba(5, 6, 7, .38));
+}
+.gate.open .gate-l { transform: translateX(-101%); }
+.gate.open .gate-r { transform: translateX(101%); }
+.gate-core { position: absolute; inset: 0; transition: opacity 0.22s linear 0.04s; }
+.gate.open .gate-core { opacity: 0; }
+
+/* ---- 气闸口：有头有尾的一道缝，不是贯穿全屏的亮线 ----
+   走查教训（站主原话「中间整的跟虾线一样」）：满高 1px 亮线 + 悬空横杆 + 满高斑马
+   刻度，叠成一根竖线加一个「＋」。改法：缝线元素自己就只占 13%~87%（与量尺同界），
+   端头再用 mask 快速渐隐（7%——上一版是整屏高的 13%，实测口外还有 36% 亮度，
+   眼睛仍把它读成一条贯顶贯底的线）；mask 连子元素（巡扫亮节、能量光斑）和
+   box-shadow 一起裁进闸口内，口外连辉光都不留。
+   进度线收进胶囊底边；刻度收成口两侧的量尺，端头靠同一张 mask 切出四只角括号。 */
+.gate-seam {
+  position: absolute; left: 50%; top: 13%; bottom: 13%; width: 2px; margin-left: -1px;
+  background: var(--d-acid);
+  box-shadow: 0 0 calc(8px + var(--e) * 18px) rgba(58, 227, 92, calc(.3 + var(--e) * .34)),
+    0 0 calc(26px + var(--e) * 56px) rgba(58, 227, 92, calc(.1 + var(--e) * .18));
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+  animation: gate-seam-on 1.6s var(--ease) both;
+}
+@keyframes gate-seam-on { from { opacity: .1; } }
+/* 巡扫高光：一段亮节沿缝上下跑，像激光在给闸口做压力检测 */
+.gate-seam::before {
+  content: ""; position: absolute; left: -1px; top: -22%; width: 4px; height: 20%;
+  background: linear-gradient(180deg, transparent, var(--d-acid-2), transparent);
+  filter: blur(0.6px);
+  animation: gate-run 3.6s var(--ease-in-out-sine) 1.4s infinite alternate;
+}
+@keyframes gate-run { from { transform: translateY(-8%); } to { transform: translateY(620%); } }
+/* 鼠标聚能：贴在缝上的竖向光斑（不是雾）。原来 176×358 的大半径糊成一团绿雾，
+   把胶囊都盖住了，像灯泡不像工程光——收成 26×204 的透镜，核心压细。 */
+.gate-seam::after {
+  content: ""; position: absolute; left: 50%; top: var(--my);
+  width: calc(7px + var(--e) * 19px); height: calc(54px + var(--e) * 150px);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(236, 255, 242, .95), rgba(58, 227, 92, .45) 46%, transparent 82%);
+  opacity: var(--e);
+  transition: opacity 0.3s linear;
+}
+
+/* ---- 量尺：只在气闸口两侧各留一列短刻度，中段被 mask 挖空让位给缝 ---- */
+.gate-rungs {
+  position: absolute; left: 50%; top: 13%; bottom: 13%; width: min(260px, 42vw);
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(180deg, transparent 0 24px, rgba(58, 227, 92, .34) 24px 25px);
+  -webkit-mask-image: linear-gradient(90deg, #000 0 26%, transparent 34% 66%, #000 74% 100%);
+  mask-image: linear-gradient(90deg, #000 0 26%, transparent 34% 66%, #000 74% 100%);
+  opacity: calc(.2 + var(--e) * .5);
+  animation: gate-rungs-on 2.4s var(--ease) both;
+}
+@keyframes gate-rungs-on { from { opacity: 0; } }
+/* 端头括号：整圈 border，被上面那张 mask 切掉中段，剩下的就是四只 HUD 角括号 */
+.gate-rungs::before, .gate-rungs::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 13px;
+  border: 1px solid rgba(58, 227, 92, .5);
+}
+.gate-rungs::before { top: 0; border-bottom: 0; }
+.gate-rungs::after { bottom: 0; border-top: 0; }
+
+/* ---- 自检日志：boot.js 逐行注入，每行都是当场取到的真读数 ---- */
+.gate-log {
+  position: absolute; left: var(--pad-x); bottom: clamp(84px, 13vh, 150px);
+  display: grid; gap: 5px;
+  font-family: var(--f-mono); font-size: clamp(9.5px, .78vw, 11.5px);
+  letter-spacing: .1em; line-height: 1.35;
+  animation: gate-log-on 1.1s var(--ease) .55s both;
+}
+@keyframes gate-log-on { from { opacity: 0; transform: translateY(10px); filter: blur(5px); } }
+.gl-row {
+  /* 关键列用 max-content，不用定长 em：定长窄了会让 "> FONTS" 这类带 ">" 的标签
+     折行（390px 实测就是这样），宽了又在窄屏把整块日志挤爆 */
+  display: grid; grid-template-columns: max-content auto; gap: .7em; align-items: baseline;
+  animation: gl-in 0.42s var(--ease) both;
+  animation-delay: calc(0.6s + var(--r, 0) * 130ms);
+}
+@keyframes gl-in { from { opacity: 0; transform: translateX(-14px); } }
+.gl-k { color: var(--d-dim); font-style: normal; white-space: nowrap; }
+.gl-v { color: var(--d-mute); font-weight: 400; }
+.gl-row.set .gl-v { color: var(--d-acid); animation: gl-lock 0.36s steps(3) both; }
+@keyframes gl-lock { from { opacity: .18; } to { opacity: 1; } }
+
+/* ---- 提示件：胶囊自带底边充电线 + 状态行（进度不再是一根悬空横杆） ---- */
+.gate-hint {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: grid; justify-items: center; gap: 11px;
+  font-family: var(--f-mono); white-space: nowrap;
+  animation: gate-hint-on 1.4s var(--ease) .7s both;
+}
+@keyframes gate-hint-on { from { opacity: 0; filter: blur(6px); } }
+.gh-bar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: rgba(58, 227, 92, .14);
+}
+.gh-bar::after {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 100%;
+  background: var(--d-acid); box-shadow: 0 0 8px rgba(58, 227, 92, .5);
+  transform: scaleX(var(--ready)); transform-origin: left;
+  transition: transform 0.45s var(--ease);
+}
+.gh-txt {
+  position: relative; overflow: hidden;
+  padding: 9px 16px 12px 19px; /* letter-spacing 会在末字后补一截空距，左 padding 多还一点；底部多 3px 让给进度线 */
+  border: 1px solid rgba(58, 227, 92, calc(.32 + var(--e) * .5));
+  background: rgba(5, 6, 7, .94); /* 近实底：缝线在胶囊下层穿过，半透会让亮线从字中间透出来（读图实测） */
+  color: rgba(58, 227, 92, calc(.66 + var(--e) * .34));
+  font-size: clamp(10px, 1.2vw, 13px); font-weight: 700; letter-spacing: .3em;
+  box-shadow: 0 0 calc(4px + var(--e) * 20px) rgba(58, 227, 92, calc(.06 + var(--e) * .18)),
+    inset 0 0 calc(2px + var(--e) * 14px) rgba(58, 227, 92, calc(.03 + var(--e) * .1));
+  transition: border-color 0.25s linear, color 0.25s linear, box-shadow 0.25s linear;
+}
+.gh-txt::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 40%;
+  background: linear-gradient(105deg, transparent, rgba(210, 255, 224, .26), transparent);
+  transform: translateX(-260%);
+}
+.gate-hint:hover .gh-txt::before, .gate:focus-visible .gh-txt::before { animation: gh-glint 0.78s var(--ease) both; }
+@keyframes gh-glint { from { transform: translateX(-260%); } to { transform: translateX(360%); } }
+.gate-hint.live .gh-txt { animation: gh-ready 2.2s ease-in-out infinite; }
+@keyframes gh-ready { 0%, 100% { opacity: .8; } 50% { opacity: 1; } }
+.gh-stat { color: var(--d-dim); font-size: clamp(9px, .8vw, 11px); letter-spacing: .22em; }
+.gate:focus-visible { outline: none; }
+html.gate-lock .deck { overflow-y: hidden; }
+
+/* ---------- 粒子显影 hold 位（fx.js 加/摘，只管按住透明度，别的一律不碰） ----------
+   (0,4,0) 特异性压过 10-base 的 html.js .rv(0,2,0) 与 html.js .on .rv(0,3,0)；
+   摘掉后 .rv 自带 opacity .9s transition 接管，文字原地淡入，不新增 transform。 */
+html.js .hero-lines.pz-hold .display { opacity: 0; }
+
+/* ---------- 降级 ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .glow, .grain { animation: none; }
+  .grid-floor, .scan { animation: none; } /* 地板停流动留静态，扫描线基态 opacity 0 直接隐身 */
+  .rv, .hair { transition: none; }
+  .rv { opacity: 1; transform: none; }
+  .hair { transform: scaleX(1); }
+  body.booting .boot i, body.wiping .wipe i { animation: none; }
+  .boot, .wipe { display: none; }
+  /* 幕布的同向位移（10-base.css 里 body.wiping / html.wipeout 给 .deck/.sub-wrap
+     写的 transform+opacity）也要一并掐掉：fx.js 在 reduce 下根本不加 wiping、
+     head 内联脚本也不加 wipeout，但 bfcache 回退可能带着旧类名复活，留这道保险。 */
+  body.wiping .deck, body.wiping .sub-wrap,
+  html.wipeout .deck, html.wipeout .sub-wrap {
+    transition: none;
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+  .gate { display: none; } /* JS 已跳门；万一残留节点兜底 */
+  .gate * { animation: none; } /* 巡扫/刻度/日志/就绪呼吸一律停，静态兜底即成品 */
+  .hb-ball, .hb-shadow, .hb-z1, .hb-z2, .hb-z3, .hb-w1, .hb-w2, .hb-w3, .hb-foot1, .hb-foot2, .hb-s1, .hb-s2, .hb-s3, .hb-eye { animation: none; }
+}
+
+/* ---------- 纸飞机原生光标（旧站方案恢复 + hover 微缩放一档，纯 CSS） ----------
+   自研 .cur 十字光环（DOM/JS/CSS）已整体拆除，回归原生 cursor:url()：
+     body 默认 plane.png（机头尖 2,2 → hotspot 2 2，像素级核实过）
+     可点元素 link.png（同机头 2 2），:hover 换 link-lg.png —— 原生光标
+       吃不了 CSS transform，微缩放只能靠预放大图：link.png LANCZOS 1.25×
+       = 40×40，机头尖 2×1.25=2.5 → hotspot 取整 3 3（static/ 直服，实时生效）
+     文本输入 text.png（I 梁居中 32×32 → hotspot 16 16）
+   触屏：整段包在 (hover:hover)，(hover:none) 设备一条都不命中，原生光标不动；
+   fx.js 侧的 (pointer:coarse) 守卫随光标段一起删除，其余特效守卫未动。
+   兜底说明：.cur 基座规则全部只在本文件（10-base.css 里没有 .cur，已 grep 核实），
+   故无需 display:none 覆盖；90-media.css 的 `.cur{display:none!important}` 与
+   50-sub.css 打印段 `body:has(.page-resume) .cur` 已成死选择器，无害，留待主会话清理。
+   已知够不着的：giscus 是跨文档 iframe，父页 cursor 管不进留言区内部（浏览器限制，
+   其内保持系统默认箭头）；10-base `.dots .dot`、40-cards `.hob-sort`/`.tape-prog`
+   自带 cursor:pointer 且特异性/层叠压过本段元素选择器——那两个文件不归本任务，未动。 */
+@media (hover: hover) {
+  body { cursor: url("/cursors/plane.png") 2 2, auto; }
+  a, button, label, summary, [role="button"], .pill, .chan-row, .work-row {
+    cursor: url("/cursors/link.png") 2 2, pointer;
+  }
+  a:hover, button:hover, [role="button"]:hover {
+    cursor: url("/cursors/link-lg.png") 3 3, pointer;
+  }
+  input, textarea, select, [contenteditable] {
+    cursor: url("/cursors/text.png") 16 16, text;
+  }
+}
+
+/* ---------- 滚动进度发丝线（自然滑动引擎，deck.js 生成挂 body 尾） ---------- */
+.scroll-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 56;
+  pointer-events: none;
+}
+.scroll-rail i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, rgba(58, 227, 92, 0.2), var(--d-acid));
+  box-shadow: 0 0 10px rgba(58, 227, 92, 0.35);
+}
+
+/* ============================================================
+   R4 · 频道调谐换台（2026-11）—— deck.js setActive 换卡瞬间给入场卡
+   挂 .tuning（240ms 后摘）：行头编号+大字一次静电抖动 + RGB 分离，
+   与电台切台噪点同一世界观；HUD 跳字与 blip("tune") 在 JS 侧。
+   reduced/touch 由 deck.js 门控不会挂 class，CSS 侧只是双保险。
+   ============================================================ */
+.card.tuning .row-head .num,
+.card.tuning .row-head .display {
+  animation: tune-glitch 0.22s linear 1;
+}
+@keyframes tune-glitch {
+  0%   { transform: translateX(0);   text-shadow: none; }
+  22%  { transform: translateX(-1px); text-shadow: 2px 0 var(--d-acid); }
+  48%  { transform: translateX(1px);  text-shadow: -2px 0 var(--d-acid-soft); }
+  74%  { transform: translateX(-1px); text-shadow: 1px 0 var(--d-acid); }
+  100% { transform: translateX(0);   text-shadow: none; }
+}

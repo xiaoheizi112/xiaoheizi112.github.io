@@ -1,37 +1,82 @@
 # Music Playlist - 慢公子的小站
-# XXXTENTACION 五首；mp3 在 static/music/，封面 ?=粉色蝴蝶（Apple Music CDN）、17=蓝色（网易云）
+# mp3 在 static/music/，封面在 static/music/covers/（同名 .jpg，来自 iTunes/Deezer 官方封面）
+# freq = 03 电台调谐面板的 FM 频道（升序对应 CH-01..09，刻度带 87.5–108.0）
+# short = 频道列表窄列用的短标题（避免 CSS 截断断在难看的音节上；示波器/播放条仍用全名）
+# 旧 XXXTENTACION 五首（sad/moonlight/everybody-dies/whoa/numb.mp3）已出 playlist，文件仍留在 static/music/，要找回把条目加回即可
 
-- title: "SAD!"
-  artist: "XXXTENTACION"
-  desc: "他最出名的一首，旋律里裹着难过——那句没说完的，世界替他唱完了。"
-  desc_en: "His most famous song, sadness folded into the melody - the line he never finished, the world sang out for him."
-  url: "music/sad.mp3"
-  cover: "music/covers/q.jpg"
+- title: "Lose My Mind (feat. Doja Cat)"
+  short: "Lose My Mind"
+  artist: "Don Toliver & Doja Cat"
+  freq: 88.4
+  desc: "夜色里的循环，人声切片一圈圈把理智绕丢。"
+  desc_en: "A night-drive loop - vocal chops circling your reason away."
+  url: "music/lose-my-mind.mp3"
+  cover: "music/covers/lose-my-mind.jpg"
 
-- title: "moonlight"
-  artist: "XXXTENTACION"
-  desc: "几首里最轻快的一首，鼓点跳跃，像他也曾短暂忘掉过什么。"
-  desc_en: "The lightest of the bunch, drums bouncing, as if for a moment he forgot something."
-  url: "music/moonlight.mp3"
-  cover: "music/covers/q.jpg"
+- title: "Lost Memory"
+  artist: "VØJ & Narvent"
+  freq: 90.2
+  desc: "俄式暗电子，像把删掉的记忆一帧帧倒放。"
+  desc_en: "Russian dark electronica - replaying a deleted memory, frame by frame."
+  url: "music/lost-memory.mp3"
+  cover: "music/covers/lost-memory.jpg"
 
-- title: "Everybody Dies in Their Nightmares"
-  artist: "XXXTENTACION"
-  desc: "写失眠和噩梦的那一首，像贴着耳朵唱——他从不修饰自己。"
-  desc_en: "The one about insomnia and nightmares, sung right against your ear - he never dressed himself up."
-  url: "music/everybody-dies.mp3"
-  cover: "music/covers/17.jpg"
+- title: "maybe (prod. lukrative & mixed matches)"
+  short: "maybe"
+  artist: "mixed matches"
+  freq: 92.7
+  desc: "lo-fi 毛边糊着人声，一句没说完的 maybe。"
+  desc_en: "Lo-fi fuzz around a blurred voice - the 'maybe' left unfinished."
+  url: "music/maybe.mp3"
+  cover: "music/covers/maybe.jpg"
 
-- title: "whoa (mind in awe)"
-  artist: "XXXTENTACION"
-  desc: "只有 1 分 46 秒，给自己的精神状态，他只说了这一句。"
-  desc_en: "Just 1 minute 46 seconds long - the only thing he said about the state of his mind."
-  url: "music/whoa.mp3"
-  cover: "music/covers/q.jpg"
+- title: "OVERLOAD!"
+  artist: "DEITI"
+  freq: 95.1
+  desc: "名字说明一切：系统过载，节拍还在硬撑。"
+  desc_en: "The title says it all - system overloaded, beat still standing."
+  url: "music/overload.mp3"
+  cover: "music/covers/overload.jpg"
 
-- title: "NUMB"
-  artist: "XXXTENTACION"
-  desc: "讲名气带来的麻木，和他把自己裹起来的方式。"
-  desc_en: "About the numbness fame brings, and how he wrapped himself away."
-  url: "music/numb.mp3"
-  cover: "music/covers/q.jpg"
+- title: "passion (Speed Up)"
+  short: "passion (Sped Up)"
+  artist: "silent anthem & heart embrace"
+  freq: 97.3
+  desc: "加速版的肾上腺素，油门焊死的那种心动。"
+  desc_en: "Sped-up adrenaline - the kind of thrill with the throttle welded down."
+  url: "music/passion-speed-up.mp3"
+  cover: "music/covers/passion-speed-up.jpg"
+
+- title: "Stranger Things (Main Theme)"
+  short: "Stranger Things"
+  artist: "Kyle Dixon & Michael Stein"
+  freq: 99.8
+  desc: "合成器琶音一响，直接拽回 80 年代的霓虹与颠倒世界。"
+  desc_en: "One arpeggio and you're back in the '80s - neon and the Upside Down."
+  url: "music/stranger-things.mp3"
+  cover: "music/covers/stranger-things.jpg"
+
+- title: "Wasted (Explicit)"
+  short: "Wasted"
+  artist: "huken & Murkish"
+  freq: 102.4
+  desc: "慵懒 trap，把浪费时间办成正经事。"
+  desc_en: "Lazy trap flow - making a business out of doing nothing."
+  url: "music/wasted.mp3"
+  cover: "music/covers/wasted.jpg"
+
+- title: "Blinding Lights"
+  artist: "The Weeknd"
+  freq: 104.9
+  desc: "80 年代合成流行套着现代心跳，刺眼，但你一直在跑。"
+  desc_en: "80s synth-pop with a modern pulse - dazzling, and you keep running."
+  url: "music/blinding-lights.mp3"
+  cover: "music/covers/blinding-lights.jpg"
+
+- title: "Final wish"
+  artist: "ooxygen"
+  freq: 107.2
+  desc: "最后一个愿望，轻声音量的摇篮曲。"
+  desc_en: "The last wish - a soft-voiced lullaby."
+  url: "music/final-wish.mp3"
+  cover: "music/covers/final-wish.jpg"

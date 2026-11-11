@@ -1,32 +1,43 @@
 baseURL = 'https://xiaoheizi112.github.io/'
-title = '慢公子 · 晴日小站'
+title = '慢公子 · THINK WILD, BUILD COOL'
 locale = 'zh-CN'
 defaultContentLanguage = 'zh-cn'
 hasCJKLanguage = true
 enableEmoji = true
 enableRobotsTXT = true
-theme = 'PaperMod'
+# 2026-11 真重构：模板全部自绘（layouts/），不再挂 PaperMod。
+# themes/PaperMod 目录暂留作参照，正式提交时用 git rm 摘掉 submodule。
+
+# 文章区下线后（2026-11）全站无人打 tag，直接关掉分类学产出，避免空 /tags/ 页
+disableKinds = ['taxonomy', 'term']
 
 # 只用标签，不用分类（避免 sitemap 里出现空的 /categories/）
 [taxonomies]
 tag = 'tags'
 
-# 站内搜索（PaperMod 内置 fastsearch）：首页额外产出 index.json 供前端检索
+# 产出清单（2026-11 补表头并写全）
+#   1. 这行此前漏了 [outputs] 表头，被当成 [taxonomies] 的键解析 → 整条无效，
+#      首页其实一直在走 Hugo 默认 HTML+RSS+json，注释里说的「index.json 已删」并没真删。
+#   2. Hugo 的 [outputs] 只认「kind」：home / page / section / taxonomy / term。
+#      写 `posts = [...]` 会报 WARN Unknown kind "posts"；要按板块定制，去该板块
+#      _index.md 的 front matter 里写 outputs。所以这里统一 section 级：
+#      /posts/ 出 HTML + RSS（列表页 FEED 读数行的落点），顺手把全站板块的 index.json 一起摘掉。
 [outputs]
-home = ['HTML', 'RSS', 'JSON']
-
-[pagination]
-pagerSize = 8
+home = ['HTML', 'RSS']
+section = ['HTML', 'RSS']
 
 [params]
 env = 'production'
 dateFormat = '2006年1月2日'
-description = '一个很懒的人的博客,想起来才更新。'
+description = '白天编译世界，夜里编译自己。A resident process of an engineer.'
 author = '慢公子'
-# 简历板块总开关：false = 导航/命令面板不出现、/resume/ 路由不生成（文件都保留）。
-# 要恢复：改 true，并删掉 content/resume/_index.md 里的 [_build] 段。
-showResume = false
-defaultTheme = 'auto'
+# 简历板块总开关：true = 首页 CONTACT 卡与 404 页出现入口（2026-11 起公开）。
+# 要隐藏：改 false，并在 content/resume/_index.md 加回 publishDate = 2099-01-01。
+showResume = true
+# 单主题：全站固定深色（2026-11 重构）。切换按钮已移除，localStorage.pref-theme 不再读取，
+# 具体令牌与降级见 assets/css/deck/10-base.css 头注释。
+defaultTheme = 'dark'
+disableThemeToggle = true
 ShowReadingTime = true
 ShowWordCount = true
 ShowBreadCrumbs = true
@@ -35,9 +46,11 @@ ShowCodeCopyButtons = true
 ShowShareButtons = false
 ShowToc = true
 TocOpen = false
+# 文章页评论开关：layouts/_default/single.html 用 (.Param "comments") 门控 comments.html。
+# 留言板页面（/message/）不读这个参数，它自己直接调 comments.html。
+comments = true
 
-# 全站兜底 OG 图：文章用各自 frontmatter 的 images 参数（scripts/gen_og_cards.py 生成），
-# 其余页面（列表/标签/归档等）回退到这张
+# 全站兜底 OG 图（分享卡片用）；文章体系已删，全站分享都回退到这张
 images = ["images/og-cover.png"]
 
 # 文章评论（giscus，GitHub Discussions 驱动）。启用步骤见 layouts/_partials/comments.html 头注释：
@@ -45,19 +58,21 @@ images = ["images/og-cover.png"]
 #   2. 装 giscus app，去 giscus.app 选仓库/类别，生成 repo-id 与 category-id
 #   3. 填下面字段并把 enable 改成 true
 [params.giscus]
-enable = false
+enable = true
 repo = "xiaoheizi112/xiaoheizi112.github.io"
-repoId = ""
+repoId = "R_kgDOUkujow"
 category = "Announcements"
-categoryId = ""
+categoryId = "DIC_kwDOUkujo84DKdiA"
 mapping = "pathname"
 
 [params.assets]
 favicon = "favicon.svg"
+# 浏览器地址栏取色：跟 deck 纯黑底色一致
+theme_color = "#050607"
 
 [params.homeInfoParams]
 Title = '慢公子的小站'
-Content = '一个晒太阳、写笔记的小站。想起来才更新。'
+Content = '一台个人终端：THINK WILD, BUILD COOL, SHIP SLOW。想起来才更新。'
 
 [[params.socialIcons]]
 name = 'github'
@@ -65,52 +80,21 @@ url = 'https://github.com/xiaoheizi112'
 
 [menu]
 [[menu.main]]
-identifier = 'posts'
-name = '文章'
-url = '/posts/'
-weight = 10
-[[menu.main]]
-identifier = 'tracks'
-name = '路线'
-url = '/tracks/'
-weight = 12
-[[menu.main]]
-identifier = 'archives'
-name = '归档'
-url = '/archives/'
-weight = 15
-[[menu.main]]
-identifier = 'tags'
-name = '标签'
-url = '/tags/'
-weight = 20
-[[menu.main]]
-identifier = 'search'
-name = '搜索'
-url = '/search/'
-weight = 22
-[[menu.main]]
-identifier = 'photos'
-name = '相册'
-url = '/photos/'
-weight = 25
-[[menu.main]]
-identifier = 'todo'
-name = '要事'
-url = '/todo/'
-weight = 28
-[[menu.main]]
-identifier = 'about'
-name = '关于'
-url = '/about/'
-weight = 30
+identifier = 'message'
+name = '留言'
+url = '/message/'
+weight = 29
 
 [markup]
 [markup.highlight]
 codeFences = true
 guessSyntax = true
 lineNos = false
-style = 'monokai'
+# noClasses = false：代码高亮改成输出 class（而不是内联 style），配色统一由
+# assets/css/extended/00-holo.css 里的 .chroma 规则接管（黑底 + 荧光绿点缀）。
+# 注意：改成 class 后 hugo.toml 的 style 参数不再生效，主题固定用自带的 chroma 调色板，
+# 所以这里删掉了原来那行 style = 'monokai'。
+noClasses = false
 [markup.goldmark.renderer]
 unsafe = true
 

@@ -124,7 +124,6 @@ education:
     degree: "本科"
     period: "2021.09 – 2025.06"
     courses: ["C 语言程序设计", "PLC", "单片机原理及其应用", "DSP 控制器及其应用"]
-    honors: ["大学英语四级（CET-4）"]
 
 # 其他：text 与 items 二选一；带 href 会渲染成链接
 extras:
@@ -133,12 +132,6 @@ extras:
   - label: "技术写作"
     text: "在个人博客整理 Qt / PLC / 机器视觉 / Python 学习笔记"
     href: "/"
-
-# PDF 下载：href 是站点内的文件路径，filename 是别人点下载时看到的文件名
-pdf:
-  href: "/files/resume-qt-heyujie.pdf"
-  filename: "简历-Qt开发工程师-何宇杰.pdf"
-  label: "下载 PDF 简历"
 
 # 搜索与分享
 seo:

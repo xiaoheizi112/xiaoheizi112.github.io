@@ -1,0 +1,310 @@
+/* ============================================================
+   20-deck.css —— 卡片甲板布局 + 七屏内容（Phase 0，主会话）
+   首页 = .deck 竖滚容器，每屏一张 .card。2026-11 站主令：弃 scroll-snap
+   卡片吸附，改自然滑动；纵深由 deck.js 逐帧滚动驱动（见下「滚动纵深」）。
+   卡片内部细节样式在 40-cards.css（P1）；子页在 50-sub.css（P2）。
+   ============================================================ */
+
+.deck {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.deck::-webkit-scrollbar { display: none; }
+
+.card {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10vh var(--pad-x) 12vh;
+  z-index: 1;
+}
+
+/* 滚动纵深（自然滑动连续版）：deck.js 的单条 rAF 逐帧算卡心相对视口心的
+   归一化偏移 pv，写 --rk-ty/--rk-sc/--rk-op/--rk-flt——远方卡沉下去、缩小、
+   压暗，行至视口中央归位全亮。无 transition：每帧都是 JS 直接写值，
+   过渡只会糊（旧的 .active/.tucked 阶梯姿态随吸附一起退役）。
+   reduced / 无 JS：变量取默认（0%/1/1/none），页面自然全平。 */
+html.js .card {
+  transform: translateY(var(--rk-ty, 0%)) scale(var(--rk-sc, 1));
+  opacity: var(--rk-op, 1);
+  filter: var(--rk-flt, none);
+}
+
+/* 卡内视差漂移层：deck.js 给 [data-par="速度px"] 逐帧写 --py，
+   水印/hero 大字/行式标题随滚动慢速错动，制造层次。 */
+html.js [data-par] { transform: translateY(var(--py, 0px)); }
+
+/* 每卡左上角的编号水印（超大空心，jiejoe 式） */
+.card-no {
+  position: absolute;
+  top: 8vh;
+  left: var(--pad-x);
+  font-family: var(--f-display);
+  font-size: clamp(72px, 12vw, 190px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--d-line);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ---------- R4 · 缝合地平线（2026-11）：卡顶边界发丝线。
+   deck.js 注入 + 逐帧写 --sg（0~1 点燃度，reduced 时 CSS 固定半亮）。
+   线色发丝↔酸绿插值、辉光随 sg；中央 mono 刻度字 CH.0N ▸ CH.0N 骑在线
+   上（底色切断线身）；两侧短刻度齿。全部走自定义属性，minifier 无
+   「等于初始值」可删。 ---------- */
+.seam {
+  --sg: 0;
+  position: absolute;
+  top: 0;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  height: 1px;
+  z-index: 3;
+  pointer-events: none;
+  user-select: none;
+  background: color-mix(in srgb, var(--d-acid) calc(var(--sg) * 100%), var(--d-line));
+  box-shadow: 0 0 calc(var(--sg) * 18px) color-mix(in srgb, var(--d-acid-glow) calc(var(--sg) * 100%), transparent);
+  opacity: calc(0.25 + var(--sg) * 0.75);
+}
+.seam::before,
+.seam::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  width: min(22%, 170px);
+  height: 7px;
+  opacity: var(--sg);
+  background: repeating-linear-gradient(90deg,
+      color-mix(in srgb, var(--d-acid) calc(var(--sg) * 70%), var(--d-line)) 0 1px,
+      transparent 1px 22px);
+}
+.seam::before { left: 0; }
+.seam::after { right: 0; }
+.seam b {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  white-space: nowrap;
+  padding: 2px 14px;
+  background: var(--d-void);
+  color: color-mix(in srgb, var(--d-acid) calc(var(--sg) * 100%), var(--d-dim));
+  opacity: calc(var(--sg) * 0.95);
+}
+
+/* ---------- 01 HOME ---------- */
+
+/* padding-right 与 .card-body 同源（56px 给右侧进度点让位）：
+   否则 01 的 .hair 会比 02-08 宽出 56px，跨卡发丝线右缘不齐。窄屏档位随 card-body 一起收在 90-media.css。 */
+.hero { max-width: 1240px; width: 100%; margin: 0 auto; padding-right: 56px; }
+.hero-lines { margin: 3vh 0 4vh; }
+.hero-lines .display {
+  font-size: clamp(58px, 11.5vw, 158px);
+  display: block;
+}
+.hero-sub {
+  max-width: 560px;
+  color: var(--d-mute);
+  font-size: 15px;
+}
+.hero-sub b { color: var(--d-white); font-weight: 500; }
+
+/* ---------- 通用行式卡（02/05/07 用） ---------- */
+
+.row-head {
+  display: flex;
+  align-items: baseline;
+  gap: 22px;
+  margin-bottom: 5vh;
+}
+.row-head .num {
+  font-family: var(--f-display);
+  font-size: clamp(52px, 7vw, 96px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--d-acid);
+}
+.row-head .display { font-size: clamp(40px, 6vw, 84px); }
+.row-head .cn {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--d-dim);
+}
+
+/* 方案 A（2026-11）：删掉 max-width:900px——行线必须与 .hair 同宽，
+   否则宽屏下 hair-list 短一头。子页受 .sub-wrap(880) 容器约束不受影响。 */
+.hair-list { list-style: none; }
+.hair-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 4px;
+  border-top: 1px solid var(--d-line);
+  transition: padding-left 0.4s var(--ease), border-color 0.4s;
+}
+.hair-list li:last-child { border-bottom: 1px solid var(--d-line); }
+.hair-list li:hover { padding-left: 16px; border-color: var(--d-acid); }
+.hair-list .k { font-family: var(--f-display); font-size: clamp(20px, 2.6vw, 30px); letter-spacing: 0.02em; }
+.hair-list .v { font-family: var(--f-mono); font-size: 12px; color: var(--d-mute); letter-spacing: 0.08em; text-align: right; }
+.hair-list li:hover .k { color: var(--d-acid); }
+
+.card-body { max-width: 1240px; width: 100%; margin: 0 auto; padding-right: 56px; }
+.card-note { color: var(--d-mute); max-width: 620px; font-size: 15px; margin-bottom: 4vh; }
+.card-note b { color: var(--d-white); font-weight: 500; }
+
+/* 首页卡 07 底部小字条 */
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  margin-top: 6vh;
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+}
+.foot a { color: var(--d-mute); transition: color 0.3s; }
+.foot a:hover { color: var(--d-acid); }
+
+/* ---------- 03 SIGNALS / 04 INTERESTS：容器内部样式全在 40-cards.css ---------- */
+/* （fan-stage 卡堆已随电台面板重构退役，2026-11） */
+
+/* ---------- 06 GUESTBOOK：居中大 CTA ---------- */
+
+.cta-center { text-align: center; }
+.cta-center .display { font-size: clamp(48px, 8vw, 120px); }
+.cta-center .pill { margin-top: 5vh; }
+
+/* ---------- 08 GUESTBOOK 入场：一条因果链（2026-11 参照 darkroom.engineering 幕布手法）----
+   幕布 = 父级 clip-path 自下而上揭开，光带 ::after 骑在同一条边上（top 走 100%→0，
+   与 clip 的 top inset 同步），大字仍交给既有 .rv 的 --i 错峰——不另起第二段动画。
+   正向注册（只写在 no-preference 里），reduce/无 JS 根本不注册=静态成品。
+   不用 fill:both：结束后 clip 归位，别把 .pill 的 hover 辉光（0 0 42px）裁掉。 */
+.cta-center { position: relative; }
+.cta-center::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--d-acid), transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html.js .card.on .cta-center { animation: cv-wipe 0.72s linear; }
+  html.js .card.on .cta-center::after { animation: cv-edge 0.72s linear; }
+}
+/* 5 停指数采样（τ≈230ms，D=720ms 归一化后 .567/.827/.946/1）：dr 实测幕布不是
+   贝塞尔而是 e^-t/τ 逼近，配 linear 逐停插值就是那条曲线本身，尾段自己渐停。
+   cv-edge 的 top 停位与 clip 的 inset 顶边逐停对齐、时长也统一 0.72s——
+   原来 .72/.8 两个时长加同一条 cubic，光带和揭开边会越走越歪。 */
+@keyframes cv-wipe {
+  0% { clip-path: inset(100% 0 0 0); }
+  25% { clip-path: inset(43.3% 0 0 0); }
+  50% { clip-path: inset(17.3% 0 0 0); }
+  75% { clip-path: inset(5.44% 0 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+@keyframes cv-edge {
+  0% { top: 100%; opacity: .9; }
+  25% { top: 43.3%; opacity: .55; }
+  50% { top: 17.3%; opacity: .3; }
+  75% { top: 5.44%; opacity: .12; }
+  100% { top: 0; opacity: 0; }
+}
+
+/* ---------- 子页壳（is-sub） ---------- */
+
+.sub-wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16vh var(--pad-x) 12vh;
+}
+.sub-wrap .row-head { margin-bottom: 6vh; }
+/* 子页正文里的返回件：从「一行灰字」升成 HUD 胶囊（描边 + hover 辉光）。
+   2026-11 站主反馈：原来只有一行 --d-dim 小字，看不见，手指直接去按右上角
+   的 CONTACT（那颗会把人送到首页末尾）。chrome 已补 HOME 胶囊，这里同步
+   把这个站内返回键做实——同一个工程机语言，不另起组件。 */
+.back-line {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  padding: 9px 18px;
+  border: 1px solid var(--d-line-2);
+  border-radius: 999px;
+  margin-bottom: 6vh;
+  transition: color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.back-line:hover { color: var(--d-acid); border-color: var(--d-acid); box-shadow: var(--d-acid-glow); }
+
+/* ============================================================
+   灵感第一批（2026-11 画廊）：竖线分栏 / 括号巨字 / 四角 HUD /
+   编号水印与角注 / SCROLL 描边按钮 / 章节名牌
+   —— 编号水印与 NN/07 角注由 deck.js 注入，样式在这里
+   ============================================================ */
+
+/* MuRay 式竖向发丝分栏线已删（2026-11 站主令：01 左右竖线不要）。 */
+
+/* (RED) 式括号：实心酸绿括号抱着空心巨字 */
+.par { color: var(--d-acid); -webkit-text-stroke: 0; font-style: normal; }
+
+/* Jason Ng 式四角 HUD 读数 */
+.hud {
+  position: fixed;
+  bottom: 20px;
+  z-index: 41;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  pointer-events: none;
+}
+.hud-bl { left: 22px; }
+.hud-br { right: 22px; }
+.hud b { font-weight: 400; color: var(--d-acid); }
+.hud .live {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background: var(--d-acid);
+  box-shadow: var(--d-acid-glow);
+  vertical-align: 1px;
+  animation: hud-blink 2.4s steps(2, start) infinite;
+}
+@keyframes hud-blink { 50% { opacity: 0.2; } }
+body.is-sub .hud { display: none; }
+@media (prefers-reduced-motion: reduce) { .hud .live { animation: none; } }
+
+/* NN / 07 角注（右上角小字） */
+.card-meta {
+  position: absolute;
+  top: 9.5vh;
+  right: var(--pad-x);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  pointer-events: none;
+  user-select: none;
+}
+
+

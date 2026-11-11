@@ -1,0 +1,406 @@
+/* ============================================================
+   10-base.css —— 令牌 + 复位 + 排版 + 常驻件（Phase 0，主会话）
+   全站唯一令牌源。jiejoe 式：纯黑底、荧光绿、超大压缩字、发丝线。
+   ============================================================ */
+
+:root {
+  /* 底色三阶 */
+  --d-void: #050607;
+  --d-void-2: #0a0d0e;
+  --d-card: #0d1112;
+  /* 文字 */
+  --d-white: #f2f5f3;
+  --d-mute: #97a49e;
+  --d-dim: #6b7b74; /* 2026-11 体检：#55625c 对底只 3.2:1，提到 4.5:1 让 HUD 微字可读 */
+  /* 荧光绿系 */
+  --d-acid: #3ae35c;
+  --d-acid-2: #86f2a0;
+  --d-acid-soft: rgba(58, 227, 92, 0.14);
+  --d-acid-glow: 0 0 24px rgba(58, 227, 92, 0.45);
+  /* 语义警示色（2026-11 体检补登记）：全站唯一警报红 = --d-alert，别再另调红 */
+  --d-warn: #f5b740;    /* WAITING 态 / MEM 齿条——暖黄「需注意」 */
+  --d-alert: #ff5f56;   /* HIGH LOAD 灯与文字 / 复制失败 / 终端报错 */
+  --d-on-acid: #04170b; /* 酸绿高亮底上的反色文字图形（htop 选中行） */
+  /* 线 */
+  --d-line: rgba(242, 245, 243, 0.16);
+  --d-line-2: rgba(242, 245, 243, 0.3);
+  /* 字体分工：Anton 大字 / Mono 编号标签 / Noto 正文 */
+  --f-display: "Anton", "Noto Sans SC", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, monospace;
+  --f-body: "Noto Sans SC", system-ui, sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* 缓动令牌（参照 darkroom.engineering 的 Penner 集；组件里不许写裸 cubic-bezier，要新曲线就先在这加） */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+  /* 气闸缝线巡扫（往复要对称缓起缓停）与扫描通电光带（起步快、落定稳） */
+  --ease-in-out-sine: cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  --ease-sweep: cubic-bezier(0.42, 0.04, 0.3, 1);
+  /* 2026-11 体检补登记：徽章扫描光束的等速往复（scan）与图标弹跳球的缓落（ball） */
+  --ease-scan: cubic-bezier(0.4, 0, 0.6, 1);
+  --ease-ball: cubic-bezier(0.3, 0.1, 0.6, 1);
+  --pad-x: clamp(20px, 6vw, 96px);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--d-void);
+  color: var(--d-white);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden; /* deck 模式：滚动在 .deck 容器 */
+}
+
+body.is-sub { overflow: auto; }
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+img { max-width: 100%; display: block; }
+::selection { background: var(--d-acid); color: var(--d-void); }
+
+/* ---------- 排版元件 ---------- */
+
+.mono { font-family: var(--f-mono); }
+
+.eyebrow {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+.eyebrow b { color: var(--d-acid); font-weight: 700; }
+
+/* 超大展示字：solid 白 / acid 绿 / outline 空心 */
+.display {
+  font-family: var(--f-display);
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: 0.012em;
+  text-transform: uppercase;
+}
+.display.solid { color: var(--d-white); }
+.display.acid { color: var(--d-acid); text-shadow: 0 0 34px rgba(58, 227, 92, 0.35); }
+.display.outline {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--d-acid);
+}
+.display.outline-w {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--d-white);
+}
+
+/* 发丝分隔线：进场从左往右扫出（仅 JS 在场时先藏后扫） */
+.hair { height: 1px; background: var(--d-line); transform-origin: left; }
+html.js .hair { transform: scaleX(0); transition: transform 1s var(--ease) 0.25s; }
+html.js .on .hair, html.js .hair.show { transform: scaleX(1); }
+
+/* 胶囊按钮 */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 10px 22px;
+  border: 1px solid var(--d-line-2);
+  border-radius: 999px;
+  transition: border-color 0.35s, box-shadow 0.35s, color 0.35s, background 0.35s;
+}
+.pill:hover {
+  border-color: var(--d-acid);
+  color: var(--d-acid);
+  box-shadow: var(--d-acid-glow), inset 0 0 18px rgba(58, 227, 92, 0.08);
+}
+.pill.solid { background: var(--d-acid); color: var(--d-void); border-color: var(--d-acid); }
+.pill.solid:hover { color: var(--d-void); box-shadow: 0 0 42px rgba(58, 227, 92, 0.55); }
+
+/* ---------- 常驻件 chrome ---------- */
+
+.chrome {
+  position: fixed;
+  top: 18px;
+  left: var(--pad-x);
+  right: var(--pad-x);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 40;
+}
+
+.chrome-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  border: 1px solid var(--d-line-2);
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  transition: border-color 0.35s, color 0.35s, box-shadow 0.35s;
+}
+.chrome-btn .snd-state { display: none; }
+.chrome-btn:hover { border-color: var(--d-acid); color: var(--d-acid); }
+.chrome-btn[aria-pressed="true"] { border-color: var(--d-acid); color: var(--d-acid); box-shadow: var(--d-acid-glow); }
+
+.chrome-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  padding: 10px 20px;
+  border: 1px solid var(--d-line-2);
+  border-radius: 999px;
+  transition: border-color 0.35s, box-shadow 0.35s, color 0.35s;
+}
+.chrome-pill em { font-style: normal; transition: transform 0.35s var(--ease); }
+.chrome-pill:hover { border-color: var(--d-acid); color: var(--d-acid); box-shadow: var(--d-acid-glow); }
+.chrome-pill:hover em { transform: translateX(4px); }
+
+/* 子页右侧两颗胶囊成组（HOME 在最右＝本能落点，CONTACT 退到左边）。
+   .is-primary = 返回件：酸绿描边常亮当主角，箭头朝左，hover 时向左让位。 */
+.chrome-actions { display: inline-flex; align-items: center; gap: 10px; }
+.chrome-pill.is-primary { border-color: var(--d-acid); color: var(--d-acid); }
+.chrome-pill.is-primary em { transform: translateX(-2px); }
+.chrome-pill.is-primary:hover em { transform: translateX(-6px); }
+.chrome-pill.is-primary:hover { box-shadow: var(--d-acid-glow); }
+
+/* 右侧进度点（JS 填充，每点显示编号） */
+.dots {
+  position: fixed;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  gap: 12px;
+  z-index: 40;
+}
+.dots .dot {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--d-mute);
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  cursor: pointer;
+  transition: color 0.35s;
+}
+.dots .dot::after {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.45s var(--ease);
+}
+.dots .dot:hover { color: var(--d-mute); }
+.dots .dot.on { color: var(--d-acid); }
+.dots .dot.on::after { width: 34px; box-shadow: var(--d-acid-glow); }
+
+/* Underlay 导航（osmo/by-raven 式）：常驻酸绿描边小胶囊垫在编号行背后，
+   deck.js 注入 .dot-under 并把当前/悬停 dot 的 offsetTop/offsetHeight 写进
+   --uy/--uh —— transform 走 var() 包裹，minifier 不会当初始值删掉。
+   文字高亮（上面 .on 规则）保留，underlay 是叠加层不是替代。
+   z-index:-1 压在 .dots 层叠上下文内、dot 文字之下；pointer-events:none
+   保证点击仍落在 dot 按钮上，go() 行为不变。 */
+.dots .dot-under {
+  position: absolute;
+  top: 0;
+  left: -9px;
+  right: -9px;
+  height: var(--uh, 18px);
+  transform: translateY(var(--uy, 0px));
+  transition: transform 0.5s var(--ease);
+  border: 1px solid color-mix(in srgb, var(--d-acid) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--d-acid) 8%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--d-acid) 12%, transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+@media (prefers-reduced-motion: reduce) { .dots .dot-under { transition: none; } }
+
+body.is-sub .dots { display: none; }
+
+/* ---------- 启动扫描带 / 转场幕布（boot.js / fx.js 驱动） ---------- */
+
+/* CRT 通电三拍（档3 Stage C）：一条亮线撑满屏宽 → 纵向炸开成带扫描纹的屏 →
+   整块衰减把画面交还给内容。仍是 680ms 总时长——fx.js 粒子显影的 base = li * 70
+   是按这条轴对齐的，改总时长必须同步改那里。
+   上一版是一条 2px 光带自上而下扫（进度条语言），这一版换成显像管开机（因果更强：
+   先通电、再成像、再交棒）。节点名保留——50-sub.css 的简历打印隐藏规则在用。z-index 90 不变。
+   降级按站点规则**正向注册**：整套只写在 prefers-reduced-motion: no-preference 里，
+   reduce 会话根本不注册（boot.js 那边也不会加 body.booting），不靠 animation:none 掐。 */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+}
+.boot i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--d-acid);
+  /* 双层辉光（外层散光 + 内层亮芯），单层 box-shadow 冒充不了辉光 */
+  box-shadow: 0 0 14px rgba(58, 227, 92, .7), 0 0 44px rgba(58, 227, 92, .32);
+  transform: scaleX(.001);
+}
+.boot i::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 100vh;
+  height: 100dvh;
+  margin-top: -50vh;
+  margin-top: -50dvh;
+  background:
+    repeating-linear-gradient(180deg, rgba(58, 227, 92, .085) 0 2px, rgba(58, 227, 92, 0) 2px 5px),
+    linear-gradient(180deg, rgba(58, 227, 92, .05), rgba(5, 6, 7, .55) 55%, rgba(58, 227, 92, .05));
+  transform: scaleY(.001);
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  body.booting .boot { visibility: visible; }
+  body.booting .boot i { animation: crt-line .68s var(--ease-sweep) forwards; }
+  body.booting .boot i::before { animation: crt-open .68s var(--ease-sweep) forwards; }
+  /* 拍1 0→120ms（17.6%）亮线从中心撑满屏宽；拍3 47%→100% 交棒衰减 */
+  @keyframes crt-line {
+    0% { transform: scaleX(.001); opacity: .2; }
+    17.6% { transform: scaleX(1); opacity: 1; }
+    47% { opacity: 1; }
+    100% { transform: scaleX(1); opacity: 0; }
+  }
+  /* 拍2 160ms（23.5%）起纵向炸开，320ms（47%）撑满全屏；拍3 一起收掉 */
+  @keyframes crt-open {
+    0% { transform: scaleY(.001); opacity: 0; }
+    23.5% { transform: scaleY(.001); opacity: .55; }
+    47% { transform: scaleY(1); opacity: .8; }
+    100% { transform: scaleY(1); opacity: 0; }
+  }
+}
+/* 扫描带经过时把首页错峰压紧一档（90→46ms），让"带扫完 = 内容通电完"对上节奏 */
+html.js body.booting #c-home .rv { transition-delay: calc(var(--i, 0) * 46ms); }
+
+.wipe {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  z-index: 90;
+  pointer-events: none;
+  visibility: hidden;
+}
+/* 幕布一路上行（2026-11 拆 darkroom 页内转场实测：全屏层 clip-path
+   inset(100% 0 0)→inset(0) 自下而上盖，盖满才 startViewTransition 换 DOM，
+   换完继续上行离场——全程同一个方向，从不回头）。所以盖上侧 origin 在底
+   （条带从格底长起来），揭幕侧 origin 在顶（底边往上收走），两块拼成一次贯穿。
+   关键帧走 5 停指数采样（τ≈230ms 归一化：.436/.712/.889/1）配 linear：
+   实测幕布不是贝塞尔而是 e^-t/τ 逼近，起步猛、尾段渐停不撞。 */
+.wipe i { background: var(--d-acid); transform: scaleY(0); }
+body.wiping .wipe { visibility: visible; }
+body.wiping .wipe i { animation: wipe-in 0.42s linear forwards; transform-origin: bottom; }
+body.wiping .wipe i:nth-child(2) { animation-delay: 0.046s; }
+body.wiping .wipe i:nth-child(3) { animation-delay: 0.092s; }
+body.wiping .wipe i:nth-child(4) { animation-delay: 0.138s; }
+@keyframes wipe-in {
+  0% { transform: scaleY(0); }
+  25% { transform: scaleY(.436); }
+  50% { transform: scaleY(.712); }
+  75% { transform: scaleY(.889); }
+  100% { transform: scaleY(1); }
+}
+/* 同向位移：幕布上盖时旧内容一起上行淡出（dr 实测旧页 translateY 0→-360 +
+   opacity 1→0）。动 .deck / .sub-wrap 而不是 #main——#main 里只有 position:fixed
+   的 .deck，高度塌成 0，给它加 transform 会把同级 fixed 的 .tape 拽到页顶。 */
+body.wiping .deck, body.wiping .sub-wrap {
+  transform: translateY(-4vh);
+  opacity: 0;
+  transition: transform 0.42s linear, opacity 0.42s linear;
+}
+
+/* 到达侧揭幕（head.html 内联脚本在首次绘制前挂 html.wipeout，boot.js 收尾摘类）：
+   上一幕 fx.js 盖上来的四格绿幕在这里整体拉下，转场前后连贯；
+   幕布还盖着时新页在后台加载，加载多久幕布就压多久——天然就是加载动画。 */
+.wipe i { position: relative; overflow: hidden; }
+html.wipeout .wipe { visibility: visible; }
+html.wipeout .wipe i { transform: scaleY(1); transform-origin: top; animation: wipe-out 0.52s linear forwards; }
+html.wipeout .wipe i:nth-child(2) { animation-delay: 0.046s; }
+html.wipeout .wipe i:nth-child(3) { animation-delay: 0.092s; }
+html.wipeout .wipe i:nth-child(4) { animation-delay: 0.138s; }
+html.wipeout .wipe i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 32%, rgba(255, 255, 255, .4), transparent 68%);
+  animation: wipe-scan 0.62s linear infinite;
+}
+@keyframes wipe-out {
+  0% { transform: scaleY(1); }
+  25% { transform: scaleY(.564); }
+  50% { transform: scaleY(.288); }
+  75% { transform: scaleY(.111); }
+  100% { transform: scaleY(0); }
+}
+/* 新页从下方补上（dr 实测新页 translateY 720→237 且幕布还盖着时就起跑）：
+   与离场同向，眼睛继续往上看。opacity 走同一条指数采样，跟位移一条因果链。 */
+html.wipeout .deck, html.wipeout .sub-wrap { animation: wipe-rise 0.62s linear both; }
+@keyframes wipe-rise {
+  0% { transform: translateY(5vh); opacity: 0; }
+  25% { transform: translateY(2.82vh); opacity: .436; }
+  50% { transform: translateY(1.44vh); opacity: .712; }
+  75% { transform: translateY(.555vh); opacity: .889; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes wipe-scan { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+
+/* ---------- 进场基元（deck.js 打 .on；无 JS 全部直接可见） ---------- */
+
+html.js .rv {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+html.js .on .rv { opacity: 1; transform: none; }
+/* 首屏标题是粒子显影的落点：显影摘掉 .pz-hold 后必须快速定住，
+   否则 0.9s 淡入排在 1s 显影之后，总入场拖到 3.5s（走查实测）。
+   只压首页这三行大字，正文卡片的 .rv 保持 0.9s 的舒缓节奏。 */
+html.js .hero-lines .display.rv { transition-duration: 0.5s; }
+/* 气闸待机期间把内容扣死（deck.js 的 observer 这时已经会给首屏卡打 .on，
+   不扣就透过半透玻璃提前看见正文，扫描带扫过就没有"逐级通电"的因果了）。
+   扣的只是 .rv 内容，.fx 环境层/chrome/dots/HUD 照常流动——门后是活的舱内。
+   两条选择器把特异度抬到 (0,3,1)/(0,4,1) 压过上面 .on 那条 (0,3,1)。 */
+html.js.gate-lock .rv, html.js.gate-lock .on .rv { opacity: 0; transform: translateY(28px); transition: none; }
+
+/* ---------- 子页 body 滚动条（deck 自身已隐藏；/message/ 等子页走 body 滚动） ---------- */
+html { scrollbar-width: thin; scrollbar-color: #223229 transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1d2a24; border-radius: 6px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(58, 227, 92, .45); background-clip: content-box; }

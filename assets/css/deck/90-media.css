@@ -1,0 +1,749 @@
+/* ============================================================
+   90-media.css —— 移动端 / 窄屏 / 触屏 / 减弱动效 降级（Phase 1 · P3）
+   原则：
+   1. 只在此文件用媒体查询覆写前序层（10/20/30/40/50/60/70）的选择器，
+      不改原文件；类名一律取现在 layouts 里已有的，不依赖谁的实现细节。
+   2. 降级动「布局 / 字号 / 交互」，不动视觉基调（黑底 + acid 绿 + Anton）。
+   3. 断点：1024（平板/窄笔记本）→ 720（手机主战场）→ 480（小手机，390/360 实测）。
+   4. 高度一律走 100dvh（动态视口，地址栏收放不裁剪），前面配 100vh 兜旧浏览器。
+   5. viewport-fit=cover 已在 head.html 里，故所有贴边处补 env(safe-area-inset-*)。
+   6. 引擎侧已自降级：deck.js / fx.js 的 tilt、拖拽、磁吸、光标、视差都判了
+      pointer:coarse 与 prefers-reduced-motion（见文件末尾 (hover:none) 段的说明），
+      这里只做「触屏 hover 粘滞」和「万一 JS 判漏」的 CSS 兜底。
+   ============================================================ */
+
+/* ============================================================
+   ≤1100px —— 01 HOME ENGINE CORE：宽度不够让位，右侧反应堆整体隐藏
+   （core.js 的 mqHide 与此断点严格一致，
+   隐藏即挂起 rAF，不在看不见的地方空转。）
+   ============================================================ */
+@media (max-width: 1100px) {
+  .core-panel { display: none; }
+}
+
+/* ============================================================
+   ≤1024px —— 平板 / 窄笔记本：留白收紧，特效减负载
+   ============================================================ */
+@media (max-width: 1024px) {
+  :root {
+    /* 全站水平内边距的唯一来源，这里降一档，卡/chrome/sub-wrap 一起跟着收 */
+    --pad-x: clamp(20px, 5vw, 56px);
+  }
+
+  /* 右侧进度点离边更近，别压到正文 */
+  .dots { right: 14px; gap: 10px; }
+  .dots .dot::after { width: 14px; }
+  .dots .dot.on::after { width: 26px; }
+
+  /* 卡内右列让位给进度点的余量减半 */
+  .card-body { padding-right: 26px; }
+  .hero { padding-right: 26px; }   /* 与 card-body 同轨（20-deck 基线 56px） */
+  .card { padding-top: max(8vh, 68px); padding-bottom: 11vh; }
+
+  /* 大柔光在窄屏占比过高、blur 面积大，降透明度更省 GPU（渐变本身已足够软） */
+  .glow { opacity: 0.38; }
+
+  /* 03 电台面板：窄笔记本收一档间距与读数字号（两栏布局保留） */
+  .radio { gap: clamp(12px, 2vh, 18px); }
+  .dial-read { font-size: clamp(13px, 1.9vw, 18px); }
+
+  /* 04 兴趣进程表：窄笔记本收内边距与列距 */
+  .htop-head, .htop-row { gap: clamp(8px, 1.2vw, 14px); }
+}
+
+/* ============================================================
+   ≤880px —— 03 电台面板：两栏 → 上下堆叠
+   （dial 本就全宽；频道列表在上、示波器在下）
+   ============================================================ */
+@media (max-width: 880px) {
+  /* 单列堆叠后 04 的固有高远超一屏：恢复内容驱动高度（卡片随内容长、整页滚动），
+     否则面板被钉在一屏里、示波器/标题会被挤出面板边框压到播放条上。
+     05 的表格单列仍装得下，保留一屏撑满。 */
+  #c-signals { height: auto; }
+  #c-signals .card-body { display: block; height: auto; }
+  #c-signals .card-body > .radio { flex: none; }
+  .radio-grid { grid-template-columns: minmax(0, 1fr); }
+  /* 机芯舱(卡带+VU)与示波窗随单列堆叠;DOM 顺序 chan-list→deck-bay→scope-box 即自然流。
+     勿再复位 .cassette——它已在 .deck-bay 内,不再是 radio-grid 的直接子项 */
+  .chan-list, .deck-bay, .scope-box { grid-column: 1; grid-row: auto; }
+  /* 单列后机芯舱满幅居中；VU 表挪到卡带【上方】（站主明说 vu 表放卡带上面），
+     宽度对齐该档卡带上限 360，消除两侧黑 */
+  .deck-bay { grid-template-columns: minmax(0, 1fr); width: 100%; justify-items: center; }
+  .deck-bay .vu-meter { order: -1; width: min(100%, 360px); --vu-max: min(100%, 360px); }
+  /* 单列时 scope-box 落在隐式 auto 行里，画布不能吃余高（flex:1 1 0 在
+     auto 高容器里会退回 intrinsic 尺寸，和 radio.js 的 attribute 重写形成
+     慢速正反馈——实测 1.5s 内 156→228 还在长）。这里改回固定高。 */
+  .scope { flex: 0 0 auto; height: 120px; }
+  /* 03 ABOUT ME：窄屏单列，全息工牌居中限宽（.id-row 随 02/03 对调退役，注脚带见 48-skills） */
+  #c-about .id-grid { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .id-stage { width: min(100%, 340px); margin-inline: auto; }
+}
+
+/* ============================================================
+   ≤720px —— 手机主战场：单列化、字号降档、dots 隐藏、贴安全区
+   ============================================================ */
+@media (max-width: 720px) {
+  /* 常驻 chrome（SND + CONTACT 胶囊）是 fixed 的，窄屏/矮屏下卡片顶边距必须
+     让开它，否则第一行正文会被胶囊压住（实测 844x390 横屏：chrome 底边 62px，
+     而 4vh 只有 15.6px → 正文顶到 16px，整块撞在一起）。用自定义属性统一供值，
+     顺带避开「minifier 删初始值声明」的坑。 */
+  :root {
+    --pad-x: clamp(16px, 5vw, 40px);
+    --chrome-clear: calc(env(safe-area-inset-top) + 66px);
+  }
+
+  html {
+    /* 关掉 iOS 的「智能字号放大」，否则大字会被系统重排到别一档尺寸 */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  .deck {
+    /* 卡片甲板自己滚，别把滚动链传给 body（安卓/iOS 橡皮筋回弹到此为止） */
+    overscroll-behavior: contain;
+    /* 注意：这里绝不能写 touch-action: pan-y —— touch-action 会沿祖先取交集，
+       挂在 .deck 上会把卡内需要横滑的组件一起禁掉（历史上是 .fan-stage 横滑列；
+       03 电台面板无横滑，但此约束对其他卡仍然成立）。 */
+  }
+
+  .card {
+    min-height: 100vh;          /* 兜底：不认识 dvh 的老浏览器 */
+    min-height: 100dvh;         /* 动态视口：地址栏收放都不裁剪 */
+    padding: max(7vh, var(--chrome-clear)) var(--pad-x) 9vh;
+
+  }
+  .card-no { font-size: clamp(64px, 16vw, 120px); top: 5vh; }
+
+  /* R4 · 缝合地平线：窄屏中央刻度字挤不下一行（CH.04 ▸ CH.05 加字距 >40vw），
+     只留点燃的线，不留字 */
+  .seam b { display: none; }
+
+  /* 进度点在小屏既挤正文又没意义（一屏一卡靠滑），直接隐藏 */
+  .dots { display: none !important; }
+
+  /* 常驻顶栏：贴安全区，胶囊缩小 */
+  .chrome {
+    top: calc(12px + env(safe-area-inset-top));
+    left: var(--pad-x);
+    right: var(--pad-x);
+  }
+  .chrome-btn { width: 38px; height: 38px; font-size: 10px; letter-spacing: 0.1em; }
+  .chrome-pill { padding: 8px 14px; font-size: 11px; letter-spacing: 0.14em; }
+  .chrome-pill em { display: none; }   /* 箭头在触屏无 hover 反馈，省宽度 */
+
+  /* HUD 四角括号：窄屏缩臂降不透明度（自 30-fx.css 后移，媒体查询集中本文件——2026-11 整合） */
+  .hf { width: 14px; height: 14px; opacity: 0.38; }
+
+  /* ---------- 01 HOME：三行大字不溢出 ---------- */
+  .hero { max-width: none; padding-right: 0; }   /* ≤720 进度点已隐藏，与 card-body padding-right:0 同步 */
+  .eyebrow { font-size: 11px; letter-spacing: .1em; }
+  .hero-lines { margin: 2.5vh 0 3vh; }
+  .hero-lines .display { font-size: clamp(44px, 12.5vw, 76px); }
+  .display.outline, .display.outline-w { -webkit-text-stroke-width: 1.4px; }
+  .hero-sub { font-size: 14px; max-width: none; }
+
+  /* ---------- 通用行头：编号与标题改网格，容不下自然换行 ---------- */
+  .row-head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 2px;
+    align-items: baseline;
+    margin-bottom: 3.5vh;
+  }
+  .row-head .num { font-size: clamp(34px, 9vw, 56px); -webkit-text-stroke-width: 1.5px; }
+  .row-head .display { grid-column: 2; min-width: 0; font-size: clamp(30px, 8.6vw, 56px); }
+  .row-head .cn { grid-column: 1 / -1; letter-spacing: 0.24em; }
+
+  /* ---------- 发丝列表：label / value 两端 → 上下两行 ---------- */
+  .hair-list { max-width: none; }
+  .hair-list li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    padding: 13px 2px;
+    transition: none;               /* 触屏无 hover，别再留左移过渡 */
+  }
+  .hair-list li:hover { padding-left: 2px; }
+  .hair-list .k { font-size: clamp(18px, 5vw, 24px); }
+  .hair-list .v { text-align: left; font-size: 11px; letter-spacing: 0.06em; }
+
+  .card-body { padding-right: 0; max-width: none; }
+  .card-note { font-size: 14px; margin-bottom: 3vh; max-width: none; }
+
+  /* ---------- 02 ABOUT：引言降字号、水印收尺寸（hud 早已 ≤1100 整块隐藏） ---------- */
+  .about-quote { font-size: clamp(19px, 5.4vw, 26px); padding-left: 14px; margin-bottom: 2.6vh; }
+  .about-quote .q-by { margin-top: 1.2vh; }
+
+  /* ---------- 03 SIGNALS 电台面板：≤880 已堆叠，这里收行距与字号 ---------- */
+  .radio { padding: 14px 12px; }
+  .dial { padding: 7px 10px 9px; }
+  .dial-read { font-size: 15px; }
+  .d-lab { display: none; }                    /* 满排数字太挤，只留…… */
+  .d-tick.maj.lab5 .d-lab { display: block; }  /* ……5 的倍数和 108 */
+  .chan-row { gap: 9px; padding: 10px 8px 10px 11px; }
+  .ch-artist { display: none; }                /* 一行三件（编号/标题/VU）够点 */
+  /* 藏字调谐提示（40-cards.css CHAN 段）窄屏整槽撤掉：脱流浮标压着窄列内容，
+     触屏本来就吃不到 (hover:hover) and (pointer:fine) 层，直接拔线。列数同步 4。 */
+  .ch-tap { display: none; }
+  .chan-row { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+  .scope-tele { font-size: 10px; }
+  .scope-pola { top: 6px; right: 6px; }
+
+  /* ---------- 04 INTERESTS 进程表：收字号，详情行波形让位 ---------- */
+  .htop-meta { font-size: 10px; padding: 8px 12px; }
+  .htop-head { font-size: 10px; }
+  .htop-row { min-height: 48px; }
+  .hc-proc { gap: 8px; }
+  .htop .hob-svg { width: 20px; height: 20px; }
+  .hf-text { font-size: 11px; }
+
+  /* ---------- 05 GUESTBOOK：居中大字 ---------- */
+  .cta-center .display { font-size: clamp(34px, 10.5vw, 68px); }
+  .cta-center .pill { margin-top: 3.5vh; }
+
+  .pill { padding: 10px 18px; font-size: 11px; letter-spacing: .1em; }
+
+  /* ---------- 06 CONTACT 底部小字条 ---------- */
+  .foot { gap: 10px 22px; margin-top: 4vh; font-size: 11px; letter-spacing: .1em; }
+  .cp { padding: 4px 10px; margin-left: 8px; font-size: 10.5px; }
+  /* 终端卡（term.js）触屏不接管，静态兜底已在上；万一接管也收字号防溢出 */
+  .term-log { font-size: 11.5px; padding: 12px 12px 16px; }
+  .term { border-radius: 8px; }
+
+  /* ---------- 子页壳：padding 收紧 + 贴安全区 ---------- */
+  .sub-wrap {
+    max-width: none;
+    padding: calc(11vh + env(safe-area-inset-top)) var(--pad-x)
+             calc(9vh + env(safe-area-inset-bottom));
+  }
+  .sub-wrap .row-head { margin-bottom: 4vh; }
+  .back-line { margin-bottom: 4vh; font-size: 11px; letter-spacing: .1em; }
+
+  /* 正文里可能出现的宽元素：横向自己滚，别把整页撑出 scrollWidth */
+  .sub-wrap .md { overflow-wrap: break-word; }
+  .sub-wrap pre,
+  .sub-wrap .highlight,
+  .sub-wrap .chroma,
+  .sub-wrap table {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .sub-wrap .giscus-wrap iframe { max-width: 100%; }
+
+  /* ---------- 播放器条：缩到单行，让位安全区 ---------- */
+  .tape {
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    width: calc(100vw - 16px);
+  }
+  .tape-bar { gap: 8px; padding: 7px 9px; border-radius: 14px; }
+  .tape-cover { width: 34px; height: 34px; border-radius: 7px; }
+  .tape-title { font-size: 13px; }
+  .tape-toggle { width: 34px; height: 34px; }
+  .tape-next, .tape-close { width: 30px; height: 30px; font-size: 11px; }
+  .tape-prog { flex: 1 1 60px; min-width: 46px; }
+}
+
+/* ============================================================
+   ≤480px —— 小手机（390 / 360 / 320）：再降一档，一行能塞就塞
+   ============================================================ */
+@media (max-width: 480px) {
+  .card { padding: max(6vh, var(--chrome-clear)) var(--pad-x) 8vh; }
+
+  .hero-lines .display { font-size: clamp(38px, 13vw, 56px); }
+  .hero-sub { font-size: 13px; }
+
+  /* 行头：编号 + 标题挤不下时换成上下两行 */
+  .row-head { grid-template-columns: minmax(0, 1fr); row-gap: 0; }
+  .row-head .display { grid-column: 1; }
+
+  .cta-center .display { font-size: clamp(30px, 11.5vw, 52px); }
+
+  /* 03 电台：极窄屏读数窗/刻度行/VU 再降一档 */
+  .dial-read { font-size: 13px; }
+  .dial-scale { height: 34px; }
+  .vu { height: 12px; }
+  .ch-no { font-size: 10.5px; letter-spacing: 0.1em; }
+  /* 机芯舱单列居中叠放（VU 靠 ≤880 段的 order:-1 已在卡带上方）；VU 宽度跟该档卡带上限 290 对齐，消除两侧黑 */
+  .deck-bay { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  .deck-bay .vu-meter { width: min(100%, 290px); --vu-max: min(100%, 290px); }
+
+  /* 触屏点按要有反馈：把 hover 辉光换成 active 态（见 (hover:none) 段） */
+  .hair-list li { padding: 12px 0; }
+  .hair-list .k { font-size: 17px; }
+  .about-quote { font-size: clamp(17px, 5.2vw, 22px); padding-left: 12px; }
+}
+
+/* ============================================================
+   触屏（hover:none）—— 兜 JS 判漏 + 治「点一下就粘住 hover 样式」
+   说明：deck.js 的 tilt / 拖拽、fx.js 的十字光标 / 磁吸 / 辉光视差，
+   都已经先判过 matchMedia("(pointer: coarse)")，触屏本不会触发；
+   下面这几条只是：
+   1) 万一宿主报 pointer:fine 却又是触屏（混合触控本、远程桌面）时的保险；
+   2) 触屏点按后 CSS :hover 会一直粘着，把辉光/上浮/左移复位。
+   ============================================================ */
+@media (hover: none) {
+  /* JS 若在触屏上也写了 tilt transform，这里强制复位（40 层的散落用的是
+     translate/rotate/scale 独立属性，不受这条影响） */
+  [data-tilt] { transform: none !important; }
+  [data-magnet] { transform: none !important; }
+
+  /* 粘滞 hover 复位：边框/投影/角标/上浮全部回默认态 */
+  [data-tilt]:hover { border-color: var(--d-line); box-shadow: none; }
+  [data-tilt]:hover .glint { opacity: 0; }
+  .chan-row:hover { background: none; }
+  .chan-row:hover:not(.active)::before { --rl: 0; }   /* 粘滞高亮线复位（active 行保留） */
+  .chan-row:hover:not(.active) .ch-title { color: var(--d-mute); }
+  .chan-row:hover:not(.active) .ch-go { color: var(--d-dim); translate: none; }
+  .htop-row:hover { background: none; color: var(--d-white); }   /* 粘滞反白复位；详情由 htop.js 点按承接 */
+  .hair-list li:hover { padding-left: 2px; border-color: var(--d-line); }
+  .hair-list li:hover .k { color: var(--d-white); }
+  /* 03 IDENTITY：粘滞 hover 复位（准星/倾角触屏本就不接管——id.js 只认 fine 指针） */
+  .id-badge:hover .id-mesh { opacity: 0.5; }
+  .id-badge:hover .id-ret { opacity: 0; }
+  .if-rows li:hover { background: none; }
+  .if-rows li:hover .if-val { color: var(--d-dim); }
+  .if-rows li:hover .if-led { box-shadow: 0 0 8px rgba(58, 227, 92, 0.6); }
+
+  /* 点按给一点反馈，替代 hover（触屏唯一能表达「我按到了」的状态） */
+  .pill:active, .chrome-pill:active, .cp:active,
+  .chan-row:active, .htop-row:active {
+    border-color: var(--d-acid);
+    color: var(--d-acid);
+  }
+  .pill.solid:active { color: var(--d-void); background: var(--d-acid-2); }
+}
+
+/* ============================================================
+   减弱动效 —— 10/30 已全局降级（.rv / .hair / glow / hint / boot / wipe），
+   这里只补 90 新增的东西和 40/45 层里 30 没覆盖到的无限动画。
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .deck { scroll-behavior: auto; }
+  .tape, .tape.on { transition: none; }
+  [data-tilt] { transition: none; }
+  .glow { animation: none !important; }
+  /* 01 ENGINE CORE：接线/浮现/心跳/冲击波全停，静态投影即成品（core.js 侧亦不起 rAF） */
+  .core-panel .core-edge, .core-panel .core-node, .core-heart, .core-panel.oc .core-ring { animation: none !important; }
+  /* R4 · 缝合地平线：deck.js 在 reduced 下不写 --sg，这里固定半亮常燃；调谐抖动不挂 class 故无需降级 */
+  .seam { --sg: 0.4; }
+  /* 03 IDENTITY 全息工牌：id.js 在 reduced 下不开机（CSS 默认态=认证完成态），
+     这里掐掉所有无限循环：悬浮呼吸/环境光束/芯片呼吸/准星自旋/状态灯闪烁 */
+  .id-stage, .id-chip, .id-dot, .id-ret::before { animation: none !important; }
+  .id-beam { animation: none !important; opacity: 0 !important; }
+  .id-ret { display: none; }
+  /* 待机面板呼吸点 .ah-live 是共享件（07 .pe-cap 在用），reduce 下停呼吸。 */
+  .ah-live { animation: none !important; }
+}
+
+/* ============================================================
+   短桌面视口（高 ≤820：1391×715 笔记本、分屏）—— 04/05 收进一屏。
+   2026-11 起 04/05 走「卡片定高 + 面板 flex 吃余高」的连续适配（见 40-cards.css
+   04/05 一屏撑满段），这里不再压行高/示波器尺寸——只收 02/03 的纵向节奏。
+   ============================================================ */
+@media (max-height: 820px) {
+  .row-head { margin-bottom: 2vh; }
+  .row-head .display { font-size: clamp(36px, 5vw, 64px); }
+  /* 02：引言与标签的纵向节奏收一档，715px 高也一屏装下 */
+  #c-about .about-quote { margin-bottom: 2vh; }
+  #c-about .hair-list li { padding-top: 11px; padding-bottom: 11px; }
+}
+
+/* 更矮的桌面窗（≤720）：04 的面板下界已经到顶，藏一行说明把高度让给面板 */
+@media (max-height: 720px) {
+  #c-signals .card-note { display: none; }
+}
+
+/* 极矮桌面窗（≤660，1024×600 之类）：04 的固有高（9 行+机芯舱+示波窗）已经
+   压不进一屏，面板内部的说明会溢出面板边框——改回内容驱动高度，卡片随内容长、
+   整页滚动（与 ≤880 单列同一策略）。05 六行仍可压进一屏，保留撑满。 */
+@media (max-height: 660px) {
+  #c-signals { height: auto; }
+  #c-signals .card-body { display: block; height: auto; }
+  #c-signals .card-body > .radio { flex: none; }
+}
+
+/* ============================================================
+   短视口（手机横屏 / 分屏 / 软键盘弹起）—— 内容避让
+   （曾经的 snap proximity 降级随 scroll-snap 退役一并删除；
+   矮视口下真正要保的是 chrome 胶囊不压正文——顶边距统一抬让。）
+   ============================================================ */
+@media (max-height: 560px) {
+  /* 矮视口下 vh 顶边距缩到 15~27px，fixed 的 chrome 胶囊（底边约 62px）会直接压在
+     第一行正文上（实测 844x390：.chrome 18–62px，.card-body 从 16px 起）——
+     这里统一把顶边距抬到让开 chrome，横屏竖屏都覆盖。 */
+  :root { --chrome-clear: calc(env(safe-area-inset-top) + 62px); }
+  .card { padding-top: max(4vh, var(--chrome-clear)); }
+  .sub-wrap { padding-top: max(7vh, var(--chrome-clear)); }
+  .hero-lines { margin-top: 0; }
+  .about-quote { margin-bottom: 2vh; }
+}
+
+/* ============================================================
+   手机横屏（短视口）—— 100dvh 只剩 360~400px，纵向再压一档
+   ============================================================ */
+@media (orientation: landscape) and (max-height: 520px) {
+  .card { padding: max(4vh, var(--chrome-clear)) var(--pad-x) 5vh; min-height: 100dvh; }
+  .hero-lines { margin: 1.5vh 0 2vh; }
+  .hero-lines .display { font-size: clamp(30px, 8vh, 52px); }
+  .row-head { margin-bottom: 2vh; }
+  .hair-list li { padding: 9px 0; }
+  /* 03 电台面板：横屏矮视口收紧面板，示波器压到最小可读高度 */
+  .radio { padding: 10px 12px; gap: 10px; }
+  .dial-scale { height: 34px; }
+  .scope { min-height: 84px; }
+  .sub-wrap { padding-top: max(7vh, var(--chrome-clear)); }
+}
+
+/* ============================================================
+   入场气闸（v3 重构）降级：触屏 / 窄屏 / 矮视口
+   1) (hover:none)：没有真指针，boot.js 不挂 pointermove、--e 恒 0，
+      只掐缝线上的鼠标聚能透镜（.gate-seam::after）。v3 起 .gate-rungs::after
+      是量尺下端角括号，与 ::before 成对，不能跟着一起隐藏。
+      backdrop-filter 最容易在低端触控机上掉帧，退成更实的暗玻璃
+      ——重置写 initial 关键字，别写 auto/none 值（minifier 会当冗余删，
+      一删就掉回 30 层的 blur。
+   2) ≤880：自检日志只留前 3 行——DOM / FONTS / PAINT 三扇真闸是信息密度
+      最高的一组，机器码/构建日期这类装饰性读数先让位。
+   3) 双扇仍横向滑开：改上下坠开得把缝线一起转成水平线，刃口 / 巡扫 /
+      刻度三处几何全重写，还一路踩"等于初始值声明"的重置坑；而窄屏 50.5%
+      只是 190px 的短程平移，收益不值这个改动面——记在这里，别再反复。
+   ============================================================ */
+@media (hover: none) {
+  .gate-seam::after { display: none; }
+  /* v3 起 .gate-rungs::after 是量尺下端的角括号，与 ::before 成对，不能跟着
+     鼠标层一起隐藏。触屏 --e 恒 0，刻度只剩基值 .2 太暗，给一个不依赖能量的定档。 */
+  .gate-rungs { opacity: .34; }
+  .gate-c {
+    -webkit-backdrop-filter: initial; backdrop-filter: initial;
+    background: linear-gradient(180deg, rgba(5, 6, 7, .86), rgba(5, 6, 7, .93));
+  }
+  .gate.open .gate-c { background: linear-gradient(180deg, rgba(5, 6, 7, .5), rgba(5, 6, 7, .58)); }
+  .gate-hint:hover .gh-txt::before { animation: none; }
+  /* 触屏没有 hover，靠点按给反馈 */
+  .gate:active .gh-txt { border-color: var(--d-acid); color: var(--d-acid); }
+}
+
+/* 坑：媒体查询的宽度必须带单位。写成 (max-width: 880) 整块会被浏览器
+   静默丢弃（不报错、DevTools 里也不显示），窄屏降级全部失效。 */
+@media (max-width: 880px) {
+  .gate-log { font-size: 10.5px; gap: 4px; bottom: clamp(72px, 12vh, 120px); }
+  /* 关键列交给基座的 max-content，这里不再覆盖成定长：定长在 390px 上会让
+     "> FONTS" / "> PAINT" 折行（走查实测），max-content 自己就撑开了。 */
+  /* nth-of-type 不是 nth-child：.gate-log 里还挂着一个 aria-hidden 的 <b>
+     实时读数行，用 nth-child 数会把它算进序号，窄屏就漏行、且少切一行。 */
+  .gl-row:nth-of-type(n+4) { display: none; }
+  /* 窄屏把整套仪表收进中段：手机竖屏 844px 高，13%~87% 的缝线 + 20%~80%
+     的量尺读起来是「一根线挂一把梯子」（390x844 读图结论），占掉半屏。
+     缝线与量尺一起缩到 26%~74% / 30%~70%，围着胶囊形成一个紧凑的闸口，
+     下端角括号也彻底让开自检日志（log 顶 692）。 */
+  .gate-seam { top: 26%; bottom: 26%; }
+  .gate-rungs { width: min(150px, 40vw); top: 30%; bottom: 30%; }
+  /* gh-bar v3 起是胶囊内的绝对定位底边线（left/right:0），
+     旧的 width: min(66vw,260px) 已无效，别再加回来。 */
+  .gh-txt { letter-spacing: .22em; padding: 8px 13px 11px 15px; }
+}
+
+@media (max-height: 560px) {
+  /* 矮视口让位给缝线与提示件，日志整块收起（三扇闸的读数不影响能不能进） */
+  .gate-log { display: none; }
+  .gate-hint { gap: 9px; }
+}
+
+/* ============================================================
+   火箭回顶（48-rocket.css / rocket.js）—— 窄屏与降级（四代）
+   ≤720：.dots 已隐藏，火箭是右缘唯一组件件；行程 160→96px
+   （手指下拉不需要那么大），96×192 扫描线箭体+平台整体缩 0.62 贴右缘 14px
+   （终端面板窄屏全宽，clamp(200px,26vw,420px) 空带摆位会压进面板正文）。
+   垂直位仍走基座 calc(50% + 50px)（卡内 absolute）。
+   矮视口：行程 84px、整块上抬到 44%，避免压住底部 .hud / .tape。
+   reduced：rocket.js 侧不接管拖拽、不挂 hold（按钮=一键瞬回，behavior:auto），
+   这里掐呼吸/三层焰抖/爆闪冲击环冲击波动画与全部插值，静态即成品。
+   hover:none：48 层 :hover 把箭体染白，触屏粘滞 hover 会「卡在染色」——
+   复位回酸绿（辉光是 --chg 驱动的真值，不随 hover 变，无需复位）。
+   ============================================================ */
+@media (max-width: 720px) {
+  .rk { --rk-travel: 96px; right: 14px; top: calc(50% + 52px); transform: scale(0.62); transform-origin: 100% 50%; }
+  .rk-read { font-size: 10px; }
+}
+@media (max-height: 560px) {
+  .rk { --rk-travel: 84px; top: 44%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rk { transition: none; }
+  .rk-btn { transition: none; }
+  .rk-btn svg { transition: none; }
+  .rk-btn .rk-body { animation-name: none; }
+  .rk-pads { transition: none; }
+  .rk-led { transition: none; }
+  .rk-fl { transition: none; }
+  .rk-fl path { animation-name: none; }
+  .rk.fire .rk-mz, .rk.fire .rk-rg, .rk.fire .rk-sw { animation-name: none; }
+}
+@media (hover: none) {
+  .rk-btn:hover { color: var(--d-acid); }
+}
+
+/* ============================================================
+   07 ARTICLES 文章板块（46-posts.css）—— 窄屏 / 触屏 / 减弱动效
+   原则同全站：只在这里覆写，不动 46 层本身。
+   ≤880  行内三行结构（标题/摘要/读数）保留，编号列与右内边距收一档、摘要压一行。
+   ≤720  详情页抬头五条读数改两列网格；上一篇/下一篇由左右分栏改上下堆叠
+         （小屏「NEXT →」没必要右对齐，反而像漏了一块）。
+   ≤480  摘要分两处取舍：首页 07 卡整块不显示（入口行，标题+日期够了），列表页反过来保留并压两行（浏览全靠它认文章）；分钟/字数读数只在首页卡让位给日期。
+   hover:none  粘滞 hover 复位（吸气左内边距 / 酸绿竖线 / 三处染色），点按给边框反馈。
+         复位值写 none / initial，别写 0 —— minifier 会当「等于初始值」删掉（已知坑）。
+   reduce  行过渡与染色即时完成；待机面板的呼吸点 .ah-live 早被上面全局那条掐了，
+         此处只补行级 transition，读数照常全量显示（降级不藏内容）。
+   ============================================================ */
+@media (max-width: 880px) {
+  .post-row { gap: 12px; padding-right: 30px; }
+  .pr-sum { -webkit-line-clamp: 1; }
+}
+
+@media (max-width: 720px) {
+  .posts-stat { letter-spacing: .12em; }
+  .post-row {
+    gap: 10px;
+    padding: 13px 26px 13px var(--pr-pl);
+  }
+  .pr-no { font-size: 12px; }
+  .pr-title { font-size: clamp(19px, 5.6vw, 25px); }
+  .pr-meta { gap: 3px 12px; font-size: 10.5px; letter-spacing: .1em; }
+  .pr-go { font-size: 14px; }
+  .posts-cta { gap: 12px 16px; }
+
+  .post-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 14px;
+    margin-top: -2vh;
+  }
+  .post-nav { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .pn-cell.next { text-align: left; }
+
+  .post-empty { padding: 18px 16px; }
+  .pe-read { gap: 6px 18px; }
+}
+
+@media (max-width: 480px) {
+  /* 摘要只在首页 07 卡整块不显示——首页那几行是「挑一篇点进去」的入口，标题+日期够了。
+     列表页反过来必须留摘要（390 实测只剩标题一行，浏览全靠猜），压到两行。 */
+  #c-posts .pr-sum { display: none; }
+  .page-posts .pr-sum { display: -webkit-box; -webkit-line-clamp: 2; }
+  /* 首页摘要没了，行就靠「日期 + 标题」两条撑，分钟/字数读数让位 */
+  #c-posts .pr-meta span { display: none; }
+  .pe-cap { font-size: 11px; letter-spacing: .1em; }
+  .pe-read { font-size: 11px; }
+}
+
+@media (hover: none) {
+  .post-row:hover { --pr-pl: 4px; border-color: var(--d-line); }
+  .post-row:hover::before { --pr-line: 0; }
+  .post-row:hover .pr-no { color: var(--d-dim); }
+  .post-row:hover .pr-title { color: var(--d-white); }
+  .post-row:hover .pr-go { color: var(--d-dim); translate: none; }
+  .post-row:active { border-color: var(--d-acid); }
+  .post-row:active .pr-title { color: var(--d-acid); }
+  .pn-cell:hover .pn-k { color: var(--d-dim); }
+  .pn-cell:hover .pn-t { color: var(--d-white); }
+  .pn-cell:active .pn-k, .pn-cell:active .pn-t { color: var(--d-acid); }
+  .post-toc a:hover { color: var(--d-mute); }
+  .post-toc a:hover::before { color: var(--d-dim); }
+  /* 待机面板的 INDEX 链接同理：粘滞染色复位，点按才给酸绿 */
+  .pe-read a:hover { color: var(--d-mute); border-bottom-color: var(--d-line-2); text-shadow: none; }
+  .pe-read a:active { color: var(--d-acid); border-bottom-color: var(--d-acid); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-row, .post-row::before, .pr-no, .pr-title, .pr-go { transition: none; }
+  .pn-cell, .pn-cell .pn-k, .pn-cell .pn-t, .post-toc a { transition: none; }
+  .pe-read a { transition: none; }
+}
+
+/* ============================================================
+   02 SKILLS 三行错位技能带（基态在 48-skills.css，marquee 只在桌面 fine 指针 +
+   非 reduced 才注册）——这里只补窄屏与触屏：
+     ≤880/≤720/≤480  只换三个令牌：每排枚数 --sk-per 10→6→5→4、列缝 --sk-gap、
+                      行距 --sk-row-gap。格宽 --sk-cell 由公式反推（48 层用 100cqw
+                      量带体真宽）、格牌 100% 吃格子，所以越窄每排越少、单枚反而越大；
+                      图标固定占牌内 72%。字号与读数行单独收档，480 让注脚折行。
+                      （别再在这里写 .sk-item 的 padding/gap 或 .sk-tile 的
+                      border-radius / aspect-ratio —— 那些都吃令牌，硬写会绕过它们。
+                      2026-11 R14：--sk-radius 改百分比后，这里原本的三处 px 圆角覆写
+                      已删——牌宽一变圆角自己跟着变，再写 px 等于把它钉死。）
+     hover:none      三行退成三条可手动横滑的列表（重复铺的那遍由 48 层
+                     display:none 挡着，触屏看不到重复图标）；提示语与读数行
+                     默认文案换成「点按」（markup 里备了 .sk-ro-def-t 一份）；
+                     点按给酸绿描边反馈。粘滞 hover 不成问题——悬停样式全被
+                     (hover:hover) 挡着，触屏压根不匹配。
+     reduce          marquee 不注册（48 层的条件里就带 no-preference），
+                     浮动的 transition 一并掐掉；读数照常全量。
+   ============================================================ */
+@media (max-width: 880px) {
+   .sk-band { --sk-per: 6; --sk-gap: 10px; }
+}
+
+@media (max-width: 720px) {
+   .sk-band { --sk-per: 5; --sk-gap: 8px; --sk-row-gap: 8px; }
+   .sk-cap { gap: 8px; font-size: 11.5px; }
+   .sk-name { font-size: 11.5px; letter-spacing: .03em; }
+   .sk-readout { font-size: 13.5px; min-height: 2.6em; }
+   .sk-note { font-size: 13px; }
+}
+
+@media (max-width: 480px) {
+   .sk-band { --sk-per: 4; --sk-gap: 6px; --sk-row-gap: 6px; }
+   .sk-readout { font-size: 13px; }
+   .sk-readout .sk-ro { flex-wrap: wrap; gap: 6px; }
+}
+
+/* 横屏矮视口（手机横放）—— 方牌 + 矮视口是唯一会顶破屏的组合，必须把每排列数提上去。
+   实测 844×390：per=6 带体 421px（塞进 390px 视口，溢出）、per=9 降到 305、per=10 降到 281；
+   667×375 这类窄横屏 10 枚时单牌 50px，已到可读下限，不再往上加。
+   注意：本块必须排在 ≤880 / ≤720 / ≤480 之后——那条 max-width 也匹配横屏手机，
+   顺序反了会被 per:6 抢走（同为单类选择器，只能靠层叠顺序决出胜负）。 */
+@media (orientation: landscape) and (max-height: 520px) {
+   .sk-band { --sk-per: 10; --sk-gap: 6px; --sk-row-gap: 6px; }
+   .sk-name { font-size: 10.5px; }
+   .sk-readout { font-size: 12.5px; min-height: 2.2em; }
+   .sk-note { display: none; }   /* 矮视口先让装饰性脚注让位，读数行留着 */
+}
+
+@media (hover: none) {
+   .sk-hint { display: none; }
+   .sk-hint-t { display: inline; }
+   /* 默认提示换文案：选择器带 .sk-readout 前缀，与 48 层同权重、靠层叠在后胜出 */
+   .sk-readout .sk-ro-def { display: none; }
+   .sk-readout .sk-ro-def-t { display: inline; }
+   /* 点按给即时反馈：与桌面 hover 同一套（R14 白牌：只亮酸绿描边，白底不动） */
+   .sk-item:active .sk-tile {
+     border-color: var(--d-acid);
+     box-shadow: 0 0 0 3px color-mix(in srgb, var(--d-acid) 32%, transparent);
+   }
+   .sk-item:active .sk-name { color: var(--d-white); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+   .sk-tile, .sk-name { transition: none; }
+}
+
+/* ============================================================
+   MEDIA-MIGRATION —— 2026-11 体检：12 处散在原文件里的窄屏块
+   整建制搬入本文件（家规：降级只写 90-media）。规则一字未改，
+   仅换地方；本文件级联在最后，行为与原先等价。
+   出处：44-radio ≤880/≤480 · 20-deck ≤760 · 40-cards ≤880/≤540/
+   ≤880/≤720 · 50-sub ≤760/≤480 · 42-works ≤1024/≤720/≤480
+   ============================================================ */
+
+/* 电台机芯窄屏尺寸（原 44-radio.css：90-media ≤880 已让 .radio-grid
+   堆叠，这里只收机芯；宽度上限一律带 100%，bay 列宽随 fr 定比收缩，
+   死值会溢出列格） */
+@media (max-width: 880px) {
+  .cassette { width: min(100%, 360px); }
+  .vu-meter { --vu-max: 200px; }
+}
+@media (max-width: 480px) {
+  .cassette { width: min(100%, 290px); }
+  .vu-meter { --vu-max: 140px; }
+}
+
+/* 章节 HUD 与卡角注在手机整块隐藏（原 20-deck.css） */
+@media (max-width: 760px) {
+  .hud { display: none; }
+  .card-meta { display: none; }
+}
+
+/* 进程表窄屏（原 40-cards.css）：≤880 让出 UPTIME 列改五列；
+   ≤540 再让出 MEM 列、STATE 只留点（表头文字 font-size:0 是
+   CLAUDE.md 明许的隐藏契约），磁带条同步收 */
+@media (max-width: 880px) {
+  .htop-head, .htop-row { grid-template-columns: 40px minmax(0, 1.1fr) 96px minmax(0, 1.2fr) minmax(0, 1fr); }
+  .hc-up { display: none; }
+  .hm-load { display: none; }
+}
+@media (max-width: 540px) {
+  .htop-head, .htop-row { grid-template-columns: 34px minmax(0, 1.3fr) 78px minmax(0, 1.2fr); gap: 10px; padding: 0 12px; }
+  .hc-mem { display: none; }
+  .htop-head .hc-state { font-size: 0; }
+  .hc-state { font-size: 10.5px; }
+  .htop-row { min-height: 50px; }
+  .htop .hob-svg { width: 20px; height: 20px; }
+  .tape { width: calc(100vw - 16px); }
+  .tape-artist { display: none; }
+  .tape-bar { gap: 9px; padding: 8px 10px; }
+}
+
+/* 作品行预览卡窄屏整体隐藏、行内安全区回缩（原 40-cards.css） */
+@media (max-width: 880px) {
+  .work-row { padding-right: clamp(6px, 2vw, 12px); }
+  .wk-preview { display: none; }
+}
+
+/* 循环欢迎语窄屏换短提示符（原 40-cards.css WELCOME 段） */
+@media (max-width: 720px) {
+  .hw-prompt { display: none; }
+  .hw-prompt-sm { display: inline; }
+}
+
+/* 简历页型与 boss 血条小屏保底（原 50-sub.css 自带段，2026-11 体检迁移：
+   现 50-sub 全文已无 max-width 块，本两处为唯一存活保底，勿删） */
+@media (max-width: 760px) {
+  .r-id .display { font-size: clamp(44px, 14vw, 64px); }
+  .md-content table { font-size: 12px; }
+  .md-content th, .md-content td { padding: 8px 10px; }
+}
+/* 小屏保底：字距收紧，仍一行装下 */
+@media (max-width: 480px) {
+  .boss-hp { margin-top: 3.5vh; gap: 6px 12px; }
+  .boss-hp-label, .boss-over { font-size: 10px; letter-spacing: 0.16em; }
+  .boss-hp-track { width: clamp(110px, 30vw, 180px); }
+}
+
+/* 作品灯箱三档（原 42-works.css）：1024 右列收窄 / 720 改纵向 /
+   480 缩略条与按钮再收 */
+@media (max-width: 1024px) {
+  .pj-frame {
+    grid-template-columns: minmax(0, 1fr) clamp(200px, 24vw, 280px);
+    gap: clamp(14px, 2.4vw, 26px);
+  }
+}
+@media (max-width: 720px) {
+  .pj {
+    padding: 0;
+    place-items: stretch;
+    align-items: stretch;
+  }
+  .pj-frame {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    max-width: none;
+    height: 100%;
+    gap: 0;
+    --pj-y: 12px;
+  }
+  .pj-col-main { gap: 0; grid-template-rows: auto auto; }
+  .pj-stage { width: 100vw; }
+  .pj-img {
+    max-height: 54vh;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+  }
+  .pj-bar { padding: 10px var(--pad-x) 12px; }
+  .pj-meta {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px var(--pad-x) calc(28px + env(safe-area-inset-bottom));
+    gap: 10px;
+  }
+  .pj-name { font-size: clamp(28px, 8.4vw, 44px); }
+  .work-row::after { opacity: var(--wr-gh, 0.26); }
+  .wr-glint { display: none; }
+}
+@media (max-width: 480px) {
+  .pj-thumb { width: 56px; }
+  .pj-acts { gap: 8px; }
+  .pj-btn { padding: 9px 14px; letter-spacing: 0.16em; }
+  .work-row::after { font-size: clamp(56px, 14vw, 76px); }
+}

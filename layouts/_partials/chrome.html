@@ -1,0 +1,40 @@
+{{- /* 常驻层（Phase 0）：背景辉光 + 激光 canvas + 顶部胶囊 + 进度点 + 启动遮罩 + 转场幕布
+     （原自研十字光标 .cur 已删，光标回归旧站纸飞机原生 cursor 方案，纯 CSS，见 30-fx.css 尾部）
+     行为在 assets/js/fx.js / deck.js / boot.js 里，这里只给容器。
+     科技感环境层：grid-floor 透视网格地板（CSS 动画）/ scan 偶发扫描线（CSS 动画）
+     / hud-frame 四角 HUD 括号（纯静态）；星座节点画在 #laser 同一 canvas 内。 */ -}}
+<div class="fx" aria-hidden="true">
+  <canvas id="laser" class="laser"></canvas>
+  <div class="glow glow-a"></div>
+  <div class="glow glow-b"></div>
+  <div class="vignette"></div>
+  <div class="grid-floor"></div>
+  <div class="scan"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<header class="chrome">
+  <button id="sound-btn" class="chrome-btn mono" type="button" aria-pressed="false" title="声音开关">SND<span class="snd-state">OFF</span></button>
+  <div class="chrome-actions">
+    <a class="chrome-pill" href="{{ "/" | relURL }}#c-contact" data-scroll data-cursor="GO">CONTACT<em>→</em></a>
+    {{- if not .IsHome }}
+    {{- /* 子页专属返回胶囊，放最右＝手指本能落点；CONTACT 退到它左边。
+           起因（2026-11 站主反馈）：右上角原本只有 CONTACT，被当成返回键用，
+           每次一点就落到首页末尾的联系方式卡。
+           行为（站主 2026-11 定）：HOME = 回到你上次在首页停留的那张卡，不是回顶部
+           ——「返回页面顶部不需要按键」。deck.js 在离开首页时把 active 卡 id 写进
+           sessionStorage.deck-spot，fx.js 在页间转场前把 href 尾部的 #c-home 换成它；
+           没有记录（新标签直进子页）就照直落 01 顶，所以 #c-home 是兜底值。
+           data-home-spot 只是给 fx.js 认的标记。 */ -}}
+    <a class="chrome-pill is-primary" href="{{ "/" | relURL }}#c-home" data-home-spot data-cursor="GO" title="回到上次停留的位置"><em>←</em>HOME</a>
+    {{- end }}
+  </div>
+</header>
+<nav class="dots" aria-label="卡片进度"></nav>
+{{- /* HUD 四角括号：视口边框感，静态装饰，不进 .fx（要压在内容之上、chrome 之下） */ -}}
+<div class="hud-frame" aria-hidden="true"><i class="hf hf-tl"></i><i class="hf hf-tr"></i><i class="hf hf-br"></i><i class="hf hf-bl"></i></div>
+
+{{- /* 四角 HUD（Jason Ng 式）：左下滚动读数 + 右下章节名，deck.js 同步 */ -}}
+<div class="hud hud-bl" aria-hidden="true"><i class="live"></i>SCROLL <b id="hud-pct">000%</b></div>
+<div class="hud hud-br" aria-hidden="true"><span id="chap-no">CH.01</span> · <span id="chap-name">HOME</span></div>
+<div class="boot" aria-hidden="true"><i></i></div>
+<div class="wipe" aria-hidden="true"><i></i><i></i><i></i><i></i></div>

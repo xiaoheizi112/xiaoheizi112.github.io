@@ -1,0 +1,72 @@
+{{- /* 文章详情页 /posts/<slug>/（2026-11 新增文章板块）
+     壳与 /resume/ 同款：.sub-wrap > .back-line + row-head(07) + .hair + 正文。
+     抬头读数全真值：DATE / READ / WORDS / STATUS（草稿如实标 DRAFT）。
+     目录：Hugo .TableOfContents（startLevel 2 → endLevel 4，见 hugo.toml），无二级标题就整块不出。
+     评论：giscus（mapping=pathname，每篇独立 discussion），门控 hugo.toml params.comments。
+     正文排版在 50-sub.css 的 .md-content，代码块配色在 60-chroma.css——本板块只管壳。 */ -}}
+{{- define "main" -}}
+{{- $toc := .Params.toc | default site.Params.ShowToc -}}
+<div class="sub-wrap page-post">
+  <a class="back-line mono" href="{{ "/posts/" | relURL }}">← BACK TO ARTICLES</a>
+  <header class="row-head">
+    <span class="num">07</span>
+    <h1 class="display solid">{{ .Title }}</h1>
+    {{- with .Params.cn }}<span class="cn">{{ . }}</span>{{ end }}
+  </header>
+  <div class="hair show"></div>
+
+  <div class="post-meta">
+    {{- if .Date }}
+    <div><span>DATE</span><b>{{ time.Format "2006-01-02" .Date }}</b></div>
+    {{- end }}
+    {{- with .ReadingTime }}<div><span>READ</span><b>{{ . }} MIN</b></div>{{ end }}
+    {{- with .WordCount }}<div><span>WORDS</span><b>{{ . }}</b></div>{{ end }}
+    <div><span>STATUS</span><b class="{{ if .Draft }}pm-draft{{ else }}pm-on{{ end }}">{{ if .Draft }}DRAFT{{ else }}PUBLISHED{{ end }}</b></div>
+    <div><span>PATH</span><b>{{ .RelPermalink }}</b></div>
+  </div>
+
+  {{- if and $toc .TableOfContents }}
+  <nav class="post-toc" aria-label="目录">
+    <span class="pt-cap">CONTENTS</span>
+    {{ .TableOfContents }}
+  </nav>
+  {{- end }}
+
+  <article class="md-content">
+    {{ .Content }}
+  </article>
+
+  {{- /* 上一篇 / 下一篇：**不能**用 .Page.Next/.Page.Prev——那走全站 RegularPages 序列，
+       实测会把 PREV 指到 /about/（跨板块）。这里在 posts 板块内按同一口径自算：
+       序列 = where site.RegularPages "Type" "posts"（Hugo 默认日期倒序，与列表页一致），
+       index-1 是更新的 = NEXT，index+1 是更旧的 = PREV。
+       注意：取相邻项不能用 cond——它两边都求值，index 越界直接 panic，只能 if 分支。 */}}
+  {{- $posts := where site.RegularPages "Type" "posts" -}}
+  {{- $my := -1 -}}
+  {{- range $i, $p := $posts }}{{ if eq $p.RelPermalink $.RelPermalink }}{{ $my = $i }}{{ end }}{{ end -}}
+  {{- $prev := dict -}}
+  {{- $next := dict -}}
+  {{- if and (ge $my 0) (lt (add $my 1) (len $posts)) }}{{ with index $posts (add $my 1) }}{{ $prev = dict "u" .RelPermalink "t" .Title }}{{ end }}{{ end -}}
+  {{- if gt $my 0 }}{{ with index $posts (sub $my 1) }}{{ $next = dict "u" .RelPermalink "t" .Title }}{{ end }}{{ end -}}
+  {{- if or $prev $next }}
+  <nav class="post-nav" aria-label="上一篇 / 下一篇">
+    {{- with $prev }}
+    <a class="pn-cell prev" href="{{ .u }}">
+      <span class="pn-k">← PREV</span>
+      <span class="pn-t">{{ .t }}</span>
+    </a>
+    {{- end }}
+    {{- with $next }}
+    <a class="pn-cell next" href="{{ .u }}">
+      <span class="pn-k">NEXT →</span>
+      <span class="pn-t">{{ .t }}</span>
+    </a>
+    {{- end }}
+  </nav>
+  {{- end }}
+
+  {{- if .Param "comments" }}
+    {{- partial "comments.html" (dict "title" "文章评论") }}
+  {{- end }}
+</div>
+{{- end -}}

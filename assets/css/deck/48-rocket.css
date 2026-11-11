@@ -1,0 +1,199 @@
+/* ============================================================
+   48-rocket.css —— 09 CONTACT 卡组件「代码火箭」（五代：A 精线工程稿）
+   （rocket.js 注入 #c-contact 卡内，本文件只管样式；造型/几何=试验田
+   _lab.html 手法9 定稿：96×192 原生 1:1（不再 ×2 拉粗描边），stroke 1px）
+   工程机语法：暗底 var(--d-card) 填充 + 酸绿 1px 描边 + pattern#rk-scan
+   扫描条纹（op .28，不再 .5 糊成条纹块）+ 鼻锥肩缝/舱段环缝/舷窗十字标线/
+   后掠翼内筋/裙线/钟形喷管+喉线/马赫环，立于 HUD 线框发射平台
+   （分体甲板+斜撑腿+横梁+地线齿+5 颗 LED 指示灯行+PAD-01 注记）。
+   五代待机焰全灭：三层 scaleY/opacity = chg×系数、无基值（旧 .16 残根=
+   画歪元凶）；焰原点=喷口 y=132，外焰满蓄尖至 y=184（52 单位×1.5）。
+   四代坞位沿用：.rk absolute 停靠 09 卡（.card 是 relative 无裁剪），
+   top calc(50% + 100px)；可见性=卡片可见性（deck.js 纵深 --rk-op/--rk-sc
+   天然带它淡入淡出）。发射瞬间 detach() 挂 .detached(fixed)+inline top/left
+   脱坞到 body；落地 dock() 回坞（卡已在屏外，无跳变）。
+   辉光走 filter drop-shadow 动态 calc(5+chg×9px)（箭体不规则形，box-shadow 露矩形框）。
+   焰三层（feTurbulence+feDisplacementMap 有机扭曲，scale 5 在 1:1 下等效旧 7px）：
+   外晕/中酸/内芯白，外层 g 吃 transform、内层 path 走 steps(2) 闪烁，嵌套相乘互不顶。
+   震颤：越拉越抖——JS 连续 rAF 写 --sx/--sy，幅度 ∝ chg^1.7 满蓄 ±3.5px；
+   M1 飞行姿态：起飞段横摆+沿速度方向微倾（.rk-btn rotate:var(--rz)）。
+   点火 hold-down：.hold 态震颤×1.6 满焰 LED 全亮 140ms，才转 .fly；
+   .fire 一次性爆闪(rk-muzzle)+冲击环(rk-ring)+沿地线横扩冲击波(rk-sw)。
+   读数全真值（CHG 拖拽比 / VEL 真实 px/s / IGNITION / ABORT·LOW / TOUCHDOWN）。
+   --chg/--sx/--sy/--rz/--pull/--fly/--rise 由 JS 逐帧写。降级（触屏/窄屏/矮视口/reduced）归 90-media.css。
+   ============================================================ */
+
+.rk {
+  --rk-travel: 160px; /* 蓄力下拉最大行程；rocket.js 读本值算 CHG，窄屏在 90 里改 */
+  position: absolute; /* 停靠 09 卡（四轮：站主指定做成板块组件） */
+  right: clamp(200px, 26vw, 420px); /* 站主圈定「2」位：终端面板（右缘≈62%）与 dots（95.7%）之间空带；≤720 回贴右缘在 90 */
+  top: calc(50% + 100px); /* 四轮：整组再下移 50px */
+  translate: 0 -50%;
+  z-index: 45; /* 卡内堆叠：压在卡内容上；脱坞挂 body 时同值压 dots 40 上、scroll-rail 56 下 */
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  font-family: var(--f-mono);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.rk.detached { position: fixed; } /* 发射脱坞态：JS 同帧写 inline top/left/right:auto/translate:0 0 */
+
+/* ---------- 发射台整体：箭体 + 平台（三代无导轨） ---------- */
+.rk-pad {
+  position: relative;
+  width: 120px;
+  height: calc(220px + var(--rk-travel)); /* 甲板线 132（=箭体尾翼下缘 y132，1:1）+ 行程 + 88 余量（满蓄焰尖 y184 仍在 192 箭体内，读数不被压住）——lab .rkl 380px 实证几何 */
+}
+
+/* 箭体即手柄：无按钮框，位移走 translate + 自定义属性（--pull 拖拽 / --fly 升空），
+   minifier 不动 var() 值；armed/fly/hold 期间 JS 逐帧写，CSS 关插值防打架 */
+.rk-btn {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 96px;
+  height: 192px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--d-acid);
+  cursor: grab;
+  touch-action: none; /* 只写手柄！.deck 上绝不能碰 touch-action（祖先交集会禁全站横滑） */
+  translate: calc(-50% + var(--sx, 0px)) calc(var(--pull, 0px) + var(--sy, 0px) - var(--fly, 0) * var(--rise, 0px));
+  rotate: var(--rz, 0deg); /* M1 微倾绕箭体自身中心（translate 先、rotate 后，合成次序固定） */
+  transition: translate 0.5s var(--ease);
+}
+.rk.armed .rk-btn { cursor: grabbing; }
+.rk.armed .rk-btn, .rk.fly .rk-btn, .rk.hold .rk-btn { transition: none; }
+.rk-btn:hover { color: var(--d-white); } /* hover 换白=可点确认；蓄力/飞行/点火强制回酸绿 */
+.rk.armed .rk-btn, .rk.fly .rk-btn, .rk.hold .rk-btn { color: var(--d-acid); }
+.rk-btn svg {
+  width: 96px;
+  height: 192px;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 0 calc(5px + var(--chg, 0) * 9px) rgba(58, 227, 92, calc(20% + var(--chg, 0) * 48%)));
+  transition: filter 0.3s;
+}
+.rk.armed .rk-btn svg, .rk.fly .rk-btn svg, .rk.hold .rk-btn svg { transition: none; }
+
+/* 呼吸挂箭体组（三代不再挂整个 svg）；蓄力/飞行/点火停呼吸保描边常亮 */
+.rk-btn .rk-body {
+  animation-name: rk-breathe;
+  animation-duration: 3.2s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes rk-breathe { 50% { opacity: 0.82; } }
+.rk.armed .rk-btn .rk-body, .rk.fly .rk-btn .rk-body, .rk.hold .rk-btn .rk-body { animation-name: none; }
+
+/* ---------- 发射平台：HUD 线框（甲板线=箭体尾翼下缘 66×2=132；LED 行在地线下 cy=50） ---------- */
+.rk-pads {
+  position: absolute;
+  top: 132px;
+  left: 50%;
+  translate: -50% 0;
+  width: 120px;
+  height: 60px;
+  color: var(--d-line-2);
+  pointer-events: none;
+  transition: opacity 0.3s, color 0.3s;
+}
+.rk.armed .rk-pads, .rk.fly .rk-pads, .rk.hold .rk-pads { color: var(--d-acid); opacity: 0.32; } /* 蓄力=离台，平台退到背景 */
+.rk-led { fill: var(--d-line-2); transition: fill 0.12s, filter 0.12s; }
+.rk-led.lit { fill: var(--d-acid); filter: drop-shadow(0 0 3px var(--d-acid)); }
+
+/* ---------- 焰三层：外晕/中酸/内芯白；g 走蓄力 transform，path 走闪烁，嵌套相乘互不顶。
+   五代无基值：chg=0 全灭（待机零残焰），系数=lab 回灌 o:1.50 m:1.34 i:1.14 ---------- */
+.rk-fl {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  transition: transform 0.25s var(--ease), opacity 0.25s;
+}
+.rk-fl-o { transform: scaleY(calc(var(--chg, 0) * 1.5)); opacity: calc(var(--chg, 0) * 0.5); }
+.rk-fl-m { transform: scaleY(calc(var(--chg, 0) * 1.34)); opacity: calc(var(--chg, 0) * 0.85); }
+.rk-fl-i { transform: scaleY(calc(var(--chg, 0) * 1.14)); opacity: calc(var(--chg, 0) * 0.95); }
+.rk.armed .rk-fl, .rk.fly .rk-fl, .rk.hold .rk-fl { transition: none; }
+.rk-fl path {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation-name: rk-flick;
+  animation-duration: 0.083s;
+  animation-timing-function: steps(2);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.rk-fl-m path { animation-duration: 0.069s; }
+.rk-fl-i path { animation-duration: 0.052s; animation-direction: alternate-reverse; }
+@keyframes rk-flick {
+  from { transform: scaleY(0.85); }
+  to   { transform: scaleY(1.1); }
+}
+
+/* ---------- 点火一次性：爆闪 + 冲击环（喷嘴口 y=132，1:1）+ 沿地线（171）横扩冲击波 ---------- */
+.rk-mz {
+  position: absolute;
+  top: 132px;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 38%, var(--d-acid-glow) 55%, transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.2);
+}
+.rk-rg {
+  position: absolute;
+  top: 132px;
+  left: 50%;
+  width: 190px;
+  height: 190px;
+  margin: -95px;
+  border-radius: 50%;
+  border: 1px solid var(--d-acid);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.1);
+}
+.rk-sw {
+  position: absolute;
+  top: 171px;
+  left: 50%;
+  width: 120px;
+  height: 2px;
+  margin-left: -60px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--d-acid) 30%, var(--d-white) 50%, var(--d-acid) 70%, transparent);
+  opacity: 0;
+  transform: scaleX(0.15);
+}
+.rk.fire .rk-mz { animation: rk-muzzle 0.13s var(--ease) both; }
+.rk.fire .rk-rg { animation: rk-ring 0.42s var(--ease) both; }
+.rk.fire .rk-sw { animation: rk-sw 0.34s var(--ease) both; }
+@keyframes rk-muzzle {
+  from { opacity: 0.85; transform: scale(0.3); }
+  to   { opacity: 0; transform: scale(2.6); }
+}
+@keyframes rk-ring {
+  from { opacity: 0.8; transform: scale(0.1); }
+  to   { opacity: 0; transform: scale(1); }
+}
+@keyframes rk-sw {
+  from { opacity: 0.9; transform: scaleX(0.15); }
+  to   { opacity: 0; transform: scaleX(3.2); }
+}
+
+/* ---------- 读数窗：等宽小字，状态词如实（RDY/CHG/IGNITION/VEL/ABORT/TOUCHDOWN） ---------- */
+.rk-read {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--d-mute);
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+.rk.armed .rk-read, .rk.fly .rk-read, .rk.hold .rk-read { color: var(--d-acid); }
+.rk.low .rk-read { color: var(--d-mute); }
+.rk.land .rk-read { color: var(--d-acid); text-shadow: 0 0 12px rgba(58, 227, 92, 0.6); }

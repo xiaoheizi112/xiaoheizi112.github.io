@@ -1,0 +1,20 @@
+{{- /* 文章板块空状态（2026-11 新增板块）：content/posts/ 无稿时的待机面板。
+     读数如实（CLAUDE.md 铁律）：ENTRIES 是真计数、STATUS 如实写 STANDBY、INDEX 是真路径；
+     取不到真值的行（LAST ENTRY 之类）整行不输出，绝不编数字冒充。
+     首页 07 卡与 /posts/ 列表页共用；件复用 40-cards 全局的 .rm 角括号与 .ah-live 呼吸点。
+     参数 dict（可省）：home=true 时参与 .rv 进场；list=true 时 INDEX 行不再自链。
+     站主供稿后这块自然消失：往 content/posts/ 放一个 .md（front matter 至少 title + date）就自动上屏。 */ -}}
+{{- $n := len (where site.RegularPages "Type" "posts") -}}
+<div class="post-empty{{ if .home }} rv{{ end }}" style="--i:3" role="status">
+  <span class="rm tl" aria-hidden="true"></span>
+  <span class="rm tr" aria-hidden="true"></span>
+  <span class="rm bl" aria-hidden="true"></span>
+  <span class="rm br" aria-hidden="true"></span>
+  <p class="pe-cap mono"><i class="ah-live" aria-hidden="true"></i>STANDBY<span class="pe-rule" aria-hidden="true"></span>NO SIGNAL</p>
+  <p class="pe-line">第一批稿件还在路上。这一区收笔记、复盘和随手写的东西，写好了自动上屏。</p>
+  <ul class="pe-read">
+    <li><span>ENTRIES</span><b>{{ printf "%03d" $n }}</b></li>
+    <li><span>STATUS</span><b class="standby">STANDBY</b></li>
+    <li><span>INDEX</span>{{ if .list }}<b>{{ "/posts/" | relURL }}</b>{{ else }}<a href="{{ "/posts/" | relURL }}" data-cursor="OPEN">{{ "/posts/" | relURL }}</a>{{ end }}</li>
+  </ul>
+</div>

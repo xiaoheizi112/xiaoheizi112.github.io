@@ -1,0 +1,211 @@
+/* ============================================================
+   48-skills.css — 02 SKILLS 技能带（2026-11 R12：三行错位 + 官方原色 + 彩色格牌 + 共享读数行）
+   站主定：①图标用各家官方原色（data/skills.yml 的 src → static/icons/，颜色一律不动）；
+   ②同一批 13 枚铺成三行，每行起始下标错开（插空），轨道 translateX(-50%)→0
+     = 视觉上自左向右缓慢移动，三行不同周期无限循环；
+   ③注脚不再每格浮一层，改成带体下方一条共享读数行 —— 纯 CSS :has() 按 data-sk
+     点亮对应 data-ro，零新 JS。加/删图标要同步改下面的 13 条 :has() 规则。
+
+   语言纪律：工程机仪表盘 —— 圆角格牌（R14 起改正方白牌，照参照站的珐琅片语法）、
+   等宽读数行、呼吸点、边缘渐隐 mask；品牌色从 R14 起**不再参与牌面着色**
+   （白底压不出染色），只留在 data/skills.yml 的 tint 与读数行；图标一律官方原色。
+   降级纪律（darkroom 正向注册）：基态 = 手动横滑 + 读数行停在默认提示，
+   只有 (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)
+   才注册 marquee；不注册动画时重复铺的那遍 display:none（静态态看不到重复图标）。
+   触屏/矮视口降级见 90-media.css。
+   ============================================================ */
+
+#c-skills .row-head { margin-bottom: 3.4vh; }
+
+/* 读数行：SKILL MATRIX // ENTRIES 013 · ROWS 003 —— 条数取 len 真值，不编数 */
+.sk-cap {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 0 0 4px;
+  font-size: 12px; letter-spacing: .1em; color: var(--d-mute);
+}
+.sk-cap b { color: var(--d-acid); font-weight: 400; }
+.sk-sep { color: var(--d-mute); }
+.sk-live {
+  flex: 0 0 auto; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--d-acid); box-shadow: 0 0 8px var(--d-acid-glow);
+}
+.sk-hint { margin-left: auto; opacity: .55; }
+.sk-hint-t { display: none; margin-left: auto; opacity: .55; }
+
+/* 三行带体：行是裁剪框，track 才是走的那条。
+   2026-11 R14（站主 2026-11-11：太扁了要正方形的、底色纯白、外框做成小框形状）：
+     牌 13:10 → 1/1、底改纯白实心、边改近黑深发丝（这三条见下方 .sk-tile 注释）。
+     代价：牌高从 79px 涨到 103px（1440 档），三行带体 337→408px。13 档视口实测
+     卡片不溢出、无横向滚动（矩形牌时代省下的那 ~70px 是还给方牌了）。
+     旧 R13 的横牌取舍已作废，别往回复原。
+     --sk-per     一排几枚（站主定 10，窄屏在 90-media 换 6/5/4；横屏矮视口另提 10）
+     --sk-cell    格宽 = (带宽 - (per-1)*gap) / per，用容器单位 100cqw 量带体真宽
+                  （旧写法量 100vw，会在有 max-width 的卡里多出 ~90px，第 10 枚被裁）
+     --sk-gap     列缝 10px      --sk-row-gap 行距 10px      --sk-radius 牌圆角 18%（R14 起走百分比，
+                  随牌宽缩放：108px 牌 → 19px、72px 牌 → 13px，一套值通吃，窄屏不再需要覆写）
+   中行整条右移半个周期 (cell+gap)/2 → 砖缝对上，三行成错位网格。 */
+.sk-band {
+  --sk-per: 10;
+  --sk-gap: 10px;
+  --sk-radius: 18%;
+  --sk-row-gap: 10px;
+  /* 兜底：老引擎按视口宽估（会有不到半格的误差，不影响读） */
+  --sk-cell: calc((100vw - 2 * var(--pad-x) - (var(--sk-per) - 1) * var(--sk-gap)) / var(--sk-per));
+  container-type: inline-size;
+  display: grid;
+  gap: var(--sk-row-gap);
+  padding: 8px 0 4px;
+}
+/* 精确解：100cqw ＝ 带体自身内容宽（padding-inline 为 0），每排正好铺满 per 枚 */
+@supports (width: 1cqw) {
+  .sk-band {
+    --sk-cell: calc((100cqw - (var(--sk-per) - 1) * var(--sk-gap)) / var(--sk-per));
+  }
+}
+.sk-row {
+  overflow-x: auto;                    /* 基态：手动滑（触屏/减弱动效即成品） */
+  scrollbar-width: none;               /* 滚动条会打断带子的整体感 */
+  overscroll-behavior-x: contain;      /* 横滑别甩给 deck */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+}
+.sk-row::-webkit-scrollbar { display: none; }
+.sk-track { display: flex; width: max-content; }
+/* 错位半格：加在 track 的 padding-left 上，两遍一起平移，循环接缝照旧无缝 */
+.sk-row:nth-child(2) .sk-track { padding-left: calc((var(--sk-cell) + var(--sk-gap)) / 2); }
+
+/* 重复铺的那遍只在 marquee 真跑起来时出现 */
+.sk-item[aria-hidden="true"] { display: none; }
+
+/* 瓦片：宽度 = 托盘 + 左右各半个 gap，这样「周期 = cell + gap」正好等于 translateX(-50%)
+   走完的一遍宽度，接缝不会差半个 gap（用 flex gap 就会差，别改回去） */
+.sk-item {
+  position: relative; flex: 0 0 auto;
+  box-sizing: border-box; display: block;
+  width: calc(var(--sk-cell) + var(--sk-gap));
+  padding: 0 calc(var(--sk-gap) / 2);
+}
+/* 格牌（R14 正方白牌 —— 2026-11-11 站主令：太扁了要正方形的、底色纯白、外框做成小框形状）：
+     ① 比例 13:10 → 1/1；
+     ② 底 品牌色 10% 淡渐变 → 纯白 #fff 实心；
+     ③ 边 --d-line-2（亮中性）→ 近黑深发丝 —— 白块坐在黑底上，要靠深框才读得出
+        「一枚一枚的小框」；原来的亮框贴白块边缘会糊在一起；
+     ④ 圆角改走百分比（见 .sk-band 的 --sk-radius），随牌宽自己缩放，窄屏那三处
+        px 覆写随之作废（90-media 里已删）；
+     ⑤ --si（品牌色）在牌内不再消费：白底上 10% 染色与品牌色投影都印不出来，
+        只留 72% 的原图本体（断言见下 hover 段）。
+   名字在牌外（.sk-name），牌内不留名字带 —— 图标才能占满 72%。 */
+.sk-tile {
+  position: relative; box-sizing: border-box;
+  display: grid; place-items: center;
+  width: 100%; aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 1px solid rgba(5, 6, 7, .28);
+  border-radius: var(--sk-radius);
+  background: #fff;
+  transition: border-color .34s var(--ease),
+    transform .34s var(--ease), box-shadow .34s var(--ease);
+}
+/* 官方原图：不加亮度/饱和滤镜（颜色一律不动，站主定）。
+   宽高百分比 + min-*:0 —— 图片自带 min-content（HTML 里的 64px）会把牌高顶成 103px，
+   两条 min-* 是必要的（R13 实测的教训，R14 换正方后照旧）。
+   86% → 72%（R14）：白底要留呼吸，同时兼顾易语言红印章 / C++ 这类满幅图标的视觉重量；
+   参照站是 60%，我们取 72% 是因为小屏牌宽只有 72px，60% 时图标只剩 43px。 */
+.sk-art {
+  display: block; width: 72%; height: 72%; min-width: 0; min-height: 0;
+  object-fit: contain;
+}
+/* 名字（R13 搬到牌外下方）：默认 .68 存在感，hover/点按才亮到白。
+   放在牌外是牌能压矮的前提——牌内留名字带就得吃掉半个图标。
+   2026-11 站主反馈「太小太模糊」：10.5px + .68 透明度在暗底上发虚 →
+   12.5px、透明度 .95、字距收到 .03em（小字号下的字距会把字拉糊）。 */
+.sk-name {
+  display: block; margin-top: 5px;
+  text-align: center;
+  font-size: 12.5px; letter-spacing: .03em; color: var(--d-mute);
+  opacity: .95; white-space: nowrap;
+  transition: color .34s var(--ease), opacity .34s var(--ease);
+}
+
+/* 共享读数行：一行读完，注脚不再每格浮一层（R13 放大到 13.5px —— 站主说「介绍文字小了」）
+   2026-11 再提一档：默认提示那行 13.5→14.5px，暗灰 .7 透明度 → 常色 .85（同一轮反馈） */
+.sk-readout {
+  display: block; margin: 10px 0 0; min-height: 2.4em;
+  font-size: 14.5px; letter-spacing: .05em; line-height: 1.5;
+}
+.sk-readout .sk-ro { display: none; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.sk-readout .sk-ro b {
+  font-weight: 400; letter-spacing: .12em; color: var(--d-white);
+}
+.sk-readout .sk-ro-sub { color: var(--d-acid); }
+.sk-readout .sk-ro-desc {
+  font-family: var(--f-body); letter-spacing: .02em; color: var(--d-mute);
+}
+.sk-ro-def { color: var(--d-mute); opacity: .85; }
+/* 触屏没有悬停，默认提示换成「点按」那份（90-media 里换显隐）；
+   选择器要带 .sk-readout 前缀压过上面 .sk-ro 的 display:none——同为 (0,2,0)，靠后置胜出 */
+.sk-readout .sk-ro-def { display: inline; }
+.sk-readout .sk-ro-def-t { display: none; }
+
+.sk-note {
+  margin: 4px 0 0;
+  font-size: 13.5px; letter-spacing: .04em; color: var(--d-mute); opacity: .9;
+}
+
+/* ---- 悬停层（R14 白牌版）：牌外缘亮成主题酸绿描边环 + 上浮 2px + 酸绿辉光；白底本身不动。
+   R13 的「底盘提到品牌色 18% 渐变」和「图标 drop-shadow 品牌色光晕」两条都删了：
+   白底上 10%~18% 的品牌色染色压不出色相，投影也会糊进图标的官方原色里 —— 白底只认描边。
+   （--d-acid-glow 是整条 shadow 简写不是颜色，别往 box-shadow 里塞，要颜色用 color-mix。） ---- */
+@media (hover: hover) and (pointer: fine) {
+  .sk-item:hover .sk-tile {
+    border-color: var(--d-acid);
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--d-acid) 32%, transparent),
+      0 12px 26px -14px color-mix(in srgb, var(--d-acid) 55%, transparent);
+  }
+  .sk-item:hover .sk-name { color: var(--d-white); opacity: 1; }
+}
+
+/* ---- 读数行点亮：指/按到哪枚就出哪枚的注脚（键名与 data/skills.yml 一一对应） ---- */
+#c-skills:has(.sk-item:hover) .sk-ro-def,
+#c-skills:has(.sk-item:active) .sk-ro-def { display: none; }
+#c-skills:has(.sk-item[data-sk="c"]:hover) .sk-ro[data-ro="c"],
+#c-skills:has(.sk-item[data-sk="c"]:active) .sk-ro[data-ro="c"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="cpp"]:hover) .sk-ro[data-ro="cpp"],
+#c-skills:has(.sk-item[data-sk="cpp"]:active) .sk-ro[data-ro="cpp"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="python"]:hover) .sk-ro[data-ro="python"],
+#c-skills:has(.sk-item[data-sk="python"]:active) .sk-ro[data-ro="python"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="easylang"]:hover) .sk-ro[data-ro="easylang"],
+#c-skills:has(.sk-item[data-sk="easylang"]:active) .sk-ro[data-ro="easylang"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="linux"]:hover) .sk-ro[data-ro="linux"],
+#c-skills:has(.sk-item[data-sk="linux"]:active) .sk-ro[data-ro="linux"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="ai"]:hover) .sk-ro[data-ro="ai"],
+#c-skills:has(.sk-item[data-sk="ai"]:active) .sk-ro[data-ro="ai"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="dify"]:hover) .sk-ro[data-ro="dify"],
+#c-skills:has(.sk-item[data-sk="dify"]:active) .sk-ro[data-ro="dify"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="coze"]:hover) .sk-ro[data-ro="coze"],
+#c-skills:has(.sk-item[data-sk="coze"]:active) .sk-ro[data-ro="coze"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="qt"]:hover) .sk-ro[data-ro="qt"],
+#c-skills:has(.sk-item[data-sk="qt"]:active) .sk-ro[data-ro="qt"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="vscode"]:hover) .sk-ro[data-ro="vscode"],
+#c-skills:has(.sk-item[data-sk="vscode"]:active) .sk-ro[data-ro="vscode"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="claude"]:hover) .sk-ro[data-ro="claude"],
+#c-skills:has(.sk-item[data-sk="claude"]:active) .sk-ro[data-ro="claude"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="git"]:hover) .sk-ro[data-ro="git"],
+#c-skills:has(.sk-item[data-sk="git"]:active) .sk-ro[data-ro="git"] { display: flex; }
+#c-skills:has(.sk-item[data-sk="docker"]:hover) .sk-ro[data-ro="docker"],
+#c-skills:has(.sk-item[data-sk="docker"]:active) .sk-ro[data-ro="docker"] { display: flex; }
+
+/* ---- 桌面细指针 + 允许动效：三行同速 60s 缓慢自左向右滚（参考就是单一速度），悬停即停 ---- */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .sk-row { overflow: hidden; }
+  .sk-item[aria-hidden="true"] { display: block; }
+  /* 起点 -50%（第二遍正好接在第一遍后面）→ 0：整条带自左向右走 */
+  @keyframes sk-roll { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+  .sk-track { animation: sk-roll 60s linear infinite; will-change: transform; }
+  /* 同速但不同起点：负 delay = 一上来就已走过 N 秒，三行不会齐步走 */
+  .sk-row:nth-child(1) .sk-track { animation-delay: -12s; }
+  .sk-row:nth-child(2) .sk-track { animation-delay: -31s; }
+  .sk-row:nth-child(3) .sk-track { animation-delay: -3s; }
+  .sk-row:hover .sk-track { animation-play-state: paused; }
+}

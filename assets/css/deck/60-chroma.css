@@ -1,0 +1,139 @@
+/* ============================================================
+   60-chroma.css —— Markdown 代码高亮（Hugo Chroma，noClasses=false）
+   归属：Phase 1 · P2。
+   hugo.toml 已设 noClasses = false：goldmark 输出 <div class="highlight">
+   <pre><code class="language-xx">，每个 token 带 .chroma .c1/.s/.k 类。
+   配色：深空黑底 + acid 绿系（注释 dim / 字符串数字 acid 变体 /
+   关键字白 / 函数与预处理青绿），不引入站外色。
+   ============================================================ */
+
+/* 代码块容器：1px 发丝边框 + 圆角 + mono 13px + 行距 1.7 */
+.highlight {
+  position: relative;
+  margin: 2.2em 0;
+  border: 1px solid var(--d-line);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(58, 227, 92, 0.035), transparent 34%), var(--d-void-2);
+  overflow: hidden;
+}
+.highlight pre,
+.md-content pre {
+  margin: 0;
+  padding: 18px 22px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.highlight code,
+.highlight pre {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  background: transparent;
+}
+/* 非 .highlight 包裹的裸 pre（缩进代码块）也补齐容器观感 */
+.md-content > pre {
+  border: 1px solid var(--d-line);
+  border-radius: 12px;
+  background: var(--d-void-2);
+}
+
+/* 右上角语言角标：data-lang 由 goldmark 写在 code 上 */
+.highlight code::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-dim);
+  pointer-events: none;
+}
+
+/* ---------- token 配色 ---------- */
+
+.chroma {
+  color: rgba(242, 245, 243, 0.88); /* 默认字色：白降一档 */
+  background: transparent;
+}
+
+/* 注释族：dim，弱到几乎退入背景 */
+.chroma .c, .chroma .c1, .chroma .cm, .chroma .cs, .chroma .ch, .chroma .cpf {
+  color: var(--d-dim);
+  font-style: normal;
+}
+
+/* 关键字族：白，加重 */
+.chroma .k, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr {
+  color: var(--d-white);
+  font-weight: 700;
+}
+
+/* 类型 / 常量名：acid 本体 */
+.chroma .kt, .chroma .nc, .chroma .no {
+  color: var(--d-acid);
+}
+/* 普通标识符：近白，保证正文代码以白为主 */
+.chroma .n { color: rgba(242, 245, 243, 0.9); }
+
+/* 函数 / 宏：青绿（扩展色，仅服务代码配色，不动全站令牌） */
+.chroma .nf, .chroma .fm, .chroma .nd {
+  color: #3be3c8;
+}
+
+/* 字符串族：acid-2 浅绿 */
+.chroma .s, .chroma .sb, .chroma .sc, .chroma .dl, .chroma .sd,
+.chroma .s2, .chroma .se, .chroma .sh, .chroma .si, .chroma .sx,
+.chroma .sr, .chroma .s1, .chroma .ss {
+  color: var(--d-acid-2);
+}
+
+/* 数字族：acid（比字符串深一档，区分两种"量"） */
+.chroma .m, .chroma .mb, .chroma .mf, .chroma .mh, .chroma .mi,
+.chroma .mo, .chroma .il {
+  color: var(--d-acid);
+}
+
+/* 预处理 / 指令：青绿 */
+.chroma .cp, .chroma .pp {
+  color: #3be3c8;
+  font-weight: 700;
+}
+
+/* 变量 / 参数：白偏灰 */
+.chroma .nv, .chroma .vm, .chroma .vi, .chroma .py, .chroma .ni {
+  color: rgba(242, 245, 243, 0.78);
+}
+.chroma .nb, .chroma .bp {
+  color: var(--d-mute);
+}
+
+/* 标签（HTML/XML）：acid；属性：acid-2 */
+.chroma .nt { color: var(--d-acid); }
+.chroma .na { color: var(--d-acid-2); }
+
+/* 运算符：mute；标点：更暗 */
+.chroma .o, .chroma .ow { color: var(--d-mute); }
+.chroma .p, .chroma .po { color: rgba(151, 164, 158, 0.6); }
+
+/* 错误 token：全站唯一允许的非绿警示色，压低饱和度 */
+.chroma .err {
+  color: #e07b6f;
+  border-bottom: 1px dotted #e07b6f;
+}
+
+/* 行号 / 高亮行（lineNos 当前关闭，留兜底） */
+.chroma .ln, .chroma .lntd .linenos, .chroma .lnt {
+  color: var(--d-dim);
+  user-select: none;
+}
+.chroma .hl {
+  background: var(--d-acid-soft);
+  display: inline-block;
+  width: 100%;
+}
+
+/* 选中代码时保留绿字对比（::selection 是 acid 底） */
+.chroma ::selection { background: var(--d-acid); color: var(--d-void); }

@@ -1,0 +1,19 @@
+{{- /* 文章行（2026-11 文章板块）：首页 07 卡与 /posts/ 列表页共用。
+     参数 dict：page（文章页）· i（0 基序号，决定 [01] 编号）· home（true=首页卡，参与 .rv 进场）。
+     样式在 46-posts.css；摘要优先 front matter description，退到正文纯文本。 */ -}}
+{{- $p := .page -}}
+<a class="post-row{{ if .home }} rv{{ end }}"{{ if .home }} style="--i:{{ add .i 3 }}"{{ end }}
+   href="{{ $p.RelPermalink }}" data-cursor="OPEN">
+  <span class="pr-no">{{ printf "[%02d]" (add .i 1) }}</span>
+  <span class="pr-main">
+    <span class="pr-title">{{ $p.Title }}</span>
+    {{- $sum := $p.Description | default (trim $p.Plain "\n\r ") -}}
+    {{- with $sum }}<span class="pr-sum">{{ . | truncate 110 }}</span>{{ end -}}
+    <span class="pr-meta">
+      <time class="pm-date" datetime="{{ time.Format "2006-01-02" $p.Date }}">{{ time.Format "2006-01-02" $p.Date }}</time>
+      {{- with $p.ReadingTime }}<span>{{ . }} MIN READ</span>{{ end -}}
+      {{- with $p.WordCount }}<span>{{ . }} WORDS</span>{{ end -}}
+    </span>
+  </span>
+  <span class="pr-go" aria-hidden="true">→</span>
+</a>

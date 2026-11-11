@@ -1,0 +1,1575 @@
+/* ============================================================
+   40-cards.css —— 卡内细节样式(Phase 1 · P1)
+   覆盖:01 HOME 跑马灯带/旋转徽章 / 03 SIGNALS 电台调谐面板 / 04 INTERESTS 生活进程表(htop) / 05 WORKS 作品行 + hover 预览卡(README 真实截图,video-notes 保留全息线框) /
+        06 CONTACT 复制胶囊 / #tape 播放器条
+   （05 FOCUS 四象限已随板块整体删除,2026-11；02 全息头像已撤下,2026-11；03 扇形卡堆 fan-stage 已整体换成电台调谐面板(2026-11),旧扇形 CSS 与抽卡仪式同删）
+   契约类名(index.html 与 tape.js/radio.js 引用,勿改名):
+     .radio .rm .dial .dial-read .dial-scale .d-tick .d-lab .needle .radio-grid .chan-list .chan-row .ch-no .ch-title .ch-artist .vu .ch-go .scope-box .scope .scope-info .scope-title .scope-artist .scope-tele .scope-pola
+     .htop .htop-meta .htop-head .htop-row .hc-pid .hc-proc .hc-state .hc-cpu .hc-mem .hc-up .hp-bar .htop-foot .hf-wave #hob-sort #htop-rows #htop-hint #htop-wave（引擎 htop.js）
+     .cp
+     #tape 内 tape.js 渲染:.tape-bar(玻璃条) .tape-cover .tape-meta
+       .tape-title .tape-artist .tape-toggle .tape-prog(内 i=acid 已播段)
+       .tape-next .tape-close,另藏一个不可见 <audio> 便于 DOM 调试
+   实现要点:
+   · deck.js 的 3D 倾斜会把 style.transform 整串覆写,所以散落角度/位移
+     一律走独立 transform 属性(translate / rotate / scale,规范里它们在
+     transform 之前叠加),布局偏移走 left/top/margin —— 与 JS 互不踩踏。
+   · 层级:播放器 .tape z-index 88,压在 chrome/dots(40) 之上、
+     boot/wipe 幕布(90) 之下;全程 ≤900,给后续阶段留余量。
+   · 动画低速柔和;prefers-reduced-motion 只关呼吸与长过渡,hover 位移保留。
+   ============================================================ */
+
+/* ---------- 01 HOME:跑马灯文字带 ----------
+   两行一模一样的 .mq-line 并排,整条左移到 -50% 无缝循环。 */
+.marquee {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 56px; /* 让位底部 HUD 读数行(SCROLL%/CH.xx),否则带子压字 */
+  display: flex;
+  overflow: hidden;
+  border-top: 1px solid var(--d-line);
+  border-bottom: 1px solid var(--d-line);
+  padding: 1.4vh 0;
+  user-select: none;
+  pointer-events: none;
+}
+.mq-line {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-family: var(--f-display);
+  font-size: clamp(18px, 2.6vw, 30px);
+  letter-spacing: 0.06em;
+  color: var(--d-white);
+  animation: mq-slide 26s linear infinite;
+}
+.mq-line em { font-style: normal; color: var(--d-acid); padding: 0 0.4em; }
+@keyframes mq-slide {
+  to { transform: translateX(-100%); }
+}
+
+/* ---------- 01 HOME:旋转徽章(SVG 圆排文字) ---------- */
+.badge {
+  position: absolute;
+  right: clamp(88px, 8vw, 132px);
+  bottom: 16vh; /* 抬到跑马灯带上缘之上 */
+  width: clamp(84px, 9vw, 120px);
+  animation: badge-spin 22s linear infinite;
+}
+.badge-txt {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  fill: var(--d-mute);
+  text-transform: uppercase;
+}
+.badge-dot { fill: var(--d-acid); }
+@keyframes badge-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- 01 HOME:ENGINE CORE 线框反应堆核心（core.js 驱动，2026-11） ----------
+   契约: .core-panel[role=button]（点击/Enter/Space → OVERCLOCK）
+        > .rm×4（复用电台角标）+ .core-cap + .core-stage[data-tilt] > svg.core-svg
+          （#core-edges>.core-edge×30 / #core-nodes>.core-node×12 / .core-ring>ellipse+#core-sat / .core-heart）
+        + .core-read（四行真实读数 SPIN/STATUS/UPTIME/BUILD）
+   能量: core.js 由滚动速度逐帧写 --cg（0..1），drop-shadow 辉光吃它变亮；.oc=过载爆闪。
+   兜底: 无 JS 时 markup 自带 rotY34·rotX22·rotZ9 静态投影，棱线全亮即成品；
+         接线动画只在 html.js 且卡片点亮后跑（dashoffset 归零后即静态兜底态）。
+   窄屏: ≤1100 整体隐藏（90-media.css），与 01 core-panel 同一约定。 */
+.core-panel {
+  position: absolute;
+  top: 44%; /* 不是 50%：读数底行要给右下旋转徽章(.badge bottom:16vh)留出净空，别压 BUILD 值 */
+  translate: 0 -50%;
+  right: clamp(28px, 6vw, 120px);
+  width: clamp(230px, 22vw, 380px);
+  z-index: 2;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.core-panel:focus-visible { outline: 1px dashed var(--d-acid); outline-offset: 10px; }
+.core-cap {
+  position: absolute;
+  top: -24px;
+  left: 1px;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+}
+.core-cap i { font-style: normal; color: var(--d-acid); }
+.core-stage { position: relative; aspect-ratio: 1; }
+.core-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 calc(3px + var(--cg, 0) * 15px) rgba(58, 227, 92, 0.55));
+}
+.core-panel.oc .core-svg {
+  filter: drop-shadow(0 0 26px rgba(58, 227, 92, 0.9)) brightness(1.6);
+}
+.core-edge {
+  stroke: var(--d-acid);
+  stroke-width: 1.1;
+}
+.core-node {
+  fill: var(--d-acid-2);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.core-ring ellipse {
+  fill: none;
+  stroke: var(--d-line-2);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+}
+#core-sat { fill: var(--d-acid); }
+.core-heart {
+  fill: var(--d-acid);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: core-pulse 2.8s ease-in-out infinite;
+}
+@keyframes core-pulse {
+  50% { scale: 2; opacity: 0.6; }
+}
+/* 接线动画：卡片进场后 30 条棱按 --ei 逐根点亮，节点随后浮现。
+   坑位说明：minifier 会删「等于初始值」的关键帧声明（to{stroke-dashoffset:0}/to{opacity:1} 都中招），
+   故 from 写显值、to 走隐式计算值 + fill both；0.001 留千分之一缝，视觉即全亮。 */
+html.js .card.on .core-panel .core-edge {
+  stroke-dasharray: 1;
+  animation: core-wire 0.7s var(--ease) both;
+  animation-delay: calc(var(--ei, 0) * 24ms + 0.5s);
+}
+html.js .card.on .core-panel .core-node {
+  animation: core-node-in 0.4s ease both;
+  animation-delay: 1.25s;
+}
+@keyframes core-wire {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0.001; }
+}
+@keyframes core-node-in {
+  from { scale: 0; opacity: 0.2; }
+}
+/* 过载爆闪：轨道环甩一圈冲击波（from 隐式=当前值，规避初始值声明被删） */
+.core-panel.oc .core-ring {
+  animation: core-shock 1s ease-out;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes core-shock {
+  to { scale: 1.32; opacity: 0; }
+}
+/* 读数板：两列四行，全部真实数据（对齐 01 卡 core-read 原则） */
+.core-read {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 20px;
+  margin-top: 16px;
+  padding-inline: 18px; /* 让开 .rm 角标(13+2px)，UPTIME/BUILD 文字不被括号啃边 */
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.core-read > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid var(--d-line);
+  padding-top: 5px;
+}
+.core-read span { color: var(--d-dim); }
+.core-read b { font-weight: 500; color: var(--d-mute); }
+.core-read #core-status { color: var(--d-acid); }
+
+/* ============================================================
+   04 SIGNALS · 电台调谐面板（方案 C，radio.js 驱动，2026-11 重构；R4 细节打磨：
+   行网格 5 列 + TUNE 脱流角贴、静止 VU 柱透明、拍立得收进画框、真读数 BITRATE/PEAK）
+   契约（index.html 04 卡 ↔ radio.js ↔ tape.js 的 data-*）:
+     .radio[data-nodrag] > .rm(tl/tr/bl/br 四角 L 标)
+     .dial > .dial-read(内 b#dial-read + em) · .dial-scale#dial-scale
+       —— .d-tick(.maj/.lab5)>.d-lab 由 radio.js 注入；.needle#needle 走 --np
+      .radio-grid > .chan-list(.chan-row×9: data-i/src/title/artist/cover/desc/freq)
+                  · .deck-bay(radio.js 注入 .cassette + .vu-meter 并排)
+                  · .scope-box(canvas#scope .scope-info(#scope-desc) .scope-pola>img#scope-cover)
+   状态类: .chan-row.active=当前频道 .chan-row.live=播放中 —— radio.js 维护
+   实现要点:
+   · 指针定位走 left: calc(var(--np)*1%) —— --np 由 JS 写成频率在
+     87.5..108.0 上的百分比(不能用 translate %,其 % 参照针自身 2px 宽;
+     数值经 var 兜底,不写会被 minifier 删的初始值)。
+   · 行左侧亮线沿用 work-row 的 --rl scaleY 语义;VU 柱动画 height,keyframes 内部
+     的 0/低值 minifier 不动(它只删「规则里等于初始值的声明」)。
+   · 窄屏堆叠(≤880)、触屏粘滞、短视口全部在 90-media.css 覆写,这里只写基态。
+   ============================================================ */
+
+/* 04/05 一屏撑满(2026-11 站主令):卡片定高 100dvh,body 纵向铺满,面板 flex
+   吃掉余高——04 行高/示波器随余高连续伸缩,05 htop 行均分撑高。
+   取代旧的 max-height:820 硬断点:821-907 视口下 04 卡 882 超视口 61、05 面板
+   恒 482 不随屏长(站主反馈「两个组件没有完全放大」)。 */
+#c-signals,
+#c-interests { height: 100dvh; }
+#c-signals .card-body,
+#c-interests .card-body { display: flex; flex-direction: column; height: 100%; }
+#c-signals .card-body > .radio,
+#c-interests .card-body > .htop { flex: 1 1 auto; min-height: 0; }
+/* 底部预留 .tape 播放条高度(60px+悬浮),播放时不再压住示波器标题 */
+#c-signals { padding-top: clamp(14px, 4vh, 40px); padding-bottom: max(5vh, 96px); }
+/* 04 的纵向节奏随视口高收放：固定 5vh/4vh 在 823 高下会把示波器挤成一条 */
+#c-signals .row-head { margin-bottom: clamp(12px, 3vh, 40px); }
+#c-signals .card-note { margin-bottom: clamp(10px, 2.2vh, 32px); }
+.radio {
+  position: relative;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.6vh, 16px);
+  padding: clamp(12px, 1.8vh, 18px) clamp(14px, 2.2vw, 26px);
+  border: 1px solid var(--d-line);
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--d-card), var(--d-void-2));
+}
+/* 四角 L 形刻度角标 */
+.rm {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  opacity: .6;
+  pointer-events: none;
+}
+.rm.tl { top: -1px; left: -1px; border-top: 2px solid var(--d-acid); border-left: 2px solid var(--d-acid); }
+.rm.tr { top: -1px; right: -1px; border-top: 2px solid var(--d-acid); border-right: 2px solid var(--d-acid); }
+.rm.bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--d-acid); border-left: 2px solid var(--d-acid); }
+.rm.br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--d-acid); border-right: 2px solid var(--d-acid); }
+
+/* ---------- 顶部调谐刻度条（FM 87.5–108.0，刻度 span 由 radio.js 生成） ---------- */
+
+.dial {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(10px, 1.6vw, 18px);
+  padding: 8px clamp(10px, 1.4vw, 16px) 10px;
+  border: 1px solid var(--d-line);
+  border-radius: 4px;
+  background: var(--d-void-2);
+}
+.dial-read {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  font-family: var(--f-mono);
+  font-size: clamp(15px, 1.7vw, 20px);
+  letter-spacing: .08em;
+  color: var(--d-acid);
+  text-shadow: 0 0 14px rgba(58, 227, 92, .5);
+}
+.dial-read b {
+  font-weight: 700;
+  min-width: 5.1ch;      /* 数字滚动/切位时读数窗不抖宽 */
+  display: inline-block;
+}
+.dial-read em { font-style: normal; font-size: .68em; letter-spacing: .22em; color: var(--d-mute); }
+.dial-scale { position: relative; flex: 1 1 auto; min-width: 0; height: 36px; }
+.dial-scale::after {      /* 刻度基线 */
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5px;
+  height: 1px;
+  background: var(--d-line-2);
+}
+.d-tick { position: absolute; bottom: 5px; width: 1px; height: 6px; background: var(--d-dim); }
+.d-tick.maj { height: 13px; background: var(--d-mute); }
+.d-lab {
+  position: absolute;
+  left: 50%;
+  bottom: 21px;
+  translate: -50% 0;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: .04em;
+  color: var(--d-mute);
+  white-space: nowrap;
+}
+.d-tick.maj .d-lab { color: var(--d-mute); }
+.needle {
+  position: absolute;
+  /* 注意:translate 的 % 参照自身宽度(2px 针),会把指针钉死在原地;
+     用 left 的 %(参照 .dial-scale 容器宽)定位,margin-left 回中。
+     --np 由 radio.js 写成频率在 87.5–108.0 上的百分比。 */
+  left: calc(var(--np, 0) * 1%);
+  margin-left: -1px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 2;
+  background: var(--d-acid);
+  box-shadow: 0 0 9px rgba(58, 227, 92, .85), 0 0 24px rgba(58, 227, 92, .35);
+  transition: left .5s var(--ease);
+  pointer-events: none;
+}
+.needle::before {         /* 指针顶部三角 */
+  content: "";
+  position: absolute;
+  top: 11px;              /* R4：让开 .d-lab 数字行，落在数字与长刻度之间 */
+  left: 50%;
+  translate: -50% 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid var(--d-acid);
+}
+
+/* ---------- 主体两栏：左频道列表 / 右示波器 ---------- */
+
+.radio-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  /* 行高：上行列自然高，下行吃余高。canvas 现在走 flex:1 1 0 自适应（见 .scope），
+     显式 min-height 卡住下界，不会形成「行高→画布 attribute→行高」正反馈。 */
+  flex: 1 1 auto;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(10px, 1.4vw, 16px);
+  align-items: stretch;
+}
+.chan-list { display: flex; flex-direction: column; min-width: 0; grid-column: 1; grid-row: 1 / span 2; }
+/* 机芯舱：右列上行，卡带居左、VU 表居右，把原先右半的空白吃掉。
+   两列都走 fr 定比（卡带≈55% / VU≈45%），窄格不溢出；
+   注入顺序即 DOM 顺序（buildCassette 先、buildVu 后），勿再给子件写 grid-column */
+.deck-bay {
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .72fr);
+  align-items: center;
+  gap: clamp(10px, 1.6vw, 18px);
+}
+.chan-row {
+  position: relative;
+  flex: 1 1 auto;               /* 9 行均分列表高度，随面板余高连续伸缩 */
+  min-height: clamp(30px, 4.6vh, 52px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1.15fr) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(8px, 1.1vw, 13px);
+  padding: clamp(4px, .6vh, 6px) 10px clamp(4px, .6vh, 6px) 13px;
+  text-align: left;
+  color: var(--d-mute);
+  border-bottom: 1px solid var(--d-line);
+  transition: background .35s, box-shadow .35s;
+}
+.chan-row:first-child { border-top: 1px solid var(--d-line); }
+/* 行左边线亮起（hover / active 共用，scaleY 幅度走 --rl，同 work-row 语义） */
+.chan-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14%;
+  bottom: 14%;
+  width: 2px;
+  background: var(--d-acid);
+  box-shadow: 0 0 8px rgba(58, 227, 92, .55);
+  transform: scaleY(var(--rl, 0));
+  transform-origin: center;
+  transition: transform .4s var(--ease);
+}
+.chan-row:hover::before, .chan-row.active::before { --rl: 1; }
+.chan-row:hover { background: rgba(58, 227, 92, .045); }
+.chan-row.active { background: rgba(58, 227, 92, .06); box-shadow: inset 0 0 0 1px rgba(58, 227, 92, .55); }
+.chan-row:focus-visible { outline: 1px solid var(--d-acid); outline-offset: -1px; }
+.ch-no {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  transition: color .3s;
+}
+.chan-row.active .ch-no { color: var(--d-acid); }
+.ch-title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(15px, 1.55vw, 19px);
+  line-height: 1.15;
+  letter-spacing: .01em;
+  color: var(--d-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color .3s;
+}
+.chan-row:hover .ch-title, .chan-row.active .ch-title { color: var(--d-white); }
+.ch-artist {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-dim);
+  white-space: nowrap;
+  min-width: 0;                 /* R4：进可缩轨道，超长只截自己，不再腰斩标题 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* ---------- 藏字调谐提示（darkroom --button-inner 手法移植，2026-11；R4 改脱流） ----------
+   脱流浮标（absolute 压行尾），不占 grid 槽位——旧 58px 常驻空槽 + 不可缩 artist
+   合谋把标题挤到腰斩（走查实测 CH-05 只剩 42px）。hover 点亮时把 .vu/.ch-go
+   淡出让位（纯装饰件，.ch-tap pointer-events:none 不会被误点，行点击仍归 button）。
+   与 04 卡 .chan-row 共用同一条 clip-path 视觉语法；hover 层只翻变量并包在
+   (hover:hover) and (pointer:fine) 里，触屏连变量都不挂，无需 90-media 补降级。
+   live 行让位给 VU 柱，不叠提示。 */
+.ch-tap {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  translate: 0 -50%;
+  pointer-events: none;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-acid);
+  white-space: nowrap;
+  opacity: var(--tap-o, 0);
+  clip-path: var(--tap-cp, inset(0 100% 0 0));
+  transition: clip-path .34s var(--ease), opacity .26s var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .chan-row:hover, .chan-row:focus-visible { --tap-o: 1; --tap-cp: inset(0 0 0 0); }
+  .chan-row:hover:not(.live) .vu, .chan-row:focus-visible:not(.live) .vu,
+  .chan-row:hover:not(.live) .ch-go, .chan-row:focus-visible:not(.live) .ch-go { opacity: 0; }
+}
+.chan-row.live .ch-tap { --tap-o: 0; --tap-cp: inset(0 100% 0 0); }
+/* 行尾 3 根 VU 柱：live（真在播）跳动 / 其余一律不画 */
+.vu { display: flex; align-items: flex-end; gap: 2px; height: 16px; transition: opacity .22s var(--ease); }
+/* 熄柱底色透明：三根矮柱不再被读成「…」省略号（走查两轮都撞上：待机行、拖拽中的选中行）。
+   铁律延伸——没信号就不画表：active 但暂停（含调谐握手中）同样熄灭，只有 .live 真出声音才亮。 */
+.vu i { width: 3px; height: 20%; background: transparent; transition: height .3s, background .3s; }
+.chan-row.live .vu i {
+  background: var(--d-acid);
+  box-shadow: 0 0 6px rgba(58, 227, 92, .5);
+  animation: vu-bounce 1.05s ease-in-out infinite;
+}
+.chan-row.live .vu i:nth-child(2) { animation-delay: -.33s; }
+.chan-row.live .vu i:nth-child(3) { animation-delay: -.68s; }
+@keyframes vu-bounce {
+  0%, 100% { height: 22%; }
+  38%      { height: 95%; }
+  60%      { height: 45%; }
+  80%      { height: 72%; }
+}
+.ch-go {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--d-dim);
+  transition: color .3s, translate .3s var(--ease);
+}
+.chan-row:hover .ch-go, .chan-row.active .ch-go { color: var(--d-acid); translate: 2px 0; }
+
+/* ---------- 右列示波器窗 ---------- */
+
+.scope-box {
+  position: relative;
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(7px, 1.2vh, 12px);
+  padding: clamp(10px, 1.4vw, 15px);
+  border: 1px solid var(--d-line);
+  border-radius: 4px;
+  background: var(--d-void-2);
+}
+/* 画布透明底，网格靠 CSS；像素尺寸（含 dpr）由 radio.js 按盒宽重设。
+   高度改走 flex 吃余高：basis 0 + 显式 min-height（min-height:auto 会被
+   canvas attribute 撑开，形成「行高→画布→attribute→行高」反馈环——这是
+   之前只敢固定高度的原因；写成 0 基 + 硬下界后 attribute 变化不影响布局）。 */
+.scope {
+  display: block;
+  width: 100%;
+  flex: 1 1 0;
+  min-height: clamp(56px, 7.4vh, 104px);
+  border: 1px solid var(--d-line);
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(0deg, rgba(58, 227, 92, .05) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(58, 227, 92, .04) 0 1px, transparent 1px 34px),
+    var(--d-void);
+}
+.scope-info { min-width: 0; }
+.scope-title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(21px, 2.6vw, 30px);
+  line-height: 1.08;
+  color: var(--d-white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.scope-title.swap { animation: sc-swap .45s var(--ease); }
+.scope-artist.swap { animation: sc-swap .45s var(--ease); }   /* R4：歌手行同语法换字，不再硬切 */
+@keyframes sc-swap {
+  from { opacity: 0; translate: 0 8px; }
+}
+.scope-artist {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.scope-tele {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  margin-top: 7px;
+}
+.scope-tele b { font-weight: 700; color: var(--d-acid); }
+/* 节目备注：当前曲目的 desc（chan-row data-desc），radio.js tune() 跟随换曲更新 */
+.scope-desc {
+  font-family: var(--f-body);
+  font-size: clamp(11px, 1.15vw, 12.5px);
+  line-height: 1.7;
+  color: var(--d-mute);
+  margin-top: 9px;
+  max-width: 46ch;
+}
+/* 拍立得小角贴：R4 收进画框右上角（canvas 角落是空网格）——
+   旧右下负偏移会探出面板边、压 .rm.br 角括号与 hud-frame，走查判脏 */
+.scope-pola {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  width: clamp(52px, 5.6vw, 64px);
+  padding: 5px 5px 13px;
+  background: var(--d-white);
+  border-radius: 2px;
+  rotate: -3deg;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .55), 0 0 0 1px rgba(5, 6, 7, .4);
+  pointer-events: none;
+}
+.scope-pola img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: var(--d-void-2);
+}
+
+/* ---------- 05 INTERESTS · 生活进程表（htop 面板，2026-11 站主选型方案 A） ----------
+   契约类名：.htop 面板 / .htop-head 表头 / .htop-row 行（数据在 interests.yml，
+   排序与详情行引擎在 htop.js）/ #hob-sort 按钮。
+   行 hover 反白 = 终端选中语义；CPU 绿条 / MEM 琥珀条（暖阳黄点缀全站令牌）；
+   详情行波形随进程 state 换档（RUNNING/SLEEPING/IDLE/WAITING/HIGHLOAD）。 */
+
+.htop {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--d-line-2);
+  border-radius: 6px;
+  background: var(--d-card);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .5);
+  overflow: hidden;
+  font-family: var(--f-mono);
+}
+.htop-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  align-items: baseline;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--d-line);
+  background: var(--d-void-2);
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: var(--d-mute);
+}
+.hm-title { color: var(--d-acid); font-weight: 700; }
+.hm-load { margin-left: auto; }
+
+/* 行区吃面板余高（2026-11 一屏撑满）：六行 flex 均分，屏越高行越高 */
+.htop-rows {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.htop-head, .htop-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1.1fr) 108px minmax(0, 1.35fr) minmax(0, 1.15fr) 108px;
+  align-items: center;
+  gap: clamp(10px, 1.6vw, 22px);
+  padding: 0 16px;
+}
+.htop-head {
+  height: 30px;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  border-bottom: 1px solid var(--d-line);
+}
+.htop-row {
+  position: relative;
+  flex: 1 1 0;                  /* 六行均分行区高度，随面板余高连续伸缩 */
+  min-height: clamp(34px, 5.4vh, 66px);
+  border-bottom: 1px solid rgba(242, 245, 243, .05);
+  color: var(--d-white);
+  cursor: default;
+  transition: background .25s, color .25s;
+}
+.htop-row:last-child { border-bottom: none; }
+/* 反白选中：子元素颜色一律继承行色，条与点用 currentColor 系 */
+.htop-row:hover { background: var(--d-acid); color: var(--d-on-acid); }
+
+.hc-pid { font-size: 11px; color: var(--d-mute); }
+.htop-row:hover .hc-pid { color: rgba(4, 23, 11, .6); }
+.hc-proc { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.htop .hob-svg { width: 24px; height: 24px; flex: none; color: currentColor; filter: none; }
+.hp-name {
+  font-family: var(--f-body);
+  font-size: clamp(14px, 1.9vh, 16px);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hc-state { display: flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: .06em; color: var(--d-mute); }
+.hc-state i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.hc-state.st-RUNNING { color: var(--d-acid-2); }
+.hc-state.st-RUNNING i { background: var(--d-acid); box-shadow: 0 0 8px var(--d-acid-glow); }
+.hc-state.st-SLEEPING { color: var(--d-dim); }
+.hc-state.st-SLEEPING i { background: var(--d-dim); }
+.hc-state.st-IDLE { color: var(--d-mute); }
+.hc-state.st-IDLE i { background: var(--d-mute); }
+.hc-state.st-WAITING { color: var(--d-warn); }
+.hc-state.st-WAITING i { background: var(--d-warn); box-shadow: 0 0 8px rgba(245, 183, 64, .5); }
+.hc-state.st-HIGHLOAD { color: var(--d-alert); }
+.hc-state.st-HIGHLOAD i { background: var(--d-alert); box-shadow: 0 0 8px rgba(255, 95, 86, .55); animation: st-blink 1s steps(2) infinite; }
+@keyframes st-blink { 50% { opacity: .35; } }
+/* 心跳呼吸：RUNNING 辉光起伏、WAITING 慢脉冲（灯随进程语义活起来） */
+.hc-state.st-RUNNING i { animation: st-run 1.6s ease-in-out infinite; }
+.hc-state.st-WAITING i { animation: st-wait 1.8s ease-in-out infinite; }
+@keyframes st-run { 0%, 100% { box-shadow: 0 0 2px var(--d-acid-glow); } 50% { box-shadow: 0 0 9px var(--d-acid-glow); } }
+@keyframes st-wait { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+.htop-row:hover .hc-state { color: rgba(4, 23, 11, .75); }
+.htop-row:hover .hc-state i { background: var(--d-on-acid); box-shadow: none; animation: none; }
+
+.hc-cpu, .hc-mem { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.hc-cpu em, .hc-mem em { font-size: 11px; font-style: normal; color: var(--d-mute); font-variant-numeric: tabular-nums; flex: none; }
+.htop-row:hover .hc-cpu em, .htop-row:hover .hc-mem em { color: rgba(4, 23, 11, .75); }
+.hp-bar {
+  position: relative;
+  flex: 1;
+  height: 9px;
+  background: rgba(242, 245, 243, .07);
+  overflow: hidden;
+}
+.hp-bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--v) * 1%);
+  background: var(--d-acid);
+  transition: width .6s var(--ease);
+}
+.hp-bar.mem i { background: var(--d-warn); }
+/* 90%+ 红段（htop 语义：吃满告警）；类由 htop.js 心跳在 CPU 条上挂/摘。
+   必须排在 hover 反白组（下方）之前，让选中态仍压得住红。 */
+.hp-bar.hot i { background: var(--d-alert); }
+/* 分段齿纹（htop 的 ▓▓ 感）：用条间缝透出底色 */
+.hp-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 6px, var(--d-card) 6px 8px);
+  pointer-events: none;
+}
+.htop-row:hover .hp-bar { background: rgba(4, 23, 11, .18); }
+.htop-row:hover .hp-bar i { background: var(--d-on-acid); }
+.htop-row:hover .hp-bar::after { background: repeating-linear-gradient(90deg, transparent 0 6px, var(--d-acid) 6px 8px); }
+
+.hc-up { font-size: 11px; color: var(--d-mute); font-variant-numeric: tabular-nums; }
+.htop-row:hover .hc-up { color: rgba(4, 23, 11, .7); }
+
+/* 详情行：hover 哪行，这里出哪行的 desc + 状态波形 */
+.htop-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-top: 1px solid var(--d-line);
+  background: var(--d-void-2);
+  font-size: 11px;
+  color: var(--d-mute);
+  min-height: 40px;
+}
+.hf-arrow { color: var(--d-acid); }
+.hf-text { flex: 1; min-width: 0; font-size: 12px; }
+.hf-wave { display: inline-flex; align-items: flex-end; gap: 3px; height: 14px; flex: none; }
+.hf-wave i {
+  width: 3px;
+  height: 100%;
+  background: var(--d-acid);
+  transform: scaleY(.12);
+  transform-origin: bottom;
+}
+#htop-wave[data-wave="RUNNING"] i   { animation: wv-run 1s ease-in-out infinite; }
+#htop-wave[data-wave="SLEEPING"] i  { animation: wv-sleep 3.4s ease-in-out infinite; }
+#htop-wave[data-wave="IDLE"] i      { animation: wv-idle 4.6s linear infinite; }
+#htop-wave[data-wave="WAITING"] i   { animation: wv-wait 1.8s ease-in-out infinite; }
+#htop-wave[data-wave="HIGHLOAD"] i  { animation: wv-over .5s steps(4) infinite; }
+#htop-wave[data-wave="idle"] i      { transform: scaleY(.08); }
+.hf-wave i:nth-child(2) { animation-delay: -.13s; }
+.hf-wave i:nth-child(3) { animation-delay: -.26s; }
+.hf-wave i:nth-child(4) { animation-delay: -.39s; }
+.hf-wave i:nth-child(5) { animation-delay: -.52s; }
+.hf-wave i:nth-child(6) { animation-delay: -.65s; }
+.hf-wave i:nth-child(7) { animation-delay: -.78s; }
+.hf-wave i:nth-child(8) { animation-delay: -.91s; }
+@keyframes wv-run  { 0%,100% { transform: scaleY(.2); } 40% { transform: scaleY(.85); } 70% { transform: scaleY(.45); } }
+@keyframes wv-sleep{ 0%,100% { transform: scaleY(.1); } 50% { transform: scaleY(.4); } }
+@keyframes wv-idle { 0%,88%,100% { transform: scaleY(.06); } 92% { transform: scaleY(.5); } 96% { transform: scaleY(.12); } }
+@keyframes wv-wait { 0%,100% { transform: scaleY(.15); } 50% { transform: scaleY(.6); } }
+@keyframes wv-over { 0% { transform: scaleY(.95); } 25% { transform: scaleY(.4); } 50% { transform: scaleY(1); } 75% { transform: scaleY(.55); } }
+
+/* ---------- 03 ABOUT ME（2026-11 R8 定稿） ----------
+   大字引言 · 带真实注脚的标签行 · pill + since 同行。电闸/霓虹招牌组件已按
+   站主令整体移除（m01457）；.ah-live 呼吸点为共享件，07 待机面板 .pe-cap 在用。 */
+#c-about .row-head { margin-bottom: 3.4vh; }
+
+/* 引言：卡内唯一记忆点，从 15px 灰正文升格为主视觉。
+   落款不用 <cite>——UA 斜体要靠 font-style:normal 压，而 normal 等于初始值
+   会被 minifier 当冗余删掉（已知坑），直接用 span.q-by。 */
+.about-quote {
+  margin: 0 0 3vh;
+  max-width: 780px;
+  padding-left: 20px;
+  border-left: 2px solid var(--d-acid-soft);
+  font-family: var(--f-body);
+  font-weight: 500;
+  font-size: clamp(22px, 2.9vw, 40px);
+  line-height: 1.45;
+  color: var(--d-white);
+}
+.about-quote .em { color: var(--d-acid); text-shadow: 0 0 26px rgba(58, 227, 92, .3); }
+.about-quote .q-by {
+  display: block;
+  margin-top: 1.4vh;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: .12em;
+  color: var(--d-dim);
+}
+
+/* 标签行：01/// 编号装饰退役，右列换真实注脚 */
+#c-about .hair-list li { padding: 13px 4px; }
+#c-about .about-tags .v { font-size: 11px; letter-spacing: .1em; color: var(--d-mute); }
+#c-about .about-tags li:hover .v { color: var(--d-mute); }
+
+/* READ FULL BIO 同行：about.since 上屏 */
+#c-about .bio-more { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 3.5vh; }
+#c-contact .bio-more { margin-top: 3.5vh; }
+#c-about .est { font-size: 12px; letter-spacing: .1em; color: var(--d-mute); }
+
+/* .ah-live 呼吸点是共享件：07 待机面板 .pe-cap 也在用（46-posts 注释指名这里）。    02 卡 R4 后 markup 不再出现，但规则必须留着。 */
+.ah-live {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--d-acid);
+  box-shadow: 0 0 8px var(--d-acid-glow);
+  animation: ah-blink 1.6s steps(2, jump-none) infinite;
+}
+@keyframes ah-blink { 50% { opacity: .25; } }
+
+/* ---------- 07 CONTACT:COPY 复制胶囊(fx.js 负责点击复制) ---------- */
+
+.cp {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+  padding: 4px 14px;
+  border: 1px solid var(--d-line);
+  border-radius: 999px;
+  margin-left: 12px;
+  vertical-align: 2px;
+  transition: color .35s, border-color .35s, box-shadow .35s, scale .2s;
+}
+.cp:hover {
+  color: var(--d-acid);
+  border-color: var(--d-acid);
+  box-shadow: var(--d-acid-glow);
+}
+.cp:active { scale: .94; }
+
+/* ---------- 播放器条 #tape(tape.js 渲染) ---------- */
+
+/* 默认藏在视口下方,加 .on 后滑入;visibility 延迟配合过渡,收起后不吃点击 */
+.tape {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(14px, 2.6vh, 26px);
+  z-index: 88;
+  width: min(660px, calc(100vw - 28px));
+  translate: -50% 160%;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: translate .6s var(--ease), opacity .45s var(--ease),
+              visibility 0s linear .6s;
+}
+.tape.on {
+  translate: -50% 0;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: translate .6s var(--ease), opacity .45s var(--ease), visibility 0s;
+}
+/* tape.js 挂的 <audio> 只借 DOM 存在,不占版面 */
+.tape > audio { display: none; }
+
+.tape-bar {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.4vw, 16px);
+  padding: 9px 14px;
+  background: rgba(10, 13, 14, .82);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid var(--d-line-2);
+  border-radius: 16px;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, .6), 0 0 0 1px rgba(58, 227, 92, .06);
+}
+.tape-cover {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--d-line);
+}
+.tape-meta {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+.tape-title {
+  font-family: var(--f-display);
+  font-size: 15px;
+  letter-spacing: .02em;
+  color: var(--d-white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tape-artist {
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+.tape-toggle, .tape-next, .tape-close {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--d-line);
+  border-radius: 999px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--d-mute);
+  transition: color .3s, border-color .3s, box-shadow .3s, scale .15s;
+}
+.tape-toggle {
+  width: 38px;
+  height: 38px;
+  font-size: 11px;
+  color: var(--d-acid);
+  border-color: rgba(58, 227, 92, .5);
+}
+.tape-toggle:hover, .tape-next:hover, .tape-close:hover {
+  color: var(--d-acid);
+  border-color: var(--d-acid);
+  box-shadow: var(--d-acid-glow);
+}
+.tape-toggle:active, .tape-next:active, .tape-close:active { scale: .92; }
+
+/* 进度条:细轨 + acid 已播段(i,宽 % 由 JS 写)+ hover 出端点圆,整条可点可拖 seek */
+.tape-prog {
+  flex: 1 1 80px;
+  position: relative;
+  min-width: 70px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  cursor: ew-resize;
+  touch-action: none;             /* 拖拽 scrub 专用;只这条窄条,绝不写进 .deck */
+}
+.tape-prog::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  translate: 0 -50%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--d-line);
+}
+.tape-prog i {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+  width: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--d-acid);
+  box-shadow: 0 0 10px rgba(58, 227, 92, .5);
+}
+.tape-prog i::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  translate: 0 -50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--d-acid);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.tape-prog:hover i::after { opacity: 1; }
+
+/* ---------- 降级:呼吸动画关闭、滑入变瞬时;hover 小位移保留 ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .needle { transition: none; }
+  .chan-row.live .vu i { animation: none; height: 60%; }
+  .scope-title.swap { animation: none; }
+  .tape, .tape.on { transition: none; }
+  .hf-wave i, .hc-state.st-HIGHLOAD i, .hc-state.st-RUNNING i, .hc-state.st-WAITING i { animation: none; }
+  .mq-line, .badge { animation: none; }
+}
+
+/* ============================================================
+   05 WORKS —— 作品行 + hover 预览卡（README 真实截图；video-notes 无 README 图，保留照片底 + 全息线框）
+   契约类名(index.html c-works 卡与 data/products.yml 对应,勿改名):
+     .works-list .work-row .wr-no .wr-main .wr-name .wr-sub
+     .wr-tags .wr-tech .wr-updated .wr-go
+     .wk-preview > img.wk-photo (+ svg.wk-art 仅 products.yml wire:true 的行)
+     .wk-preview--tall 竖屏截图(按高度定宽) / .wk-preview--wire 线框行(照片压得更暗)
+     .wk-art 内动画钩子:.wk-link(+2/3) .wk-node(+2/3)
+   实现要点:
+   · hover 行左移/预览浮现的"归零态"全走自定义属性(--wr-pl/--wk-o/--wk-y/--wr-line),
+     直写 0/1 初始值会被 Hugo minifier 当冗余删掉(见 CLAUDE.md 已知坑)。
+   · .wk-preview 绝对定位锚在 .work-row(行占满 card-body 宽),
+     right: calc(44px - var(--pad-x)) 使它右缘恒距视口 ~100px,避开 .dots(right:26px)。
+     行内 padding-right 预留同宽文字安全区,↗ 与预览卡互不压。
+   · 宽高比走模板内联 --wk-ar(products.yml ar 字段,缺省 16/10),截图不裁切不变形;
+     真实截图只 brightness(.88) 半档压暗、hover 追焦到 1.0,细边框+圆角+轻投影,hover 淡入上浮逻辑不变。
+   · ≤880px 预览卡整体隐藏,行距回缩;reduced-motion 停成静态帧。
+   ============================================================ */
+
+.work-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 1.8vw, 26px);
+  --wr-pl: 4px;
+  padding: clamp(10px, 2vh, 19px) clamp(16px, 30vw, 450px) clamp(10px, 2vh, 19px) var(--wr-pl);
+  border-top: 1px solid var(--d-line);
+  text-decoration: none;
+  color: inherit;
+  transition: padding-left .4s var(--ease), border-color .4s;
+}
+.work-row:last-child { border-bottom: 1px solid var(--d-line); }
+.work-row:hover { --wr-pl: 18px; border-color: var(--d-acid); }
+/* 左侧绿色竖线:沿 .hair-list hover 语义, scaleY 幅度走变量 */
+.work-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+  background: var(--d-acid);
+  box-shadow: 0 0 8px rgba(58, 227, 92, .5);
+  transform: scaleY(var(--wr-line, 0));
+  transform-origin: center;
+  transition: transform .45s var(--ease);
+}
+.work-row:hover::before { --wr-line: 1; }
+
+/* 空心大编号:参考 .row-head .num 的 -webkit-text-stroke 写法,hover 转实心 */
+.wr-no {
+  flex: 0 0 auto;
+  font-family: var(--f-display);
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--d-acid);
+  transition: color .35s, -webkit-text-stroke-color .35s;
+}
+.work-row:hover .wr-no { color: var(--d-acid); -webkit-text-stroke-color: transparent; }
+.work-row:hover .wr-name { color: var(--d-acid); }
+
+.wr-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wr-name {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(21px, 2.5vw, 31px);
+  line-height: 1.05;
+  letter-spacing: .02em;
+  color: var(--d-white);
+  transition: color .35s;
+}
+.wr-sub {
+  font-size: clamp(12px, 1.2vw, 13.5px);
+  line-height: 1.55;
+  color: var(--d-mute);
+}
+.wr-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+  margin-top: 2px;
+}
+.wr-tech { color: var(--d-dim); }
+.wr-updated { color: var(--d-dim); }
+/* ---------- 实时仓库读数（works.js 拉 GitHub API 注入，失败留空） ---------- */
+.wr-stats { display: inline-flex; align-items: center; gap: 12px; letter-spacing: .1em; }
+.wr-stats .ws-star { color: var(--d-acid); }
+.wr-stats .ws-fork { color: var(--d-mute); }
+.wr-stats .ws-lang { display: inline-flex; align-items: center; gap: 5px; color: var(--d-mute); }
+.wr-stats .ws-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--d-acid); box-shadow: 0 0 6px rgba(58, 227, 92, .5); }
+.wr-stats .ws-skel { width: 40px; height: 9px; background: var(--d-line); border-radius: 2px; animation: ws-pulse 1.2s ease-in-out infinite alternate; }
+@keyframes ws-pulse { from { opacity: .35; } to { opacity: 1; } }
+.wr-go {
+  flex: 0 0 auto;
+  font-family: var(--f-mono);
+  font-size: 15px;
+  color: var(--d-dim);
+  transition: color .35s, translate .35s var(--ease);
+}
+.work-row:hover .wr-go { color: var(--d-acid); translate: 3px -3px; }
+
+/* ---------- hover 预览卡:README 真实截图(video-notes 行保留全息线框浮层) ---------- */
+
+.wk-preview {
+  position: absolute;
+  right: calc(44px - var(--pad-x));
+  top: 50%;
+  --wk-o: 0;          /* 透明度走变量:minifier 会删 "opacity:1" 这种初始值声明 */
+  --wk-y: 14px;       /* 未 hover 沉 14px,hover 上浮到 -6px;calc 里合成垂直居中 */
+  opacity: var(--wk-o);
+  translate: 0 calc(var(--wk-y) - 50%);
+  width: clamp(240px, 30vw, 430px);
+  aspect-ratio: var(--wk-ar, 16 / 10);   /* 模板内联 --wk-ar = 截图真实宽高比,不裁切不变形 */
+  border: 1px solid var(--d-line-2);
+  border-radius: 12px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 6;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .55);
+  transition: opacity .45s var(--ease), translate .45s var(--ease), border-color .45s;
+}
+.work-row:hover .wk-preview { --wk-o: 1; --wk-y: -6px; border-color: rgba(58, 227, 92, .5); }
+/* 竖屏手机截图:按高度定宽,避免撑爆一屏 */
+.wk-preview--tall {
+  width: auto;
+  height: clamp(260px, 46vh, 460px);
+}
+.wk-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(.88);
+  transition: filter .45s var(--ease);
+}
+/* hover 追焦提亮：行点亮的同时照片从半档暗走到全亮（放映机对焦语义） */
+.work-row:hover .wk-photo { filter: brightness(1); }
+/* 线框行(video-notes):照片压得更暗,保证线框 stroke 可读 */
+.wk-preview--wire .wk-photo { filter: saturate(.7) brightness(.5); }
+.wk-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- video-notes 线框动画(低速循环;静止态即完整线稿,reduced-motion 直接停) --- */
+
+.wk-link {
+  stroke-dasharray: 64;
+  animation: wk-draw 3.4s ease-in-out infinite;
+}
+.wk-link2 { animation-delay: .5s; }
+.wk-link3 { animation-delay: 1s; }
+@keyframes wk-draw {
+  0%   { stroke-dashoffset: 64; }
+  45%, 55% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -64; }
+}
+
+.wk-node { animation: wk-blink 3.4s ease-in-out infinite; }
+.wk-node2 { animation-delay: .5s; }
+.wk-node3 { animation-delay: 1s; }
+@keyframes wk-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .35; }
+}
+
+/* ---------- 降级:线框动画停成静态帧(静止态即完整线稿) ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-preview { --wk-y: 0px; transition: none; }
+  .wk-link, .wk-node { animation: none; }
+  .work-row, .work-row::before, .wr-no, .wr-name, .wr-go { transition: none; }
+}
+
+/* ============================================================
+   灵感第一批补充（2026-11 画廊）
+   ============================================================ */
+
+/* ---------- 03 抽卡仪式（Plein 式扇形聚拢→扇开）已随 fan-stage 卡堆退役
+   （2026-11 电台调谐面板重构，见上方「03 SIGNALS · 电台调谐面板」段） ---------- */
+
+/* ---------- WORKS 编号改 [01] 括号 + 发丝箭头感（Capit） ---------- */
+.work-row .wr-no::before { content: "["; margin-right: 3px; opacity: 0.45; }
+.work-row .wr-no::after { content: "]"; margin-left: 3px; opacity: 0.45; }
+
+/* ---------- WORKS 底部按钮组（pill 基座在 10-base；窄屏自然换行，不占 90 预算） ---------- */
+.works-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 3.4vh;
+}
+
+/* ---------- BUNKR 式 hover：链接绿下划线从左滑入（联系行/页脚） ---------- */
+.hair-list a, .foot a {
+  background: linear-gradient(var(--d-acid), var(--d-acid)) no-repeat 0 100% / 0 1px;
+  transition: background-size 0.45s var(--ease), color 0.3s;
+}
+.hair-list a:hover, .foot a:hover { background-size: 100% 1px; color: var(--d-white); }
+
+/* ============================================================
+   05 INTERESTS · SORT 胶囊（引擎在 htop.js，循环 CPU→MEM→UPTIME→NAME）
+   契约类名：#hob-sort 按钮（row-head 行尾）
+   ============================================================ */
+
+/* mono 小胶囊：对齐 .chrome-btn/.pill 的 1px 描边 + hover 酸绿；44px 高保触屏点击区 */
+.hob-sort {
+  margin-left: auto;
+  align-self: center;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+  background: none;
+  border: 1px solid var(--d-line-2);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .35s, border-color .35s, box-shadow .35s;
+}
+.hob-sort:hover, .hob-sort:focus-visible {
+  color: var(--d-acid);
+  border-color: var(--d-acid);
+  box-shadow: var(--d-acid-glow);
+}
+
+/* ---------- 03 IDENTITY · 全息工牌 + 生物识别认证（2026-11 站主选型：B壳+A魂，引擎 id.js） ---------- */
+/* 契约：CSS 默认态 = 认证完成态（无 JS / reduce 直接是成品）；id.js 依次挂 id-pending → id-scanning → id-locked。
+   卡身 transform 全由 --bx/--by 自定义属性合成（id.js 绝不写 style.transform，防 deck.js:208 tilt 覆写之争）。 */
+#c-about .id-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 64px);
+  align-items: center;
+  margin-top: clamp(16px, 3vh, 36px);
+}
+/* 悬浮舞台：呼吸动画放舞台层，不与卡身合成 transform 争 */
+.id-stage { position: relative; animation: id-float 6s ease-in-out infinite; }
+@keyframes id-float { 50% { translate: 0 -7px; } }
+.id-floor {
+  position: absolute; left: 14%; right: 14%; bottom: -22px; height: 20px; pointer-events: none;
+  background: radial-gradient(50% 100% at 50% 45%, rgba(58, 227, 92, 0.16), transparent 72%);
+  filter: blur(7px);
+}
+.id-badge {
+  position: relative; margin: 0; transform-style: preserve-3d;
+  transform: perspective(900px) rotateX(calc(var(--by, 0) * -5deg)) rotateY(calc(var(--bx, 0) * 6deg));
+}
+.id-halo {
+  position: absolute; inset: -16px; z-index: -1; pointer-events: none;
+  background: radial-gradient(60% 55% at 50% 45%, var(--d-acid-soft), transparent 70%);
+  filter: blur(12px);
+}
+/* 1px 切角描边：外圈同形 clip-path 大一圈 */
+.id-badge::before {
+  content: ""; position: absolute; inset: -1px; z-index: 0;
+  clip-path: polygon(28px 0, 100% 0, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%, 0 28px);
+  background: linear-gradient(160deg, var(--d-acid), var(--d-line-2) 45%, var(--d-acid-2) 85%);
+  opacity: 0.55;
+}
+.id-body {
+  position: relative; z-index: 1; overflow: hidden;
+  clip-path: polygon(28px 0, 100% 0, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%, 0 28px);
+  background: linear-gradient(160deg, var(--d-card), var(--d-void-2));
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+}
+.id-img {
+  display: block; width: 100%; height: auto;
+  mask-image: linear-gradient(180deg, #000 68%, rgba(0, 0, 0, 0.55) 92%, rgba(0, 0, 0, 0.35));
+}
+/* 底部半调溶解：网点渐密吃掉照片下缘 */
+.id-dissolve {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 26%; z-index: 1; pointer-events: none;
+  background: radial-gradient(circle, var(--d-void-2) 1px, transparent 1.6px);
+  background-size: 4px 4px;
+  mask-image: linear-gradient(180deg, transparent, #000 78%);
+}
+/* 顶部条带 */
+.id-head {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 3; pointer-events: none;
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 11px 16px 30px;
+  font-size: 11px; letter-spacing: .1em; color: var(--d-mute);
+  background: linear-gradient(180deg, rgba(5, 6, 7, 0.8), transparent);
+}
+.id-head b { color: var(--d-acid); font-weight: 400; letter-spacing: 0.12em; }
+/* 芯片触点 */
+.id-chip {
+  position: absolute; top: 36px; right: 14px; z-index: 3; width: 34px; height: 26px; border-radius: 4px;
+  border: 1px solid rgba(58, 227, 92, 0.4);
+  background:
+    repeating-linear-gradient(90deg, rgba(58, 227, 92, 0.5) 0 2px, transparent 2px 8px),
+    repeating-linear-gradient(0deg, rgba(58, 227, 92, 0.25) 0 2px, transparent 2px 9px),
+    var(--d-card);
+  animation: id-chip 3.2s ease-in-out infinite;
+}
+@keyframes id-chip { 50% { box-shadow: 0 0 12px rgba(58, 227, 92, 0.45); } }
+/* 关键点网格：默认=完成态；pending 隐藏，scanning 逐条绘制，locked 回落环境光 */
+.id-mesh {
+  position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none;
+  opacity: 0.5; transition: opacity 0.6s var(--ease);
+}
+.id-mesh path { fill: none; stroke: var(--d-acid); stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.id-mesh circle { fill: var(--d-acid-2); opacity: 0.9; transform-box: fill-box; transform-origin: center; }
+#c-about.id-pending .id-mesh { opacity: 0; }
+#c-about.id-scanning .id-mesh { opacity: 1; }
+#c-about.id-scanning .id-mesh path { stroke-dashoffset: 1; animation: id-draw 0.9s var(--ease) forwards; animation-delay: calc(var(--t) * 1.3s); }
+#c-about.id-scanning .id-mesh circle { opacity: 0; animation: id-dot 0.45s var(--ease) forwards; animation-delay: calc(var(--t) * 1.3s + 0.15s); }
+@keyframes id-draw { to { stroke-dashoffset: 0; } }
+@keyframes id-dot { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+#c-about.id-locked .id-mesh { animation: id-lockflash 0.7s var(--ease); }
+@keyframes id-lockflash { 0% { opacity: 1; filter: drop-shadow(0 0 10px rgba(58, 227, 92, 0.9)); } 60% { opacity: 0.5; } }
+#c-about.id-locked .id-badge:hover .id-mesh { opacity: 0.92; }
+/* 扫描光束：走 top 关键帧（transform 与卡身合成 transform 相争；30-fx 老教训） */
+.id-beam {
+  position: absolute; left: 0; right: 0; top: -70px; height: 70px; z-index: 2; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, transparent, rgba(58, 227, 92, 0.2) 45%, rgba(58, 227, 92, 0.34) 55%, transparent);
+}
+#c-about.id-scanning .id-beam { animation: id-pass 1.6s var(--ease-scan) forwards; }
+@keyframes id-pass { 0% { top: -70px; opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+#c-about.id-locked .id-beam { animation: id-loop 5.2s var(--ease-scan) 1.2s infinite; }
+@keyframes id-loop { 0% { top: -70px; opacity: 0; } 6% { opacity: 0.5; } 94% { opacity: 0.5; } 100% { top: 100%; opacity: 0; } }
+/* 生物准星：跟随鼠标（id.js 写 --rx/--ry；触屏/reduce 由 90 隐藏） */
+.id-ret {
+  position: absolute; left: calc(var(--rx, 50) * 1%); top: calc(var(--ry, 50) * 1%); z-index: 4;
+  width: 76px; height: 76px; margin: -38px 0 0 -38px; pointer-events: none;
+  opacity: 0; transition: opacity 0.35s var(--ease);
+}
+.id-ret::before { content: ""; position: absolute; inset: 0; border: 1px dashed rgba(58, 227, 92, 0.7); border-radius: 50%; animation: id-spin 9s linear infinite; }
+.id-ret::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(var(--d-acid), var(--d-acid)) 50% 0 / 1px 12px no-repeat,
+    linear-gradient(var(--d-acid), var(--d-acid)) 50% 100% / 1px 12px no-repeat,
+    linear-gradient(var(--d-acid), var(--d-acid)) 0 50% / 12px 1px no-repeat,
+    linear-gradient(var(--d-acid), var(--d-acid)) 100% 50% / 12px 1px no-repeat;
+}
+@keyframes id-spin { to { rotate: 360deg; } }
+#c-about.id-locked .id-badge:hover .id-ret { opacity: 0.9; }
+/* 激光镭射带：background-position 吃 --bx/--by，亮带随视角游动 */
+.id-foil {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  mix-blend-mode: color-dodge; opacity: 0.13;
+  background: linear-gradient(115deg, transparent 34%, var(--d-acid) 46%, var(--d-white) 50%, var(--d-acid-2) 54%, transparent 66%);
+  background-size: 260% 260%;
+  background-position: calc(50% + var(--bx, 0) * 34%) calc(50% - var(--by, 0) * 22%);
+}
+/* 玻璃反光层：translateZ 抬向观众（卡身 preserve-3d） */
+.id-glint {
+  position: absolute; inset: 0; z-index: 4; pointer-events: none; transform: translateZ(26px);
+  background: linear-gradient(120deg, transparent 32%, rgba(242, 245, 243, 0.05) 46%, transparent 58%);
+}
+/* 状态胶囊 + CONF */
+.id-cap {
+  position: absolute; left: 16px; bottom: 14px; z-index: 3;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; letter-spacing: .1em; color: var(--d-acid);
+  background: rgba(5, 6, 7, 0.62); border: 1px solid rgba(58, 227, 92, 0.25);
+  padding: 4px 9px; border-radius: 6px;
+}
+.id-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--d-acid); box-shadow: var(--d-acid-glow); animation: id-blink 2.2s ease-in-out infinite; }
+@keyframes id-blink { 50% { opacity: 0.3; } }
+#c-about.id-scanning .id-dot { animation-duration: 0.45s; }
+.id-conf { position: absolute; right: 26px; bottom: 14px; z-index: 3; font-size: 11px; letter-spacing: .1em; color: var(--d-mute); }
+.id-conf b { color: var(--d-acid); font-weight: 400; }
+/* 右侧正文列：2026-11 与 02 技能卡对调后改装 about 文案（引言 / 标签行 / bio-more）。
+   .id-row 与 .id-hash 随右列改版一起退役——FACE.HASH 那行是编造读数，撞反 AI 味清单。
+   2026-11-11 站主令：档案卡彻底「一次性出成品」——不再跟左工牌扫描联动做任何
+   压暗 / 错峰 / 揭开（opacity 压暗会半透明、brightness 压暗会亮暗脉冲、if-open 会二次重绘，
+   三种都被站主点名「看着像面板重刷新一次」）。卡片从出现起就是最终态，静止不动。
+   左工牌自己的扫描动画照旧，两边互不牵连。 */
+.id-data { display: block; }
+/* —— 档案卡 .id-file（2026-11 方案 A「工牌背面」）：与左工牌同 28px 切角/暗玻璃语法，
+   描边压到 .3、玻璃更暗一档——左工牌仍是唯一主角，这块是它的背面档案。 */
+.id-data { position: relative; }
+.id-data::before {
+  content: ""; position: absolute; inset: -1px; z-index: 0;
+  clip-path: polygon(28px 0, 100% 0, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%, 0 28px);
+  background: linear-gradient(160deg, var(--d-acid), var(--d-line-2) 45%, var(--d-acid-2) 85%);
+  opacity: 0.3;
+}
+.id-file {
+  position: relative; z-index: 1;
+  padding: clamp(18px, 2.6vw, 30px) clamp(18px, 2.4vw, 28px) clamp(14px, 2vw, 20px);
+  clip-path: polygon(28px 0, 100% 0, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%, 0 28px);
+  background: linear-gradient(165deg, #0d1112, var(--d-void-2) 78%);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.42);
+}
+.if-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 10px; border-bottom: 1px solid var(--d-line);
+  font-size: 11px; letter-spacing: .1em; color: var(--d-mute);
+}
+.if-head b { color: var(--d-acid); font-weight: 400; letter-spacing: 0.12em; }
+.if-sec { margin-top: clamp(14px, 2.2vh, 20px); }
+.if-key {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; letter-spacing: .1em; color: var(--d-mute);
+}
+.if-key::before { content: ""; width: 2px; height: 10px; background: var(--d-acid); box-shadow: 0 0 8px var(--d-acid-glow); }
+.if-sec .about-quote { margin: 10px 0 0; font-size: clamp(20px, 2.3vw, 33px); }
+.if-sign {
+  display: inline-block; margin-top: 12px; padding: 2px 22px 6px 2px;
+  font-size: 15px; letter-spacing: 0.06em; color: var(--d-mute);
+  border-bottom: 1px dashed rgba(58, 227, 92, 0.4);
+}
+.if-rows { list-style: none; margin: 10px 0 0; padding: 0; }
+.if-rows li {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 6px; border-bottom: 1px solid var(--d-line);
+  transition: background 0.25s var(--ease);
+}
+.if-led { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--d-acid); box-shadow: 0 0 8px rgba(58, 227, 92, 0.6); }
+.if-no { flex: none; font-size: 11px; letter-spacing: 0.1em; color: var(--d-mute); }
+.if-name { flex: none; font-size: 18px; font-weight: 500; color: var(--d-white); }
+.if-lead { flex: 1; min-width: 18px; height: 1px; background: repeating-linear-gradient(90deg, var(--d-line-2) 0 2px, transparent 2px 6px); }
+/* 读数统一白（2026-11-11 站主令）：五条一视同仁，都按原「主读数」的白字规格排——
+   不再挑某一条加亮，也不吃酸绿（酸绿在本站是链接/点亮色，用在读数上会被读成可点）。
+   2026-11-11 站主令字号调大一档（12→15px），与左列名号更接近、远看也读得清。 */
+.if-val { font-size: 15px; letter-spacing: 0.04em; color: var(--d-white); text-align: right; }
+/* hover 层：触屏不挂（darkroom 纪律）。2026-11-11 站主令撤掉整行绿底（移到档案卡会变绿），
+   只保留状态灯轻微提亮，卡片本身不再随指针换色。 */
+@media (hover: hover) and (pointer: fine) {
+  .if-rows li:hover .if-led { box-shadow: 0 0 12px rgba(58, 227, 92, 0.9); }
+}
+/* 调档揭开：2026-11-11 站主令撤除。
+   原设计是 id-locked 时给 .id-file 挂 if-open（mask 从顶部遮住再整块揭开），
+   但档案卡现在是常驻实心的整张卡，扫描期间本来就已经显示（只压亮度），
+   再遮一次→揭开等于把面板「重刷新一遍」，站主明确不要这个二次重绘。
+   现在只剩 pending/scanning → locked 的 brightness(0.62→1) 亮度过渡，
+   卡片一次性出现、不再二次闪。别再往回加 mask 动画。 */
+
+/* ---------- 08 CONTACT · 终端会话（2026-11 站主选型方案 A，引擎 term.js） ----------
+   term.js 把 .hair-list 整表搬进 .term-log 逐行打字；无 JS / 触屏 / reduced-motion
+   时 .term 不存在，hair-list 静态兜底即成品。 */
+.term {
+  max-width: 860px;
+  margin-top: clamp(14px, 2.4vh, 26px);
+  border: 1px solid var(--d-line-2);
+  border-radius: 10px;
+  background: rgba(7, 10, 11, .72);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .38), inset 0 0 90px rgba(58, 227, 92, .028);
+  overflow: hidden;
+}
+.term-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--d-line);
+  background: rgba(10, 13, 14, .85);
+}
+.tb-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--d-line-2); }
+.tb-dot:nth-child(2) { background: rgba(58, 227, 92, .35); }
+.tb-t {
+  margin-left: 8px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: var(--d-mute);
+}
+.tb-r {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--d-mute);
+}
+.term-log {
+  padding: clamp(14px, 2.2vh, 20px) clamp(14px, 2vw, 22px) clamp(16px, 2.6vh, 24px);
+  font-family: var(--f-mono);
+  font-size: 13px;
+  line-height: 1.85;
+  min-height: 240px;
+}
+.t-pair { margin-bottom: 10px; }
+.t-prompt { color: var(--d-acid); margin-right: 8px; }
+.t-cmd { color: var(--d-white); white-space: nowrap; }
+.t-cmd .t-typed::after {
+  content: "";
+  display: inline-block;
+  width: 7px; height: 14px;
+  margin-left: 3px;
+  vertical-align: -2px;
+  background: var(--d-acid);
+  animation: term-blink 1s steps(1) infinite;
+}
+.t-cmd .t-typed.done::after { display: none; } /* 打完后光标只留输入行 */
+.t-out {
+  color: var(--d-mute);
+  padding-left: 16px;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+  white-space: nowrap;
+}
+.t-out .cp { white-space: nowrap; }
+.t-out.on { opacity: 1; transform: none; }
+.t-out a { color: var(--d-acid); text-decoration: none; border-bottom: 1px dotted rgba(58, 227, 92, .45); }
+.t-out a:hover { color: var(--d-white); }
+.t-receipt {
+  margin-left: 12px;
+  color: var(--d-acid);
+  opacity: 0;
+  transition: opacity .25s;
+}
+.t-receipt.on { opacity: 1; }
+.t-receipt.err { color: var(--d-alert); }
+.t-sys {
+  color: var(--d-dim);
+  opacity: 0;
+  transition: opacity .35s;
+}
+.t-sys.on { opacity: 1; }
+.t-sys.t-err { color: var(--d-alert); }
+/* help 行尾 # 中文注释：酸绿弱化，像脚本里的注释 */
+.t-cmt { color: var(--d-acid-soft); }
+.t-input-row { color: var(--d-white); display: flex; align-items: baseline; gap: 2px; position: relative; }
+.t-mirror {
+  position: absolute; left: 0; top: -9999px;
+  visibility: hidden; white-space: pre;
+  font: inherit; letter-spacing: .04em; /* 与 .t-input 同字距，量出的宽度才准 */
+}
+.t-input {
+  flex: 0 0 auto;
+  width: 22ch; /* 初值；term.js 按镜像量宽实时改 inline width，光标才能贴字尾 */
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--d-acid);
+  font: inherit;
+  letter-spacing: .04em;
+  caret-color: transparent; /* 用块光标代替原生细 caret，终端味更足 */
+}
+.term-cursor {
+  align-self: center;
+  display: inline-block;
+  width: 7px; height: 14px;
+  background: var(--d-acid);
+  animation: term-blink 1s steps(1) infinite;
+}
+@keyframes term-blink { 50% { opacity: 0; } }
+/* 被接管后：hair-list 原样式全部让位给终端行 */
+.term-adopted { list-style: none; padding: 0; margin: 0; }
+.term-adopted li { border: 0; padding: 0; display: block; }
+.term-adopted li:last-child { border-bottom: 0; } /* 压回 .hair-list li:last-child 的 0,2,1 底线 */
+.term-adopted li:hover { padding-left: 0; }
+.term-adopted .k { display: none; }
+/* 触屏/reduced-motion 不接管：静态列表即成品，补一行终端彩蛋
+   （JS 接管后 .term-adopted 在场，彩蛋选择器不再命中，无冲突） */
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  #c-contact .hair-list::after {
+    content: "$ contact --all · 3 channels online";
+    display: block;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    color: var(--d-mute);
+    margin-top: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-cmd .t-typed::after, .term-cursor { animation: none; }
+}
+
+/* ---------- WELCOME 段（01 hero 循环欢迎语，2026-11 形式 A，welcome.js 驱动） ----------
+   提示符酸绿 + 正文白 + 块光标复用 TERM 段 .term-cursor；
+   高度提前占住（min-height），打字删字都不跳版。窄屏换短提示符并允许折行。 */
+.hero-welcome {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin-top: 14px;
+  font-family: var(--f-mono);
+  font-size: clamp(12px, 1.35vw, 15px);
+  line-height: 1.6;
+  color: var(--d-white);
+  min-height: 2.6em; /* 预留两行：移动端长句折行也不推动下方版面 */
+}
+.hw-prompt { color: var(--d-acid); white-space: pre; }
+.hw-prompt-sm { display: none; color: var(--d-acid); }
+.hw-text { min-width: 1ch; }

@@ -1,0 +1,87 @@
+# 02 SKILLS 技能矩阵数据源（2026-11 R9：官方多色原图 + 三行插空滚动）
+# src  = static/icons/ 下的官方原图（颜色一律不动，站主 2026-11-10 定「用图标最原始的颜色」）
+# tint = 该图标自己的主色/亮色。R14（白底方牌）起牌面不再吃它——白底上染色压不出色相，
+#        模板仍以 style="--si:…" 输出，留给以后要用它的交互层；当前 CSS 无消费者，别再按它调色。
+# 取源：gilbarbara/logos（jsdelivr 原文件，带真 viewBox 与官方多色）；
+#       dify/coze 用 Iconify thesvg-color 方形件；易语言取易语言官网 eyuyan.com 的站点图标
+#       images/e.ico 的 48px 帧（红「易」印章），白底与灰地球已抠成透明（站主 2026-11-10 指定）。
+note: "图标为各家官方原色，未做统一调色。悬停或点按看注脚，窄屏左右滑。"
+items:
+  - key: c
+    name: C
+    sub: ISO C17
+    desc: 指针和内存自己管，底层的直觉是这里攒的
+    src: /icons/c.svg
+    tint: "#A8B9CC"
+  - key: cpp
+    name: C++
+    sub: Qt 桌面端
+    desc: 写桌面程序的主力，Qt 那套对象模型跟着一起用
+    src: /icons/cplusplus.svg
+    tint: "#649AD2"
+  - key: python
+    name: Python
+    sub: 脚本与胶水
+    desc: 数据、爬虫、自动化，重复的事都丢给它
+    src: /icons/python.svg
+    tint: "#FFD43B"
+  - key: easylang
+    name: 易语言
+    sub: 中文编程
+    desc: 第一门语言，中文关键字写出来的小工具
+    src: /icons/easylang.svg
+    tint: "#FF0000"
+  - key: linux
+    name: Linux
+    sub: Debian / WSL
+    desc: 日常环境与部署，命令行比图形界面熟
+    src: /icons/linux.svg
+    tint: "#FCC624"
+  - key: ai
+    name: AI
+    sub: LLM 工作流
+    desc: 把模型接进工具链，提示词与评测都当成工程做
+    src: /icons/openai.svg
+    tint: "#10A37F"
+  - key: dify
+    name: Dify
+    sub: 工作流编排
+    desc: 流程、知识库、工具调用，可视化先跑通再改代码
+    src: /icons/dify.svg
+    tint: "#3B5BFF"
+  - key: coze
+    name: Coze
+    sub: Agent 搭建
+    desc: 快速搭一个能用的智能体，插件与工作流拼起来
+    src: /icons/coze.svg
+    tint: "#6C72F0"
+  - key: qt
+    name: Qt
+    sub: Widgets / QML
+    desc: 桌面界面与信号槽，跨平台那套规矩很对胃口
+    src: /icons/qt.svg
+    tint: "#41CD52"
+  - key: vscode
+    name: VS Code
+    sub: 常年开着的那个
+    desc: 编辑器加远程开发，扩展凑一条顺手的工作流
+    src: /icons/vscode.svg
+    tint: "#1F9CF0"
+  - key: claude
+    name: Claude
+    sub: Code / Switch
+    desc: 结对写代码与读代码，长上下文用来啃旧项目
+    src: /icons/claude.svg
+    tint: "#D97757"
+  - key: git
+    name: Git
+    sub: 分支与 rebase
+    desc: 提交历史要干净，出问题先 blame 再回滚
+    src: /icons/git.svg
+    tint: "#DE4C36"
+  - key: docker
+    name: Docker
+    sub: 容器与 CI
+    desc: 环境和线上一致，构建交给流水线，少在自己机器上赌
+    src: /icons/docker.svg
+    tint: "#2496ED"

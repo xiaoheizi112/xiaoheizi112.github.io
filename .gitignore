@@ -6,6 +6,7 @@ _gh_login.log
 _hugo_server.log
 _smoke/
 _smoke2/
+_smoke*/
 _hugo_server.err.log
 
 # 本地验收工作区：CDP 驱动 Edge 的脚本、截图、浏览器 profile、临时构建产物
@@ -18,12 +19,7 @@ scripts/_triage/
 scripts/_*.py
 scripts/_*.png
 
-# 简历 PDF：简历板块隐藏中且含个人信息，不进公开仓库（恢复时去掉这行）
+# 简历 PDF 已于 2026-11 删除；static/files/ 若再放本地附件一律不入库
 static/files/
 
-# 飞书文案原始导出素材（docx/pptx/zip，本地留档，不入库）
-Myresource/
-_server.log
-scripts/_captions_once.py
-scripts/_replace_once.py
 __pycache__/

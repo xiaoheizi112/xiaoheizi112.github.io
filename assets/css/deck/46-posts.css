@@ -1,0 +1,325 @@
+/* ============================================================
+   46-posts.css —— 07 ARTICLES 文章板块（2026-11 新增）
+   覆盖三处：首页 07 卡（.posts-list / .post-row / .posts-cta + 空状态 .post-empty）、
+             /posts/ 列表子页（.page-posts）、文章详情页（.post-meta / .post-toc / .post-nav）。
+   纪律（CLAUDE.md 优化定调）：
+   · 只用「工程机界面」一种语言——发丝线 + 等宽读数 + HUD 角括号（.rm，40-cards 全局件）
+     + 呼吸点（.ah-live + 复用 ah-blink 关键帧，40-cards:773）。不新开 keyframes、
+     不加渐变彩块、不加圆角大卡与通用 spinner。
+   · 一屏一个主角：列表态主角是标题行本身（行间距克制、编号只描边），
+     空状态主角是那块待机面板，其余保持安静。
+   · 色值/字体只引用 10-base 令牌；rgba 酸绿辉光沿用其他文件的既有写法。
+   · 降级不在这写：窄屏 ≤1024/≤880/≤720/≤480、(hover:none)、reduced 全归 90-media.css。
+   · minifier 坑（CLAUDE.md 已知坑）：等于初始值的声明会被删，所以 hover 开关走
+     自定义属性（--pr-pl / --pr-line），不写 transform:none / opacity:1 这种复位。
+   ============================================================ */
+
+/* ---------- 1. 首页 07 卡：文章行 ---------- */
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 1.8vw, 24px);
+  --pr-pl: 4px;                       /* 左内边距（hover 吸气，沿用 .work-row 语义） */
+  padding: clamp(12px, 2vh, 20px) 44px clamp(12px, 2vh, 20px) var(--pr-pl);
+  border-top: 1px solid var(--d-line);
+  color: inherit;
+  text-decoration: none;
+  transition: padding-left .4s var(--ease), border-color .4s;
+}
+.post-row:last-child { border-bottom: 1px solid var(--d-line); }
+.post-row:hover { --pr-pl: 18px; border-color: var(--d-acid); }
+
+/* 左侧酸绿竖线：与 .hair-list / .work-row 同一套 hover 语法，scaleY 走变量 */
+.post-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14%;
+  bottom: 14%;
+  width: 1px;
+  background: var(--d-acid);
+  box-shadow: 0 0 8px rgba(58, 227, 92, .5);
+  transform: scaleY(var(--pr-line, 0));
+  transform-origin: center;
+  transition: transform .45s var(--ease);
+}
+.post-row:hover::before { --pr-line: 1; }
+
+/* 空心编号 + [ ]（与 WORKS 的 [01] 同一读法，字号收一档：文章别压过作品） */
+.pr-no {
+  flex: 0 0 auto;
+  font-family: var(--f-mono);
+  font-size: clamp(13px, 1.3vw, 16px);
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--d-dim);
+  transition: color .35s;
+}
+.post-row:hover .pr-no { color: var(--d-acid); }
+
+.pr-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.pr-title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(20px, 2.3vw, 29px);
+  line-height: 1.08;
+  letter-spacing: .02em;
+  color: var(--d-white);
+  transition: color .35s;
+}
+.post-row:hover .pr-title { color: var(--d-acid); }
+.pr-sum {
+  font-size: clamp(12.5px, 1.2vw, 13.5px);
+  line-height: 1.6;
+  color: var(--d-mute);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.pr-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+  margin-top: 2px;
+}
+.pr-meta .pm-date { color: var(--d-mute); }
+
+.pr-go {
+  flex: 0 0 auto;
+  font-family: var(--f-mono);
+  font-size: 15px;
+  color: var(--d-dim);
+  transition: color .35s, translate .35s var(--ease);
+}
+.post-row:hover .pr-go { color: var(--d-acid); translate: 4px 0; }
+
+/* ---------- 2. 首页 07 卡：底部读数 + ALL POSTS / LATEST 胶囊 ---------- */
+
+.posts-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 22px;
+  margin-top: 3.4vh;
+}
+
+/* 工程机读数行（首页卡尾 / 列表页顶部共用）：小字等宽、值比标签亮一档 */
+.posts-stat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 26px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+.posts-stat b { color: var(--d-mute); font-weight: 700; }
+.posts-stat a { color: var(--d-acid-2); text-decoration: none; transition: color .3s; }
+.posts-stat a:hover { color: var(--d-acid); }
+/* 列表页顶部那条：虚线收边，跟下面的发丝行拉开层次
+   （实测 1440：虚线紧贴第一行的 border-top，两条线挤成「双线」，故下沿留白比上沿大） */
+.page-posts .posts-stat {
+  margin: 1vh 0 2.6vh;
+  padding-bottom: 1.8vh;
+  border-bottom: 1px dashed var(--d-line);
+}
+
+/* ---------- 3. 空状态：待机面板（零文章时即成品，读数为真） ---------- */
+
+.post-empty {
+  position: relative;
+  margin-top: 3vh;
+  /* 1440 实测 760px 时面板右沿落在屏宽 60% 处，像半块没画完；收到 880 与 .card-body 的留白更成比例 */
+  max-width: 880px;
+  display: grid;
+  gap: clamp(10px, 1.6vh, 16px);
+  padding: clamp(18px, 3vh, 30px) clamp(18px, 2.6vw, 32px);
+  border: 1px solid var(--d-line);
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--d-card), var(--d-void-2));
+}
+.pe-cap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+.pe-cap .pe-rule { flex: 1 1 auto; height: 1px; background: var(--d-line); }
+.pe-line {
+  font-size: clamp(13px, 1.3vw, 15px);
+  line-height: 1.75;
+  color: var(--d-mute);
+  max-width: 38em;
+}
+.pe-line b { color: var(--d-white); font-weight: 500; }
+.pe-line code {
+  font-family: var(--f-mono);
+  font-size: .92em;
+  color: var(--d-acid-2);
+  background: var(--d-acid-soft);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+/* 三行真实读数：取不到真值的行模板里就不输出（ENTRIES 恒真、LAST 仅在有文章时出现） */
+.pe-read {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 30px;
+  margin-top: 2px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--d-line);
+}
+.pe-read li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.pe-read span { color: var(--d-dim); }
+.pe-read b { color: var(--d-mute); font-weight: 700; }
+.pe-read b.standby { color: var(--d-acid); }
+/* INDEX 行在首页卡上是真链接（零文章时它是通往 /posts/ 的唯一入口），列表页自身只出文本 */
+.pe-read a {
+  color: var(--d-mute);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--d-line-2);
+  padding-bottom: 1px;
+  transition: color .3s var(--ease), border-color .3s var(--ease), text-shadow .3s var(--ease);
+}
+.pe-read a:hover,
+.pe-read a:focus-visible {
+  color: var(--d-acid);
+  border-bottom-color: var(--d-acid);
+  /* --d-acid-glow 本身就是完整投影值（0 0 24px rgba…），不能再前面加偏移——加了整条声明非法，hover 辉光静默失效 */
+  text-shadow: var(--d-acid-glow);
+}
+
+/* ============================================================
+   4. /posts/ 列表子页 + 文章详情页（沿用 50-sub 的 .sub-wrap / .md-content）
+   ============================================================ */
+
+.page-posts { max-width: 1040px; }
+.page-posts .posts-list { margin-top: 1vh; }
+/* 列表页行数多，行距比首页卡再收一点 */
+.page-posts .post-row { padding-top: clamp(12px, 1.6vh, 17px); padding-bottom: clamp(12px, 1.6vh, 17px); }
+
+/* 详情页抬头读数：DATE / READ / WORDS / PATH —— 全真值 */
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin: -3vh 0 5vh;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.post-meta > div { display: flex; align-items: baseline; gap: 9px; }
+.post-meta span { color: var(--d-dim); }
+.post-meta b { color: var(--d-mute); font-weight: 700; }
+.post-meta .pm-on { color: var(--d-acid); }
+
+/* 目录：Hugo 自出 <nav id="TableOfContents"><ul><li>…，压成工程机清单（别拿默认 ul 圆点） */
+.post-toc {
+  max-width: 68ch;
+  margin: 0 0 6vh;
+  padding: clamp(12px, 2vh, 18px) clamp(14px, 2vw, 22px);
+  border: 1px solid var(--d-line);
+  border-left: 2px solid var(--d-acid);
+  border-radius: 4px;
+  background: var(--d-void-2);
+}
+.post-toc .pt-cap {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-dim);
+}
+.post-toc ul { list-style: none; margin: 0; padding: 0; }
+.post-toc li { margin: 0; }
+.post-toc li + li { margin-top: 6px; }
+.post-toc li li { padding-left: 16px; }
+.post-toc a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  letter-spacing: .02em;
+  color: var(--d-mute);
+  transition: color .3s;
+}
+.post-toc a::before { content: "▸"; color: var(--d-dim); transition: color .3s; }
+.post-toc a:hover { color: var(--d-acid); }
+.post-toc a:hover::before { color: var(--d-acid); }
+
+/* 上一篇 / 下一篇：两条发丝行，左右分栏 */
+.post-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 6vh 0 2vh;
+  border-top: 1px solid var(--d-line);
+  padding-top: 3vh;
+}
+.pn-cell {
+  display: grid;
+  gap: 5px;
+  padding: 6px 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: color .3s;
+}
+.pn-cell.next { text-align: right; }
+.pn-cell .pn-k {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+  transition: color .3s;
+}
+.pn-cell .pn-t {
+  font-family: var(--f-display);
+  font-size: clamp(17px, 2vw, 22px);
+  line-height: 1.15;
+  letter-spacing: .02em;
+  color: var(--d-white);
+  transition: color .3s;
+}
+.pn-cell:hover .pn-k,
+.pn-cell:hover .pn-t { color: var(--d-acid); }

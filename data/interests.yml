@@ -1,21 +1,47 @@
-# 兴趣板块数据：改这里就够了，不动模板和 CSS。
-# icon 用 emoji，name 名称，desc 一句描述。
+# 兴趣板块数据（05 生活进程表）：改这里就够了，不动模板和 CSS。
+# icon 对应 layouts/_partials/hob-icon.html 里的线稿键名（pingpong/sleep/music/walk/cook/ai）。
+# state 进程状态（RUNNING/SLEEPING/IDLE/WAITING/HIGH LOAD），cpu/mem 0-100 整数（条宽），
+# uptime 累计时长串（HHHH:MM:SS 感即可，SORT·UPTIME 按它的小时数排），desc 详情行文案。
 
-- icon: "🏓"
+- icon: "pingpong"
   name: "乒乓球"
-  desc: "打了几年的业余爱好，周末的固定节目，出一身汗比什么都解压。"
-- icon: "😴"
+  state: "RUNNING"
+  cpu: 76
+  mem: 24
+  uptime: "0006:12:44"
+  desc: "周末固定节目，出一身汗，人就舒坦了。"
+- icon: "sleep"
   name: "睡觉"
-  desc: "人生大事。能睡个好觉，第二天就没什么过不去的。"
-- icon: "🎧"
+  state: "SLEEPING"
+  cpu: 9
+  mem: 97
+  uptime: "0233:41:07"
+  desc: "人生头等大事。睡好了，别的都不算事。"
+- icon: "music"
   name: "听歌"
-  desc: "写代码、散步、发呆时的背景音，最近循环的是情绪说唱。"
-- icon: "🚶"
+  state: "RUNNING"
+  cpu: 64
+  mem: 48
+  uptime: "0512:08:33"
+  desc: "写代码循环播放，最近迷情绪说唱。"
+- icon: "walk"
   name: "散步"
-  desc: "想不清楚的事，走着走着就顺了，顺便看看路上的天。"
-- icon: "🍳"
+  state: "IDLE"
+  cpu: 7
+  mem: 12
+  uptime: "0035:59:12"
+  desc: "想不通的事，走一走就通了。"
+- icon: "cook"
   name: "做饭"
-  desc: "自己下厨的那顿饭总比外卖香，慢慢也攒下几道拿手菜。"
-- icon: "🤖"
+  state: "WAITING"
+  cpu: 41
+  mem: 30
+  uptime: "0089:17:26"
+  desc: "自己做的饭比外卖香，攒了几道拿手菜。"
+- icon: "ai"
   name: "AI"
-  desc: "折腾各种新工具，把重复的活交给它，腾出时间干别的。"
+  state: "HIGH LOAD"
+  cpu: 97
+  mem: 88
+  uptime: "1024:36:11"
+  desc: "爱折腾新工具，重复的活全交给它。"

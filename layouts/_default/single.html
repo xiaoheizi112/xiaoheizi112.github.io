@@ -1,0 +1,19 @@
+{{- /* 子页壳（P2）：Markdown 单页走这里。
+      头部 = back-line + row-head（编号 / Anton 大标题 / 中文小标），
+      正文 = .md-content（版式在 50-sub.css 第 1 节，代码块配色在 60-chroma.css）。
+      原先只有 /about/ 用它，该页 2026-11-11 已删；此壳留给未来 single 页，不做过度设计。
+      注：02 与「ABOUT ME」是历史回落值，新增页面记得按板块改。 */ -}}
+{{- define "main" -}}
+<div class="sub-wrap">
+  <a class="back-line mono" href="{{ "/" | relURL }}#c-about">← BACK HOME</a>
+  <header class="row-head">
+    <span class="num">02</span>
+    <h1 class="display solid">{{ .Title }}</h1>
+    <span class="cn">ABOUT ME</span>
+  </header>
+  <div class="hair show"></div>
+  <article class="md-content">
+    {{ .Content }}
+  </article>
+</div>
+{{- end -}}

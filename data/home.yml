@@ -8,6 +8,9 @@ brand:
 
 hero:
   eyebrow: "个人主页 · FIELD NOTES"
+  # 站龄起点：仓库真实诞生日（GitHub API created_at = 2026-09-22T00:41:46Z）。
+  # 模板按此算「ONLINE DAY」，deck.js 每次访问用当前时间重算；改这里即换锚点。
+  online_since: "2026-09-22"
   line1: "想过的，"
   line2: "写下来才算数。"   # 这一行会显示成强调色
   sub: >-
@@ -16,18 +19,31 @@ hero:
   cta_primary: "开始阅读"
   cta_secondary: "先听一首"
 
-# 关于板块。头像位显示一个汉字（mark），想换图片的话以后再说
+# 关于板块（2026-11-11 R3 改版：03 卡「人事档案」面板内容换血）：
+#   profile —— 档案条目 name + note；note 走等宽小字右对齐，一条一行。
+#              2026-11-11 站主令：旧读数（主职/技能栈/本站/旧座右铭）整表撤掉，换成昵称 /
+#              一句话介绍 / 博客定位 / 新座右铭四条，文案由站主给定，别自行发挥。
+#              排法也按站主定的语义顺序：昵称 → 一句话介绍 → 博客定位 → 座右铭，
+#              人格测试作为附加读数垫尾；字色已统一白色，不再有 key 主读数之分。
+#   quote/quote_by —— 原 STATEMENT 大字引言，2026-11-11 站主令撤出 03 面板；原文留档，
+#                     当前模板不渲染，别再往回挂（要恢复先问站主）
+#   底栏（READ FULL BIO / EST. / 条形码）与 /about/ 页已于 2026-11-11 站主令删除。
 about:
-  mark: "慢"
-  since: "EST. 2026 · 山间有炊烟"
-  paragraphs:
-    - >-
-      <span class="em">慢</span>，是一种态度。
-      <span class="em">公子</span>，是一种自嘲。
-    - >-
-      博客，是一块<span class="em">自留地</span>。
-      种什么，什么时候种，看天，看心情，看你来不来。
-  tags: ["笔记", "AI 编程", "自动化", "旅行随拍", "听歌"]
+  quote:
+    - "张量翻涌，AI 不息。"
+    - "快是模型的本能，慢是我的<span class=\"em\">选择</span>。"
+  quote_by: "慢公子"
+  profile:
+    - name: "昵称"
+      note: "慢公子"
+    - name: "一句话介绍我"
+      note: "自由散漫的创作者，偶尔做点小项目"
+    - name: "博客定位"
+      note: "日常兴趣分享"
+    - name: "座右铭"
+      note: "思多乱其志，行者皆披靡。"
+    - name: "人格测试"
+      note: "ESTJ · 边界 I/E · 偏内敛 · 温和型"
 
 # 联系方式。带 url 的行会渲染成可点击链接，每行右侧都有复制按钮
 contact:
@@ -42,6 +58,13 @@ contact:
     label: "GitHub"
     value: "https://github.com/xiaoheizi112"
     url: "https://github.com/xiaoheizi112"
+
+# 06 作品卡底部按钮组的外链（全外链新开标签；blog 是本静态站源码仓）。
+# 列表上方的介绍词与标题下的发丝线已按站主 2026-11 要求删除，别再往回加
+works:
+  profile: "https://github.com/xiaoheizi112"
+  repos: "https://github.com/xiaoheizi112?tab=repositories"
+  blog: "https://github.com/xiaoheizi112/xiaoheizi112.github.io"
 
 # 求职条：首页产品区与联系区之间的一条细提示（enabled 设成 false 即整条隐藏）。
 # 简历页数据在 data/resume.yml，这里只放首页露出的那一行字
@@ -58,4 +81,28 @@ stats:
   since: "2026-09-21"
 
 footer:
-  line: "慢公子 · 有空多睡觉，没空少看书"
+  line: "思多乱其志，行者皆披靡。"
+
+# 07 文章板块（2026-11 新增）：正文一律来自 content/posts/*.md，这里只管首页卡文案位。
+#   note —— 标题下的介绍词，留空（""）就不渲染那一行；空列表时本字段不显示（走待机面板）
+#   list —— 首页卡最多露出几篇（其余去 /posts/ 看）
+# 站主的长文案随后补：直接改 note，或在 content/posts/ 放 .md（front matter: title/date/description/tags）
+posts:
+  note: ""
+  list: 4
+
+# 01 屏循环欢迎语（welcome.js 终端提示符款逐句打字；无 JS / reduced-motion 静态显示第一句）
+welcome:
+  - "欢迎来到慢公子的个人博客。"
+  - "机器计算一切，人决定什么值得。"
+  - "熵增是宇宙的默认分支，博客是人的反向提交。"
+  - "当机器会写字，人的字反而更重了。"
+  - "科技向左加速，人有权向右散步。"
+  - "思多乱其志，行者皆披靡。"
+
+# 01 屏状态播报跑马灯（LAST BUILD 由模板自动拼构建日期，这些条目依次轮播）
+marquee:
+  - "科技疾驰，我自慢行"
+  - "TECH RACES, I STROLL"
+  - "STATUS ONLINE"
+  - "TENSOR SURGE, AI NEVER STOPS"

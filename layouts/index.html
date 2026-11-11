@@ -1,618 +1,555 @@
-{{- $hen := hugo.Data.home_en -}}
+{{- /* 首页 = 竖向卡片甲板（2026-11 jiejoe 风重构）
+     九屏：01 HOME / 02 ABOUT ME / 03 IDENTITY / 04 SIGNALS / 05 INTERESTS / 06 WORKS
+           / 07 ARTICLES / 08 GUESTBOOK / 09 CONTACT
+     （05 FOCUS 要事四象限已按站主令整体删除，2026-11；07 ARTICLES 为 2026-11 新增文章板块）
+     数据：data/home.yml（文案）· data/music.yml · data/interests.yml · data/products.yml
+          · content/posts/（07 屏文章，真实文章为唯一数据源） */ -}}
+{{- define "main" -}}
 {{- $h := hugo.Data.home -}}
 {{- $songs := hugo.Data.music -}}
-{{- /* 首页相册条：优先取 photos.yml 里 featured: true 的代表作，没标就退回最新 6 张 */ -}}
-{{- $allPhotos := sort (default slice hugo.Data.photos) "date" "desc" -}}
-{{- $photos := default (first 6 $allPhotos) (where $allPhotos "featured" true) -}}
-{{- /* src → 全量列表下标，相册条点击后跳 /photos/#pN 定位到那张图 */ -}}
-{{- $pidx := dict -}}{{- range $i, $p := $allPhotos }}{{- $pidx = merge $pidx (dict $p.src $i) -}}{{- end -}}
-{{- $words := 0 -}}
-{{- range site.RegularPages -}}{{- $words = add $words .WordCount -}}{{- end -}}
-{{- $days := int (div (now.Sub (time $h.stats.since)).Hours 24) -}}
-<!doctype html>
-<html lang="{{ site.Language.Locale }}">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#F7FBFC" />
-  <meta name="color-scheme" content="light dark" />
-  {{- /* 主题初始化：与文章页共用同一个 pref-theme（localStorage），无偏好时跟随系统。
-       放在最前、body 之前，避免暗色用户首帧闪白 */ -}}
-  <script>
-    (function () {
-      var t = null;
-      try { t = localStorage.getItem("pref-theme"); } catch (e) {}
-      var dark = t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches);
-      document.documentElement.dataset.theme = dark ? "dark" : "light";
-    })();
-  </script>
-  {{- /* 渐进增强标记：仅当脚本可用时才隐藏待进场的板块，脚本失效则内容照常可见。
-       若 home.js 未能加载/执行（内联脚本先加了 .js 但没接上观察器），超时兜底强制显示 */ -}}
-  <script>
-    document.documentElement.classList.add("js");
-    addEventListener("load", function () {
-      setTimeout(function () { if (!window.__homeReady) document.documentElement.classList.add("rv-fallback"); }, 1200);
-    });
-  </script>
-  <title>{{ site.Title }}</title>
-  <meta name="description" content="{{ site.Params.description }}" />
-  <link rel="canonical" href="{{ .Permalink }}" />
-  {{- with .OutputFormats.Get "rss" }}
-  <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}" />
-  {{- end }}
-  {{- /* 社交分享卡片：首页是手写模板，不经过 PaperMod 的 opengraph 模板，需自备 */ -}}
-  {{- $ogimg := "images/og-cover.png" | absURL }}
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="{{ site.Title }}" />
-  <meta property="og:title" content="{{ site.Title }}" />
-  <meta property="og:description" content="{{ site.Params.description }}" />
-  <meta property="og:url" content="{{ .Permalink }}" />
-  <meta property="og:image" content="{{ $ogimg }}" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:locale" content="zh_CN" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{{ site.Title }}" />
-  <meta name="twitter:description" content="{{ site.Params.description }}" />
-  <meta name="twitter:image" content="{{ $ogimg }}" />
-  {{- if site.Params.assets.favicon }}<link rel="icon" href="{{ site.Params.assets.favicon | relURL }}" />{{ end }}
-  {{- /* 国内镜像 fonts.loli.net；被墙时备用地址 https://fonts.googleapis.com/css2?... 同路径 */ -}}
-  <link rel="preconnect" href="https://fonts.loli.net" />
-  {{- /* 非阻塞加载字体：media=print 不挡首屏，onload 切回 all；无 JS 用 noscript 兜底 */ -}}
-  <link rel="preload" as="style" href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" />
-  <link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-  <noscript><link href="https://fonts.loli.net/css2?family=Space+Grotesk:wght@400,500,600&family=JetBrains+Mono:wght@400,500&display=swap" rel="stylesheet" /></noscript>
-  {{- /* 致敬语用的宋体子集：text= 只打包这句用到的十几个字，几十 KB */ -}}
-  <link href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400&display=swap&text=%E6%8A%8A%E8%BF%99%E4%BA%9B%E6%AD%8C%E6%94%BE%E4%B8%8A%E6%9C%AC%E7%AB%99%EF%BC%8C%E6%98%AF%E6%88%91%E8%83%BD%E6%83%B3%E5%88%B0%E7%9A%84%E6%9C%80%E5%AE%89%E9%9D%99%E7%9A%84%E7%BA%AA%E5%BF%B5%E2%80%94%E2%80%94%E4%BD%A0%E6%9D%A5%E8%AF%BB%E5%AD%97%EF%BC%8C%E4%B9%9F%E9%A1%BA%E4%BE%BF%E5%90%AC%E5%90%AC%E4%BB%96%E3%80%82" rel="stylesheet" />
-  {{ partialCached "css.html" (dict "path" "css/home.css") "home.css" }}
-  {{ partialCached "css.html" (dict "path" "css/palette.css") "palette.css" }}
-  {{ partialCached "js.html" (dict "path" "lib/turbo/turbo.umd.js" "defer" true) "turbo" }}
-  {{- /* Turbo 8 原生 View Transitions：与文章页同一套换页过渡，进出首页也顺滑。不支持则自动退化 */ -}}
-  <meta name="view-transition" content="same-origin" />
-</head>
-<body>
-{{- /* 猫猫元素共用的爪印符号（爪垫+四趾），全站 <use href="#paw"> 复用 */ -}}
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="paw" viewBox="0 0 24 24">
-    <ellipse cx="12" cy="15.8" rx="5" ry="4.1" fill="currentColor" />
-    <circle cx="5.6" cy="10.6" r="2.1" fill="currentColor" />
-    <circle cx="9.6" cy="7.6" r="2.2" fill="currentColor" />
-    <circle cx="14.4" cy="7.6" r="2.2" fill="currentColor" />
-    <circle cx="18.4" cy="10.6" r="2.1" fill="currentColor" />
-  </symbol>
-</svg>
-{{- /* 滚动极光雾：六个板块各一层，层内三团软光缓慢漂移，随所在板块交叉淡入。
-       纯 transform 动画（GPU 合成、不重绘），颜色令牌随深浅主题翻转，零图片资源 */ -}}
-<div class="ambient" aria-hidden="true">
-  <div class="amb morning" data-for="morning"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
-  <div class="amb ink" data-for="ink"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
-  <div class="amb sound" data-for="sound"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
-  <div class="amb sea" data-for="sea"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
-  <div class="amb hello" data-for="hello"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
-  <div class="amb play" data-for="play"><span class="blob m1"></span><span class="blob m2"></span><span class="blob m3"></span></div>
-</div>
-{{- /* 指针聚光：柔和光团带惯性跟随指针（位置由 home.js 每帧写入 --mx/--my） */ -}}
-<div class="spotlight" aria-hidden="true"></div>
-<a class="skip-link" href="#main" data-zh="跳到主要内容" data-en="Skip to content">跳到主要内容</a>
+{{- $posts := where site.RegularPages "Type" "posts" -}}
+<div class="deck" id="deck">
 
-{{- /* 全站统一导航：链接/操作区与文章页、要事页共用同一套 partial */ -}}
-{{ partial "site_nav.html" (dict "page" .) }}
-
-<header class="hero" id="home">
-  <div class="hero-orbit" aria-hidden="true"></div>
-  <div class="hero-inner">
-    <div class="hero-copy">
-      <div class="hero-kicker">
-        <p class="hero-eyebrow" data-zh="{{ $h.hero.eyebrow }}" data-en="{{ $hen.hero.eyebrow }}">{{ $h.hero.eyebrow }}</p>
-        <button class="lang-btn hero-lang" type="button" title="中 / EN" aria-label="切换中英文"><span class="lang-cur">EN</span></button>
-      </div>
-      <h1><span data-zh="{{ $h.hero.line1 }}" data-en="{{ $hen.hero.line1 }}">{{ $h.hero.line1 }}</span><br /><span class="acc"><span data-zh="{{ $h.hero.line2 }}" data-en="{{ $hen.hero.line2 }}">{{ $h.hero.line2 }}</span><svg class="squig" viewBox="0 0 240 14" preserveAspectRatio="none" aria-hidden="true"><path d="M3 9 C 34 3, 58 13, 92 7 S 150 3, 182 10 S 222 8, 237 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span></h1>
-      <p class="hero-sub" data-zh="{{ $h.hero.sub }}" data-en="{{ $hen.hero.sub }}">{{ $h.hero.sub }}</p>
-      <div class="hero-divider" aria-hidden="true"></div>
-      <div class="hero-ctas">
-        <a href="#posts" class="btn-primary"><span data-zh="{{ $h.hero.cta_primary }}" data-en="{{ $hen.hero.cta_primary }}">{{ $h.hero.cta_primary }}</span> <span class="arr">→</span></a>
-        {{- if $songs }}<a href="#music" class="btn-ghost" data-zh="{{ $h.hero.cta_secondary }}" data-en="{{ $hen.hero.cta_secondary }}">{{ $h.hero.cta_secondary }}</a>{{ end }}
-      </div>
-      <dl class="hero-stats" aria-label="站点快照">
-        <div><dt data-count="{{ len site.RegularPages }}">0</dt><dd data-zh="篇笔记" data-en="notes">篇笔记</dd></div>
-        <div><dt data-count="{{ len site.Taxonomies.tags }}">0</dt><dd data-zh="个标签" data-en="tags">个标签</dd></div>
-        <div><dt data-count="{{ $days }}">0</dt><dd data-zh="天运行" data-en="days running">天运行</dd></div>
-      </dl>
+  {{- /* ---------- 01 HOME ---------- */}}
+  <section class="card" id="c-home" data-num="01" data-name="HOME">
+    <div class="hero">
+      <p class="eyebrow rv">SLOW GONGZI · <b>EST. 2026</b>{{ with $h.hero.online_since }}{{ $sn := time . }} · ONLINE DAY <span id="site-days" data-since="{{ . }}">{{ printf "%03d" (int (div ((now.Sub $sn).Hours) 24)) }}</span>{{ end }}</p>
+      <h1 class="hero-lines">
+        <span class="display solid rv">Think wild!</span>
+        <span class="display acid rv">Build cool!</span>
+        {{- /* 括号巨字（(RED) 式）：括号实心酸绿、字保持空心描边 */}}
+        <span class="display outline rv"><span class="par">(</span>Ship slow!<span class="par">)</span></span>
+      </h1>
+      <div class="hair rv"></div>
+      <p class="hero-sub rv" style="--i:4">A resident process of an engineer.
+        <b>白天编译世界，夜里编译自己。</b></p>
+      {{- /* 循环欢迎语（2026-11 站主选形式 A）：终端提示符 + welcome.js 逐句打字；
+           服务端直出第一句兜底，无 JS / reduced-motion 即成品 */}}
+      {{- with $h.welcome }}
+      <p class="hero-welcome rv" style="--i:5" id="hero-welcome" data-welcome='{{ . | jsonify }}'>
+        <span class="hw-prompt">guest@slowgongzi:~$</span><span class="hw-prompt-sm">$</span>
+        <span class="hw-text">{{ index . 0 }}</span><span class="term-cursor" aria-hidden="true"></span>
+      </p>
+      {{- end }}
     </div>
-    {{- /* Hero 明信片：手绘卡通插画内联 SVG，颜色全走 :root 令牌，零外部资源 */ -}}
-    <figure class="hero-polaroid" aria-hidden="true">
-      <svg class="polaroid-art" viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg">
-        <rect width="320" height="400" rx="3" fill="var(--bg-2)" />
-        {{- /* 简笔风景：太阳、云、飞鸟、双层山丘 + 一棵小树 */ -}}
-        <g stroke="var(--sun)" stroke-width="5" stroke-linecap="round">
-          <line x1="110" y1="120" x2="122" y2="120" />
-          <line x1="98" y1="98" x2="106.8" y2="89.8" />
-          <line x1="70" y1="88" x2="70" y2="76" />
-          <line x1="42" y1="98" x2="33.2" y2="89.8" />
-          <line x1="30" y1="120" x2="18" y2="120" />
-          <line x1="42" y1="142" x2="33.2" y2="150.2" />
-          <line x1="98" y1="142" x2="106.8" y2="150.2" />
-          <line x1="70" y1="152" x2="70" y2="164" />
-        </g>
-        <circle cx="70" cy="120" r="42" fill="var(--sun)" opacity=".12" />
-        <circle cx="70" cy="120" r="30" fill="var(--sun)" />
-        <g fill="var(--bg)">
-          <circle cx="146" cy="74" r="13" /><circle cx="166" cy="64" r="17" /><circle cx="186" cy="76" r="11" />
-          <rect x="140" y="68" width="54" height="18" rx="9" />
-        </g>
-        {{- /* 飞鸟：挪进太阳与云之间的空域，两只一前一后、由大到小做远近感 */ -}}
-        <path d="M126 112 q7-9 14 0 q7-9 14 0" fill="none" stroke="var(--ink-2)" stroke-width="2.2" stroke-linecap="round" />
-        <path d="M158 132 q5.5-7 11 0 q5.5-7 11 0" fill="none" stroke="var(--ink-2)" stroke-width="1.8" stroke-linecap="round" opacity=".75" />
-        <path d="M-6 252 Q 80 176 190 220 Q 270 248 334 210 L 334 252 L -6 252 Z" fill="var(--bg-3)" />
-        <path d="M-6 252 Q 110 206 220 244 Q 290 262 334 246 L 334 252 L -6 252 Z" fill="var(--sun)" opacity=".18" />
-        <rect x="157" y="216" width="6" height="22" fill="var(--ink-3)" />
-        <circle cx="160" cy="205" r="15" fill="var(--grass-deep)" />
-        <line x1="16" y1="252" x2="304" y2="252" stroke="var(--border)" />
-        {{- /* 驻站猫「小橘猫」：趴着晒太阳。整组用定稿的躺姿几何，靠 translate+scale 嵌入避免手调走形 */ -}}
-        <g class="cat hero-cat" transform="translate(28 203) scale(1.6)">
-          <ellipse cx="34" cy="28.5" rx="19" ry="2" fill="var(--ink-3)" opacity=".14" />
-          <path d="M45 17.5 Q55 15.5 56 22 Q56.8 28.5 48.5 27.5 Q53.5 26 53 21.5 Q52 17.5 45 20 Z" fill="var(--sun)" />
-          <path d="M11.5 6 L12 15.5 L18 13 Z" fill="var(--sun)" />
-          <path d="M24.5 6 L24 15.5 L18 13 Z" fill="var(--sun)" />
-          <ellipse cx="34" cy="21" rx="16" ry="7" fill="var(--sun)" />
-          <g fill="none" stroke="var(--sun-deep)" stroke-width="1.6" stroke-linecap="round" opacity=".5">
-            <path d="M37 15 q1.2 3.4 .8 6.8" /><path d="M42 16 q1 3 .6 6" /><path d="M46.4 17.8 q.8 2.6 .5 5" />
+    {{- /* 引擎核心 ENGINE CORE（2026-11）：线框二十面体，纯 SVG 投影，core.js 驱动
+         （滚动供能转速/点击过载，契约见 40-cards.css CORE 段）。
+         下面的线/点是 rotY34°·rotX22°·rotZ9° 的静态投影——无 JS 时即成品兜底；
+         JS 接管后复用同一批元素逐帧改写坐标，顺序与 core.js 的顶点/棱枚举一致。 */}}
+    <figure class="core-panel rv" style="--i:7" role="button" tabindex="0" aria-label="ENGINE CORE — 点击触发过载演示">
+      <span class="rm tl" aria-hidden="true"></span>
+      <span class="rm tr" aria-hidden="true"></span>
+      <span class="rm bl" aria-hidden="true"></span>
+      <span class="rm br" aria-hidden="true"></span>
+      <figcaption class="core-cap mono">CORE.SYS <i>//</i> ENGINE</figcaption>
+      <div class="core-stage" data-tilt>
+        <svg class="core-svg" viewBox="-110 -110 220 220" aria-hidden="true">
+          <g class="core-ring">
+            <ellipse rx="100" ry="31" transform="rotate(-16)"/>
+            <circle id="core-sat" cx="90.7" cy="-12.4" r="2.6"/>
           </g>
-          <circle cx="18" cy="19.5" r="8.4" fill="var(--sun)" />
-          <g class="eyes-closed" fill="none" stroke="var(--cat-ink)" stroke-width="1.1" stroke-linecap="round">
-            <path d="M13.6 19 q2 1.7 4 0" /><path d="M18.6 19 q2 1.7 4 0" />
+          <g id="core-edges">
+            <line class="core-edge" pathLength="1" style="--ei:0" x1="48.4" y1="-16.3" x2="34.2" y2="-57" stroke-opacity="0.48"/>
+            <line class="core-edge" pathLength="1" style="--ei:1" x1="48.4" y1="-16.3" x2="63.8" y2="4.7" stroke-opacity="0.47"/>
+            <line class="core-edge" pathLength="1" style="--ei:2" x1="48.4" y1="-16.3" x2="-44.6" y2="31.6" stroke-opacity="0.57"/>
+            <line class="core-edge" pathLength="1" style="--ei:3" x1="48.4" y1="-16.3" x2="31.8" y2="63.5" stroke-opacity="0.52"/>
+            <line class="core-edge" pathLength="1" style="--ei:4" x1="48.4" y1="-16.3" x2="-32.9" y2="-60.4" stroke-opacity="0.54"/>
+            <line class="core-edge" pathLength="1" style="--ei:5" x1="34.2" y1="-57" x2="63.8" y2="4.7" stroke-opacity="0.39"/>
+            <line class="core-edge" pathLength="1" style="--ei:6" x1="34.2" y1="-57" x2="-21.9" y2="-43.7" stroke-opacity="0.34"/>
+            <line class="core-edge" pathLength="1" style="--ei:7" x1="34.2" y1="-57" x2="-32.9" y2="-60.4" stroke-opacity="0.45"/>
+            <line class="core-edge" pathLength="1" style="--ei:8" x1="34.2" y1="-57" x2="21.7" y2="-15.4" stroke-opacity="0.30"/>
+            <line class="core-edge" pathLength="1" style="--ei:9" x1="63.8" y1="4.7" x2="19.8" y2="36.4" stroke-opacity="0.31"/>
+            <line class="core-edge" pathLength="1" style="--ei:10" x1="63.8" y1="4.7" x2="31.8" y2="63.5" stroke-opacity="0.43"/>
+            <line class="core-edge" pathLength="1" style="--ei:11" x1="63.8" y1="4.7" x2="21.7" y2="-15.4" stroke-opacity="0.29"/>
+            <line class="core-edge" pathLength="1" style="--ei:12" x1="-21.9" y1="-43.7" x2="-32.9" y2="-60.4" stroke-opacity="0.40"/>
+            <line class="core-edge" pathLength="1" style="--ei:13" x1="-21.9" y1="-43.7" x2="21.7" y2="-15.4" stroke-opacity="0.24"/>
+            <line class="core-edge" pathLength="1" style="--ei:14" x1="-21.9" y1="-43.7" x2="-23" y2="7.8" stroke-opacity="0.24"/>
+            <line class="core-edge" pathLength="1" style="--ei:15" x1="-21.9" y1="-43.7" x2="-65.1" y2="-4.8" stroke-opacity="0.33"/>
+            <line class="core-edge" pathLength="1" style="--ei:16" x1="19.8" y1="36.4" x2="31.8" y2="63.5" stroke-opacity="0.36"/>
+            <line class="core-edge" pathLength="1" style="--ei:17" x1="19.8" y1="36.4" x2="21.7" y2="-15.4" stroke-opacity="0.22"/>
+            <line class="core-edge" pathLength="1" style="--ei:18" x1="19.8" y1="36.4" x2="-23" y2="7.8" stroke-opacity="0.22"/>
+            <line class="core-edge" pathLength="1" style="--ei:19" x1="19.8" y1="36.4" x2="-32.3" y2="53.7" stroke-opacity="0.31"/>
+            <line class="core-edge" pathLength="1" style="--ei:20" x1="-44.6" y1="31.6" x2="31.8" y2="63.5" stroke-opacity="0.52"/>
+            <line class="core-edge" pathLength="1" style="--ei:21" x1="-44.6" y1="31.6" x2="-32.9" y2="-60.4" stroke-opacity="0.54"/>
+            <line class="core-edge" pathLength="1" style="--ei:22" x1="-44.6" y1="31.6" x2="-32.3" y2="53.7" stroke-opacity="0.46"/>
+            <line class="core-edge" pathLength="1" style="--ei:23" x1="-44.6" y1="31.6" x2="-65.1" y2="-4.8" stroke-opacity="0.47"/>
+            <line class="core-edge" pathLength="1" style="--ei:24" x1="31.8" y1="63.5" x2="-32.3" y2="53.7" stroke-opacity="0.42"/>
+            <line class="core-edge" pathLength="1" style="--ei:25" x1="-32.9" y1="-60.4" x2="-65.1" y2="-4.8" stroke-opacity="0.45"/>
+            <line class="core-edge" pathLength="1" style="--ei:26" x1="21.7" y1="-15.4" x2="-23" y2="7.8" stroke-opacity="0.19"/>
+            <line class="core-edge" pathLength="1" style="--ei:27" x1="-23" y1="7.8" x2="-32.3" y2="53.7" stroke-opacity="0.28"/>
+            <line class="core-edge" pathLength="1" style="--ei:28" x1="-23" y1="7.8" x2="-65.1" y2="-4.8" stroke-opacity="0.29"/>
+            <line class="core-edge" pathLength="1" style="--ei:29" x1="-32.3" y1="53.7" x2="-65.1" y2="-4.8" stroke-opacity="0.37"/>
           </g>
-          <g class="eyes-open" fill="var(--cat-ink)">
-            <ellipse cx="15.5" cy="19.2" rx="1.1" ry="1.5" /><ellipse cx="20.5" cy="19.2" rx="1.1" ry="1.5" />
+          <g id="core-nodes">
+            <circle class="core-node" cx="48.4" cy="-16.3" r="3.2"/>
+            <circle class="core-node" cx="34.2" cy="-57" r="2.6"/>
+            <circle class="core-node" cx="63.8" cy="4.7" r="2.6"/>
+            <circle class="core-node" cx="-21.9" cy="-43.7" r="2.4"/>
+            <circle class="core-node" cx="19.8" cy="36.4" r="2.4"/>
+            <circle class="core-node" cx="-44.6" cy="31.6" r="3.2"/>
+            <circle class="core-node" cx="31.8" cy="63.5" r="2.8"/>
+            <circle class="core-node" cx="-32.9" cy="-60.4" r="3.0"/>
+            <circle class="core-node" cx="21.7" cy="-15.4" r="2.3"/>
+            <circle class="core-node" cx="-23" cy="7.8" r="2.3"/>
+            <circle class="core-node" cx="-32.3" cy="53.7" r="2.6"/>
+            <circle class="core-node" cx="-65.1" cy="-4.8" r="2.6"/>
           </g>
-          <path d="M17.2 21.6 h1.6 l-.8 1.1 z" fill="var(--sun-deep)" />
-          <text class="zz z1" x="6" y="13" font-size="7" fill="var(--ink-3)" font-family="var(--font-mono)">z</text>
-          <text class="zz z2" x="1.5" y="6.5" font-size="9.5" fill="var(--ink-3)" font-family="var(--font-mono)">z</text>
-        </g>
-        {{- /* 右上角邮票（虚线圆点啃边做齿孔）+ 波浪邮销线 */ -}}
-        <rect x="232" y="34" width="54" height="64" fill="var(--bg)" stroke="var(--sun)" stroke-width="1.5" />
-        <rect x="232" y="34" width="54" height="64" fill="none" stroke="var(--bg-2)" stroke-width="8" stroke-dasharray="0.1 8.5" stroke-linecap="round" />
-        <circle cx="259" cy="56" r="9" fill="var(--sun)" opacity=".85" />
-        <path d="M238 78 q10-12 22-4 q8 5 18 0" fill="none" stroke="var(--ink-2)" stroke-width="2" />
-        <text x="259" y="93" text-anchor="middle" font-size="7.5" letter-spacing="2" fill="var(--ink-3)" font-family="var(--font-mono)">POST</text>
-        {{- /* 邮销线最后画：压在邮票左缘上，像真盖销 */ -}}
-        <g stroke="var(--ink-2)" stroke-width="2" fill="none" opacity=".65">
-          <path d="M196 46 q10-7 20 0 t20 0 t20 0" />
-          <path d="M196 58 q10-7 20 0 t20 0 t20 0" />
-          <path d="M196 70 q10-7 20 0 t20 0 t20 0" />
-          <path d="M196 82 q10-7 20 0 t20 0 t20 0" />
-        </g>
-        {{- /* 左下手写寄语横线 + 右下 mono 日期 */ -}}
-        <g fill="none" stroke="var(--ink-3)" stroke-width="2.5" stroke-linecap="round" opacity=".8">
-          <path d="M26 302 q13-5 26 0 t26 0 t26 0 t26 0 t26 0" />
-          <path d="M26 328 q13-5 26 0 t26 0 t26 0 t26 0" />
-          <path d="M26 354 q13-5 26 0 t26 0 t26 0" />
-        </g>
-        <text x="294" y="352" text-anchor="end" font-size="16" letter-spacing="1" fill="var(--ink-3)" font-family="var(--font-mono)">{{ now.Format "2006.01.02" }}</text>
-      </svg>
+          <circle class="core-heart" r="4.5"/>
+        </svg>
+      </div>
+      <div class="core-read mono" aria-hidden="true">
+        <div><span>SPIN</span><b id="core-spin">012°/S</b></div>
+        <div><span>STATUS</span><b id="core-status">IDLE</b></div>
+        <div><span>UPTIME</span><b id="core-uptime">00:00</b></div>
+        <div><span>BUILD</span><b>{{ now.Format "2006-01-02" }}</b></div>
+      </div>
     </figure>
-  </div>
-  <div class="hero-scroll" aria-hidden="true"><span>SCROLL</span><span class="paw-steps">
-    <svg class="ps ps1" viewBox="0 0 24 24"><use href="#paw" /></svg>
-    <svg class="ps ps2" viewBox="0 0 24 24"><use href="#paw" /></svg>
-    <svg class="ps ps3" viewBox="0 0 24 24"><use href="#paw" /></svg>
-  </span></div>
-</header>
-
-<main id="main">
-  <section class="sec" id="about">
-    <div class="wrap">
-      <div class="about-grid">
-        <div class="about-portrait rv">
-          {{- /* 慢生活卡通插画：太阳、云、飞鸟、双层山丘、炊烟小屋、树、蜿蜒小路，颜色全走令牌 */ -}}
-          <svg class="about-art" viewBox="0 0 320 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="ab-sky" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="var(--bg)" /><stop offset="1" stop-color="var(--bg-2)" />
-              </linearGradient>
-              <linearGradient id="ab-hill1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="var(--bg-3)" /><stop offset="1" stop-color="var(--bg-2)" />
-              </linearGradient>
-              <linearGradient id="ab-hill2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="var(--grass)" stop-opacity=".26" /><stop offset="1" stop-color="var(--grass)" stop-opacity=".12" />
-              </linearGradient>
-              <radialGradient id="ab-sunglow">
-                <stop offset=".5" stop-color="var(--sun)" stop-opacity=".3" /><stop offset="1" stop-color="var(--sun)" stop-opacity="0" />
-              </radialGradient>
-            </defs>
-            <rect width="320" height="400" rx="18" fill="url(#ab-sky)" />
-            {{- /* 太阳 + 光晕环 */ -}}
-            {{- /* 太阳：柔光晕（径向渐变，不再是硬圈"表盘感"）+ 实心盘 + 八道均匀光芒 */ -}}
-            <circle cx="242" cy="84" r="54" fill="url(#ab-sunglow)" />
-            <circle cx="242" cy="84" r="26" fill="var(--sun)" />
-            <g stroke="var(--sun-deep)" stroke-width="3" stroke-linecap="round" opacity=".6">
-              <line x1="242" y1="52" x2="242" y2="44" /><line x1="265" y1="61" x2="270" y2="56" />
-              <line x1="274" y1="84" x2="282" y2="84" /><line x1="265" y1="107" x2="270" y2="112" />
-              <line x1="242" y1="116" x2="242" y2="124" /><line x1="219" y1="107" x2="214" y2="112" />
-              <line x1="210" y1="84" x2="202" y2="84" /><line x1="219" y1="61" x2="214" y2="56" />
-            </g>
-            {{- /* 双层云 */ -}}
-            <g fill="var(--bg)" opacity=".95">
-              <circle cx="72" cy="66" r="16" /><circle cx="94" cy="56" r="21" /><circle cx="116" cy="68" r="13" />
-              <rect x="62" y="62" width="66" height="19" rx="9.5" />
-            </g>
-            <g fill="var(--bg)" opacity=".6">
-              <circle cx="150" cy="128" r="10" /><circle cx="164" cy="122" r="13" /><rect x="144" y="124" width="32" height="11" rx="5.5" />
-            </g>
-            {{- /* 三只飞鸟 */ -}}
-            <g stroke="var(--ink-2)" stroke-width="2" fill="none" stroke-linecap="round" opacity=".65">
-              <path d="M138 100 q6-8 12 0 q6-8 12 0" />
-              <path d="M176 116 q5-6 10 0 q5-6 10 0" />
-              <path d="M120 132 q4-5 8 0 q4-5 8 0" />
-            </g>
-            {{- /* 三层山丘，由远及近 */ -}}
-            <path d="M-6 250 Q 60 190 140 222 Q 220 252 334 206 L 334 400 L -6 400 Z" fill="url(#ab-hill1)" />
-            <path d="M-6 296 Q 90 240 190 278 Q 262 302 334 282 L 334 400 L -6 400 Z" fill="url(#ab-hill2)" />
-            <path d="M-6 352 Q 120 316 230 344 Q 292 358 334 346 L 334 400 L -6 400 Z" fill="var(--grass)" opacity=".18" />
-            {{- /* 小屋：墙/顶/门/十字窗/烟囱炊烟 */ -}}
-            <rect x="116" y="228" width="9" height="20" fill="var(--ink-3)" />
-            <path d="M122 222 q8-9 0-18 q-8-9 0-18" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" opacity=".45" />
-            <rect x="62" y="248" width="70" height="50" rx="2" fill="var(--bg)" stroke="var(--ink-3)" stroke-width="2.5" />
-            <path d="M54 250 L97 214 L140 250 Z" fill="var(--sun-deep)" />
-            <rect x="86" y="272" width="21" height="26" rx="1.5" fill="var(--grass-deep)" opacity=".6" />
-            <circle cx="103" cy="286" r="1.6" fill="var(--bg)" />
-            <rect x="68" y="260" width="13" height="13" rx="1.5" fill="var(--bg-2)" stroke="var(--ink-3)" stroke-width="2" />
-            <line x1="74.5" y1="260" x2="74.5" y2="273" stroke="var(--ink-3)" stroke-width="1.5" />
-            <line x1="68" y1="266.5" x2="81" y2="266.5" stroke="var(--ink-3)" stroke-width="1.5" />
-            {{- /* 栅栏 */ -}}
-            <g stroke="var(--ink-3)" stroke-width="2.5" stroke-linecap="round" opacity=".6">
-              <line x1="146" y1="284" x2="146" y2="300" /><line x1="158" y1="284" x2="158" y2="300" /><line x1="170" y1="284" x2="170" y2="300" />
-              <line x1="142" y1="289" x2="174" y2="289" /><line x1="142" y1="296" x2="174" y2="296" />
-            </g>
-            {{- /* 三团树冠的大树 + 树影 */ -}}
-            <ellipse cx="222" cy="304" rx="26" ry="5" fill="var(--ink-3)" opacity=".14" />
-            <rect x="218" y="262" width="7" height="42" rx="2" fill="var(--ink-3)" />
-            {{- /* 树冠：实心同色、两两相交足够深，无缝隙无叠色暗印 */ -}}
-            <g fill="var(--grass-deep)">
-              <circle cx="210" cy="252" r="16" /><circle cx="234" cy="256" r="14" /><circle cx="222" cy="237" r="17" />
-            </g>
-            {{- /* 灌木两丛 */ -}}
-            <g fill="var(--grass)" opacity=".45">
-              <circle cx="38" cy="344" r="9" /><circle cx="50" cy="348" r="7" />
-              <circle cx="286" cy="356" r="8" /><circle cx="297" cy="360" r="6" />
-            </g>
-            {{- /* 小橘猫的第二幕：山丘上端坐看蝴蝶。同款画法——耳/尾先画，身体和后爪压叠其上 */ -}}
-            <g class="cat about-cat" transform="translate(239 307)">
-              <ellipse cx="22" cy="47" rx="13" ry="1.8" fill="var(--ink-3)" opacity=".14" />
-              <path d="M29.5 40.5 q9 2 8 -8 q-1 -5 -5 -4.5" fill="none" stroke="var(--sun)" stroke-width="4.2" stroke-linecap="round" />
-              <path d="M13 4 L13.5 13 L20.5 10 Z" fill="var(--sun)" />
-              <path d="M31 4 L30.5 13 L23.5 10 Z" fill="var(--sun)" />
-              <ellipse cx="22" cy="36" rx="10.5" ry="11" fill="var(--sun)" />
-              <ellipse cx="16.5" cy="45" rx="4" ry="2.6" fill="var(--sun)" />
-              <ellipse cx="27.5" cy="45" rx="4" ry="2.6" fill="var(--sun)" />
-              <circle cx="22" cy="18" r="11.5" fill="var(--sun)" />
-              <path d="M18.4 12.2 q2.6 -1.6 5.6 0" fill="none" stroke="var(--sun-deep)" stroke-width="1.5" stroke-linecap="round" opacity=".5" />
-              <g class="eyes-closed" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round">
-                <path d="M16 17 q2.4 2.1 4.8 0" /><path d="M23.2 17 q2.4 2.1 4.8 0" />
-              </g>
-              <g class="eyes-open" fill="#2b3a42">
-                <ellipse cx="18.2" cy="17.2" rx="1.7" ry="2" /><ellipse cx="25.8" cy="17.2" rx="1.7" ry="2" />
-              </g>
-              <path d="M20.9 20.4 h2.2 l-1.1 1.5 z" fill="var(--sun-deep)" />
-            </g>
-            {{- /* 蝴蝶：轻浮 + 扇翅 */ -}}
-            <g class="butterfly">
-              <ellipse cx="286" cy="306" rx="3" ry="4.4" fill="var(--accent)" opacity=".75" transform="rotate(-24 286 306)" />
-              <ellipse cx="292.4" cy="306" rx="3" ry="4.4" fill="var(--sun)" opacity=".85" transform="rotate(24 292.4 306)" />
-              <line x1="289.2" y1="303" x2="289.2" y2="309" stroke="var(--ink-2)" stroke-width="1.1" stroke-linecap="round" />
-            </g>
-            {{- /* 蜿蜒回家的小路（虚线脚印感） */ -}}
-            <path d="M120 400 Q 118 352 110 324 Q 104 306 97 300" fill="none" stroke="var(--ink-3)" stroke-width="3.5" stroke-dasharray="1 10" stroke-linecap="round" opacity=".5" />
-            {{- /* 前景草丛 */ -}}
-            <g stroke="var(--grass-deep)" stroke-width="2" stroke-linecap="round" opacity=".5" fill="none">
-              <path d="M22 384 v-10 M28 384 v-14 M34 384 v-9" />
-              <path d="M252 392 v-10 M258 392 v-13 M264 392 v-8" />
-            </g>
-          </svg>
-<span class="portrait-tag" data-zh="{{ $h.about.since }}" data-en="{{ $hen.about.since }}">{{ $h.about.since }}</span>
-        </div>
-        <div class="about-body rv">
-          <div class="sec-eyebrow"><span class="dot"></span><span data-zh="ABOUT · 关于" data-en="ABOUT · About">ABOUT · 关于</span></div>
-          <h2 data-zh="关于我" data-en="About me">关于我</h2>
-          {{- range $h.about.paragraphs }}<p class="lang-zh">{{ . | safeHTML }}</p>{{ end }}
-          {{- range $hen.about.paragraphs }}<p class="lang-en">{{ . | safeHTML }}</p>{{ end }}
-          <div class="about-tags">
-            {{- range $i, $t := $h.about.tags }}<span class="tag" data-zh="{{ $t }}" data-en="{{ index $hen.about.tags $i | default $t }}">{{ $t }}</span>{{ end }}
-          </div>
-        </div>
-      </div>
+    {{- /* 状态播报跑马灯：LAST BUILD=构建日期，条目在 data/home.yml marquee（样式在 40-cards.css） */}}
+    {{- $mq := $h.marquee | default (slice "科技疾驰，我自慢行" "TECH RACES, I STROLL") -}}
+    {{- $seq := printf "LAST BUILD %s <em>✦</em> %s <em>✦</em> " (now.Format "2006-01-02") (delimit $mq " <em>✦</em> ") -}}
+    <div class="marquee rv" style="--i:5" aria-hidden="true">
+      <span class="mq-line">{{ $seq | safeHTML }}{{ $seq | safeHTML }}</span><span class="mq-line">{{ $seq | safeHTML }}{{ $seq | safeHTML }}</span>
     </div>
-  </section>
-
-  <section class="sec" id="posts">
-    {{- /* 小橘猫路过留下的爪印：淡到几乎 unnoticed，只给细心的人 */ -}}
-    <svg class="paw-trail trail-posts" viewBox="0 0 170 100" aria-hidden="true">
-      <use href="#paw" x="2" y="80" width="15" height="15" transform="rotate(-18 9.5 87.5)" opacity=".30" />
-      <use href="#paw" x="36" y="64" width="14" height="14" transform="rotate(10 43 71)" opacity=".25" />
-      <use href="#paw" x="68" y="48" width="13" height="13" transform="rotate(-16 74.5 54.5)" opacity=".20" />
-      <use href="#paw" x="100" y="32" width="12" height="12" transform="rotate(12 106 38)" opacity=".15" />
-      <use href="#paw" x="128" y="18" width="11" height="11" transform="rotate(-14 133.5 23.5)" opacity=".10" />
-      <use href="#paw" x="152" y="6" width="10" height="10" transform="rotate(10 157 11)" opacity=".06" />
+    {{- /* 旋转徽章：圆排文字慢转 */}}
+    <svg class="badge rv" style="--i:6" viewBox="0 0 140 140" aria-hidden="true">
+      <defs><path id="badge-path" d="M70,70 m-52,0 a52,52 0 1,1 104,0 a52,52 0 1,1 -104,0"></path></defs>
+      <text class="badge-txt mono"><textPath href="#badge-path" startOffset="0">SLOW GONGZI ✦ THINK WILD ✦ BUILD COOL ✦ </textPath></text>
+      <circle cx="70" cy="70" r="3" class="badge-dot"></circle>
     </svg>
-    <div class="wrap">
-      <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="COLUMNS · 学习笔记" data-en="COLUMNS · Study notes">COLUMNS · 学习笔记</span></div>
-        <h2 data-zh="学习专栏" data-en="Study columns">学习专栏</h2>
-        <p class="sec-desc" data-zh="按主题分的专栏，每一栏都收着同一路数的笔记，点进去顺着读。" data-en="Columns by topic — each gathers notes of the same kind. Open one and read along.">按主题分的专栏，每一栏都收着同一路数的笔记，点进去顺着读。</p>
-      </div>
-      <div class="col-acc rv">
-        {{- $all := site.RegularPages }}
-        {{- $cen := hugo.Data.columns_en }}
-        {{- range $c := hugo.Data.columns }}
-        {{- $notes := where $all "Params.tags" "intersect" (slice $c.tag) }}
-        {{- if $notes }}
-        {{- $ce := dict -}}{{- range $cen }}{{ if eq .tag $c.tag }}{{ $ce = . }}{{ end }}{{ end }}
-        <details class="col-row">
-          <summary class="col-row-head">
-            <span class="col-row-icon" aria-hidden="true">{{ $c.icon }}</span>
-            <span class="col-row-text">
-              <span class="col-row-title"><span data-zh="{{ $c.title }}" data-en="{{ $ce.title | default $c.title }}">{{ $c.title }}</span><span class="col-row-count"><span data-zh="{{ len $notes }} 篇" data-en="{{ len $notes }} notes">{{ len $notes }} 篇</span></span></span>
-              <span class="col-row-desc" data-zh="{{ $c.desc }}" data-en="{{ $ce.desc | default $c.desc }}">{{ $c.desc }}</span>
-            </span>
-            <span class="col-row-chev" aria-hidden="true"></span>
-          </summary>
-          <div class="col-row-body">
-            <ul class="col-row-notes">
-              {{- range $notes.ByDate.Reverse }}
-              <li><a href="{{ .RelPermalink }}"><span class="col-note-title">{{ .Title }}</span><time class="col-note-date">{{ .Date.Format "2006-01-02" }}</time></a></li>
-              {{- end }}
-            </ul>
-            <a class="col-tag-link" href="{{ "/tags/" | relURL }}{{ $c.tag | urlize }}/" data-zh="查看「{{ $c.tag }}」标签下的全部 →" data-en="All under this tag →">查看「{{ $c.tag }}」标签下的全部 →</a>
-          </div>
-        </details>
-        {{- end }}
-        {{- end }}
-      </div>
-      <div class="posts-more rv"><a href="{{ "/posts/" | relURL }}" class="btn-ghost" data-zh="全部文章 →" data-en="All articles →">全部文章 →</a></div>
-    </div>
   </section>
 
-  <section class="sec metrics">
-    <div class="wrap">
-      <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="BY THE NUMBERS · 持续记录" data-en="BY THE NUMBERS · The record">BY THE NUMBERS · 持续记录</span></div>
-        <h2 data-zh="记录数据" data-en="The record">记录数据</h2>
+  {{- /* ---------- 02 SKILLS（2026-11 R12 三行错位滚动 · 参照 xiaonie.me/guan-yu） ----------
+       站主定：图标一律用各家官方原色（data/skills.yml 的 src 指向 static/icons/），
+       三行同一批 13 枚但起始下标互相错开（插空），轨道 translateX(-50%)→0 = 自左向右。
+       R12 起三行同速 60s、起点由 48-skills.css 的负 animation-delay 错开（模板不再出 --sk-dur）。
+       注脚不再每格浮一层，改成带体下方一条共享读数行：纯 CSS :has() 按 data-sk 点亮对应
+       data-ro（键名写死在 48-skills.css，加图标要补一行）。 */}}
+  {{- $sk := site.Data.skills.items }}
+  {{- $sklen := len $sk }}
+  <section class="card" id="c-skills" data-num="02" data-name="SKILLS">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">02</span>
+        <h2 class="display solid rv" style="--i:1">Skills</h2>
+        <span class="cn rv" style="--i:2">技能栈</span>
       </div>
-      <div class="metric-grid rv">
-        <div class="metric"><div class="num" data-count="{{ len site.RegularPages }}">0</div><div class="label" data-zh="文章" data-en="Articles">文章</div><div class="src">Articles</div></div>
-        <div class="metric"><div class="num" data-count="{{ $words }}">0</div><div class="label" data-zh="总字数" data-en="Total words">总字数</div><div class="src">Total words</div></div>
-        <div class="metric"><div class="num" data-count="{{ len $songs }}">0</div><div class="label" data-zh="首歌常驻" data-en="Songs on rotation">首歌常驻</div><div class="src">Songs on rotation</div></div>
-      </div>
-    </div>
-  </section>
-
-  {{- if $songs }}
-  <section class="sec" id="music">
-    <div class="wrap">
-      <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="SOUNDTRACK · 音乐" data-en="SOUNDTRACK · Music">SOUNDTRACK · 音乐</span></div>
-        <h2 data-zh="常驻歌单" data-en="On rotation">常驻歌单</h2>
-      </div>
-      <div class="music-layout rv">
-        <div class="artist-card">
-          {{- /* 右下角耳机驻场猫：只有头+耳机的贴纸构图，#music.playing 时整颗头跟节奏点头。
-               耳机明确"戴在头上"：头带先画（在头后），弧线跨过头顶、两端落到耳罩；耳罩贴住脸颊两侧。
-               耳 / 脸 / 五官依次压叠，最后补第二只耳罩的前缘，层次干净不留缝 */ -}}
-          <svg class="music-cat cat" viewBox="0 0 52 46" aria-hidden="true">
-            <path d="M12.5 26 C 12.5 6.5, 39.5 6.5, 39.5 26" fill="none" stroke="var(--ink-3)" stroke-width="3.6" stroke-linecap="round" />
-            <path d="M14.5 20 L15.5 7 L23.5 16 Z" fill="var(--sun)" />
-            <path d="M37.5 20 L36.5 7 L28.5 16 Z" fill="var(--sun)" />
-            <ellipse cx="26" cy="26.5" rx="13.5" ry="12.5" fill="var(--sun)" />
-            <g fill="none" stroke="var(--sun-deep)" stroke-width="1.7" stroke-linecap="round" opacity=".5">
-              <path d="M21.5 17 q1.2 2.6 .6 4.8" /><path d="M26 16.5 q0 2.8 0 5.2" /><path d="M30.5 17 q-1.2 2.6 -.6 4.8" />
-            </g>
-            <g class="eyes-closed" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round">
-              <path d="M18.5 25.8 q2.8 2.4 5.6 0" /><path d="M27.9 25.8 q2.8 2.4 5.6 0" />
-            </g>
-            <g class="eyes-open" fill="#2b3a42">
-              <ellipse cx="21.1" cy="26" rx="1.9" ry="2.2" /><ellipse cx="30.9" cy="26" rx="1.9" ry="2.2" />
-            </g>
-            <path d="M25 29.6 h2 l-1 1.4 z" fill="var(--sun-deep)" />
-            <rect x="7" y="19" width="9" height="16" rx="4.5" fill="var(--accent)" />
-            <rect x="36" y="19" width="9" height="16" rx="4.5" fill="var(--accent)" />
-          </svg>
-          <span class="artist-tag" data-zh="歌手介绍" data-en="Artist">歌手介绍</span>
-          <div class="artist-memorial">IN MEMORIAM</div>
-          <div class="artist-name">XXXTENTACION</div>
-          <div class="artist-years">1998.1.18 — 2018.6.18</div>
-          <p data-zh="本名 Jahseh Dwayne Ricardo Onfroy，1998 年生于美国佛罗里达州劳德希尔，说唱歌手、创作人。他把失眠、愤怒和脆弱原样写进歌里，风格横跨情绪说唱、摇滚与不插电，是「情绪说唱」浪潮里最有影响力的人之一。" data-en="Born Jahseh Dwayne Ricardo Onfroy in 1998 in Lauderhill, Florida — rapper and songwriter. He wrote his insomnia, anger and fragility straight into his songs, moving between emo rap, rock and acoustic, and became one of the most influential figures of the emo-rap wave.">本名 Jahseh Dwayne Ricardo Onfroy，1998 年生于美国佛罗里达州劳德希尔，说唱歌手、创作人。他把失眠、愤怒和脆弱原样写进歌里，风格横跨情绪说唱、摇滚与不插电，是「情绪说唱」浪潮里最有影响力的人之一。</p>
-          <p class="artist-quote" data-zh="代表作《SAD!》《Jocelyn Flores》《Moonlight》。2018 年 6 月 18 日，他在迈阿密遭枪击身亡，年仅 20 岁——《SAD!》在他身后登顶 Billboard 单曲榜。" data-en="Known for SAD!, Jocelyn Flores and Moonlight. On June 18, 2018, he was shot and killed in Miami at just 20 — SAD! topped the Billboard singles chart after his death.">代表作《SAD!》《Jocelyn Flores》《Moonlight》。2018 年 6 月 18 日，他在迈阿密遭枪击身亡，年仅 20 岁——《SAD!》在他身后登顶 Billboard 单曲榜。</p>
-        </div>
-        <ol class="tracklist">
-          {{- range $i, $e := $songs }}
-          <li class="track">
-            <span class="track-no">{{ printf "%02d" (add $i 1) }}</span>
-            <img class="track-cover" src="{{ .cover | relURL }}" alt="{{ .title }} 封面" loading="lazy" />
-            <div class="track-body">
-              <div class="track-name">{{ .title }}</div>
-              <div class="track-desc" data-zh="{{ .desc }}" data-en="{{ .desc_en | default .desc }}">{{ .desc }}</div>
-            </div>
-          </li>
+      <div class="hair rv"></div>
+      <p class="sk-cap mono rv" style="--i:3">
+        <span class="sk-live" aria-hidden="true"></span>
+        SKILL MATRIX<span class="sk-sep">//</span>ENTRIES <b>{{ printf "%03d" $sklen }}</b> · ROWS 003
+        <span class="sk-hint">HOVER TO READ</span><span class="sk-hint-t">SWIPE / TAP TO READ</span>
+      </p>
+      {{- /* 三行：每行把列表铺两遍（第二遍 aria-hidden），轨道位移 -50% 即无缝；
+             条间距用 padding 而非 flex gap——gap 在接缝处会差半格，位移就不是整倍周期。
+             rot 让每行起始下标错开，视觉上互相插空。 */}}
+      <div class="sk-band rv" style="--i:4">
+        {{- range $r := (slice 0 1 2) }}
+        {{- $rot := mul $r 5 }}
+        <div class="sk-row">
+          <div class="sk-track">
+          {{- range $p := seq 0 (sub (mul $sklen 2) 1) }}
+          {{- $s := index $sk (mod (add $rot $p) $sklen) }}
+          <span class="sk-item" data-sk="{{ $s.key }}"{{ if ge $p $sklen }} aria-hidden="true"{{ end }} style="--si:{{ $s.tint | safeCSS }}">
+            <span class="sk-tile"><img class="sk-art" src="{{ $s.src }}" alt="" width="64" height="64" decoding="async"></span>
+            <span class="sk-name mono">{{ $s.name }}</span>
+          </span>
           {{- end }}
-        </ol>
-      </div>
-    </div>
-  </section>
-  {{- end }}
-
-  {{- if $photos }}
-  <section class="sec" id="photos">
-    <div class="wrap">
-      <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="PHOTOS · 相册" data-en="PHOTOS · Photos">PHOTOS · 相册</span></div>
-        <h2 data-zh="相册" data-en="Photos">相册</h2>
-      </div>
-      <div class="photos-strip rv">
-        {{- range $photos }}
-        {{- $thumb := strings.Replace .src "photos/" "photos/thumbs/" 1 }}
-        {{- $thumb = cond (fileExists (printf "static/%s" $thumb)) $thumb .src }}
-        <a class="strip-item" href="/photos/#p-{{ index $pidx .src }}"><img src="{{ $thumb | relURL }}" alt="{{ .caption | default .place }}" loading="lazy" /></a>
+          </div>
+        </div>
         {{- end }}
       </div>
-      <div class="posts-more"><a href="/photos/" class="btn-ghost" data-zh="全部照片 →" data-en="All photos →">全部照片 →</a></div>
+      <p class="sk-readout mono rv" style="--i:5">
+        <span class="sk-ro sk-ro-def">悬停任意图标 · 这里出注脚</span>
+        <span class="sk-ro sk-ro-def-t">点按任意图标 · 这里出注脚</span>
+        {{- range $s := $sk }}<span class="sk-ro" data-ro="{{ $s.key }}"><b>{{ $s.name }}</b><span class="sk-ro-sub">{{ $s.sub }}</span><span class="sk-ro-desc">{{ $s.desc }}</span></span>{{- end }}
+      </p>
+      <p class="sk-note rv" style="--i:6">{{ site.Data.skills.note }}</p>
+    </div>
+  </section>
+
+  {{- /* ---------- 03 ABOUT ME · 全息工牌（2026-11 与 02 对调：肖像卡升格为关于我） ----------
+        左：id.js 认证状态机的全息工牌（原样搬来，一动不动）；
+        右：人事档案卡 .id-file + READ FULL BIO——工牌当证件照，档案列真值。
+        内容 2026-11-11 换血（站主令）：原 STATEMENT 大字引言与「AI 编程/自动化/听歌」三条
+        （与 02 技能矩阵重复）整体撤掉，改一张 5 条 profile 读数表（人格测试打头）。
+        原 5 行 .id-row 与编造的 FACE.HASH 假读数已于更早一轮撤掉。 */}}
+  <section class="card" id="c-about" data-num="03" data-name="ABOUT">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">03</span>
+        <h2 class="display solid rv" style="--i:1">About me</h2>
+        <span class="cn rv" style="--i:2">关于我</span>
+      </div>
+      <div class="hair rv"></div>
+      <div class="id-grid">
+        {{- /* 全息工牌 · 现场核验（2026-11 站主选型：混合方案 B壳+A魂，引擎 id.js）。
+               肖像为站主证件照为原型的 AI 卡通渲染（2026-11 换图：裁黑框去水印+抠米色底合成暗渐变，640×598）；mesh 坐标对新版 avatar.png 手校 */}}
+        <div class="id-stage rv" style="--i:3">
+          <figure class="id-badge" id="id-badge">
+            <span class="id-halo" aria-hidden="true"></span>
+            <div class="id-body">
+              <img class="id-img" src="{{ "/images/avatar.png" | relURL }}" alt="慢公子卡通肖像" width="640" height="598" loading="lazy" decoding="async">
+              <span class="id-dissolve" aria-hidden="true"></span>
+              <svg class="id-mesh" viewBox="0 0 640 598" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <g class="ln">
+                  <path pathLength="1" style="--t:.05" d="M201 224 Q182 262 180 310 Q181 362 196 412 Q212 456 246 486"/>
+                  <path pathLength="1" style="--t:.05" d="M424 224 Q440 264 440 312 Q440 366 426 410 Q408 450 368 484"/>
+                  <path pathLength="1" style="--t:.78" d="M246 486 C268 502 288 511 306 511 C324 511 344 502 368 484"/>
+                  <path pathLength="1" style="--t:.12" d="M180 292 Q156 296 152 322 Q152 348 168 356 Q177 359 183 350"/>
+                  <path pathLength="1" style="--t:.12" d="M440 292 Q460 296 460 322 Q458 348 444 355"/>
+                  <path pathLength="1" style="--t:.30" d="M199 251 Q215 244 232 247 Q256 252 275 259"/>
+                  <path pathLength="1" style="--t:.31" d="M336 259 Q356 250 380 249 Q400 249 416 254"/>
+                  <path pathLength="1" style="--t:.40" d="M206 290 Q222 280 244 283 Q262 287 271 296 Q258 305 240 303 Q220 300 206 290 Z"/>
+                  <path pathLength="1" style="--t:.40" d="M345 297 Q358 284 378 284 Q398 286 408 292 Q398 303 378 303 Q358 302 345 297 Z"/>
+                  <path pathLength="1" style="--t:.48" d="M305 300 Q307 330 306 363"/>
+                  <path pathLength="1" style="--t:.56" d="M281 369 Q290 378 305 378 Q321 378 328 369"/>
+                  <path pathLength="1" style="--t:.64" d="M258 429 Q306 425 352 429"/>
+                  <path pathLength="1" style="--t:.66" d="M258 429 Q280 416 306 414 Q332 416 352 429"/>
+                  <path pathLength="1" style="--t:.68" d="M258 429 Q282 450 306 452 Q330 450 352 429"/>
+                  <path pathLength="1" style="--t:.52" d="M198 322 Q222 340 250 344"/>
+                  <path pathLength="1" style="--t:.53" d="M426 322 Q402 340 374 344"/>
+                </g>
+                <g class="pt">
+                  <circle style="--t:.08" cx="201" cy="224" r="2.6"/>
+                  <circle style="--t:.08" cx="424" cy="224" r="2.6"/>
+                  <circle style="--t:.08" cx="180" cy="310" r="2.6"/>
+                  <circle style="--t:.08" cx="440" cy="312" r="2.6"/>
+                  <circle style="--t:.10" cx="196" cy="412" r="2.6"/>
+                  <circle style="--t:.10" cx="426" cy="410" r="2.6"/>
+                  <circle style="--t:.14" cx="152" cy="322" r="2.6"/>
+                  <circle style="--t:.14" cx="460" cy="322" r="2.6"/>
+                  <circle style="--t:.30" cx="199" cy="251" r="2.6"/>
+                  <circle style="--t:.30" cx="232" cy="247" r="2.6"/>
+                  <circle style="--t:.30" cx="275" cy="259" r="2.6"/>
+                  <circle style="--t:.31" cx="336" cy="259" r="2.6"/>
+                  <circle style="--t:.31" cx="380" cy="249" r="2.6"/>
+                  <circle style="--t:.31" cx="416" cy="254" r="2.6"/>
+                  <circle style="--t:.40" cx="206" cy="290" r="2.6"/>
+                  <circle style="--t:.40" cx="244" cy="283" r="2.6"/>
+                  <circle style="--t:.40" cx="271" cy="296" r="2.6"/>
+                  <circle style="--t:.40" cx="345" cy="297" r="2.6"/>
+                  <circle style="--t:.40" cx="378" cy="284" r="2.6"/>
+                  <circle style="--t:.40" cx="408" cy="292" r="2.6"/>
+                  <circle style="--t:.42" cx="240" cy="303" r="2.6"/>
+                  <circle style="--t:.42" cx="378" cy="303" r="2.6"/>
+                  <circle style="--t:.48" cx="305" cy="300" r="2.6"/>
+                  <circle style="--t:.54" cx="306" cy="363" r="2.6"/>
+                  <circle style="--t:.58" cx="281" cy="369" r="2.6"/>
+                  <circle style="--t:.58" cx="328" cy="369" r="2.6"/>
+                  <circle style="--t:.58" cx="305" cy="378" r="2.6"/>
+                  <circle style="--t:.64" cx="306" cy="414" r="2.6"/>
+                  <circle style="--t:.66" cx="258" cy="429" r="2.6"/>
+                  <circle style="--t:.66" cx="352" cy="429" r="2.6"/>
+                  <circle style="--t:.68" cx="306" cy="452" r="2.6"/>
+                  <circle style="--t:.52" cx="198" cy="322" r="2.6"/>
+                  <circle style="--t:.53" cx="426" cy="322" r="2.6"/>
+                  <circle style="--t:.80" cx="246" cy="486" r="2.6"/>
+                  <circle style="--t:.80" cx="368" cy="484" r="2.6"/>
+                  <circle style="--t:.84" cx="306" cy="511" r="2.6"/>
+                </g>
+              </svg>
+              <span class="id-beam" aria-hidden="true"></span>
+              <span class="id-ret" aria-hidden="true"></span>
+              <span class="id-foil" aria-hidden="true"></span>
+              <div class="id-head mono" aria-hidden="true"><span>ACCESS CREDENTIAL</span><b>No.007</b></div>
+              <span class="id-chip" aria-hidden="true"></span>
+              <figcaption class="id-cap mono"><i class="id-dot"></i><span id="id-status">ONLINE</span></figcaption>
+              <span class="id-conf mono">CONF <b id="id-conf-n">0.98</b></span>
+            </div>
+            <span class="id-glint" aria-hidden="true"></span>
+          </figure>
+          <span class="id-floor" aria-hidden="true"></span>
+        </div>
+        <div class="id-data">
+          {{- /* 档案卡（2026-11 站主选型方案 A「工牌背面」）：与左工牌同 28px 切角/暗玻璃语法，
+                 亮度压一档不抢主角；id-locked 后光幕自上而下揭开——先刷脸、后调档，一条因果链。
+                 揭开走 mask-image 不吃 clip-path（切角归壳），动画正向注册在 no-preference 里，
+                 reduce/无 JS 不注册即成品态。
+                 表体 = home.yml `about.profile`（name + note，一行一条读数）。
+                 2026-11-11 站主令：底栏（READ FULL BIO + EST. + 条形码）整条撤掉，/about/ 页一并删除；
+                 读数表按语义顺序排、人格测试垫尾，字色统一白色（不再挑 key 那条加亮）。 */}}
+          <div class="id-file">
+            <header class="if-head mono">
+              <span>PERSONNEL FILE</span><b>No.007-B</b>
+            </header>
+            <section class="if-sec">
+              <span class="if-key mono">PROFILE</span>
+              <ul class="if-rows">
+                {{- range $i, $t := $h.about.profile }}
+                <li>
+                  <i class="if-led" aria-hidden="true"></i>
+                  <span class="if-no mono">{{ printf "%02d" (add $i 1) }}</span>
+                  <span class="if-name">{{ $t.name }}</span>
+                  <span class="if-lead" aria-hidden="true"></span>
+                  <span class="if-val mono">{{ $t.note }}</span>
+                </li>
+                {{- end }}
+              </ul>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{- /* ---------- 04 SIGNALS ---------- */}}
+  {{- with $songs }}
+  <section class="card" id="c-signals" data-num="04" data-name="SIGNALS">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">04</span>
+        <h2 class="display solid rv" style="--i:1">Signals</h2>
+        <span class="cn rv" style="--i:2">电台调谐</span>
+      </div>
+      <div class="hair rv"></div>
+      <p class="card-note rv">九台好歌，一盘不赶时间的混音带。<b>FM 调频电台，点频道即播，拖指针换台。</b></p>
+      {{- /* 电台调谐面板（方案 C）：刻度/指针/VU/示波器由 radio.js 驱动，契约见 40-cards.css「04 SIGNALS · 电台调谐面板」段 */}}
+      <div class="radio rv" style="--i:3" data-nodrag>
+        <span class="rm tl" aria-hidden="true"></span>
+        <span class="rm tr" aria-hidden="true"></span>
+        <span class="rm bl" aria-hidden="true"></span>
+        <span class="rm br" aria-hidden="true"></span>
+        <div class="dial" aria-hidden="true">
+          <span class="dial-read"><b id="dial-read">088.1</b><em>FM</em></span>
+          <div class="dial-scale" id="dial-scale">
+            <span class="needle" id="needle"></span>
+          </div>
+        </div>
+        <div class="radio-grid">
+          <div class="chan-list">
+            {{- range $i, $e := . }}
+            <button class="chan-row{{ if eq $i 0 }} active{{ end }}" type="button" data-i="{{ $i }}"
+              data-cursor="TUNE" data-freq="{{ $e.freq }}" data-src="{{ $e.url | relURL }}"
+              data-title="{{ $e.title }}" data-bar="{{ $e.short | default $e.title }}" data-artist="{{ $e.artist }}"
+              data-cover="{{ $e.cover | relURL }}" data-desc="{{ $e.desc }}">
+              <span class="ch-no">CH-{{ printf "%02d" (add $i 1) }}</span>
+              <span class="ch-title">{{ $e.short | default $e.title }}</span>
+              <span class="ch-artist">{{ $e.artist }}</span>
+              {{- /* hover/focus 才展开的调谐提示（参照 darkroom --button-inner 藏字手法，见 40-cards.css CHAN 段） */}}
+              <span class="ch-tap" aria-hidden="true">↺ TUNE</span>
+              <span class="vu" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="ch-go" aria-hidden="true">▸</span>
+            </button>
+            {{- end }}
+          </div>
+          {{- $first := index . 0 }}
+          {{- /* 机芯舱：radio.js 把卡带(R1)与 VU(R3)注入此格并排，填右列上行；空壳时零高不占位 */}}
+          <div class="deck-bay" aria-hidden="true"></div>
+          <div class="scope-box">
+            <canvas class="scope" id="scope" width="600" height="200" aria-hidden="true"></canvas>
+            <div class="scope-info">
+              <p class="scope-title" id="scope-title">{{ $first.title }}</p>
+              <p class="scope-artist" id="scope-artist">{{ $first.artist }}</p>
+              {{- /* 工程机读数：MOD FM 恒真；BITRATE/PEAK 由 radio.js 取到真值才点亮，取不到整段不出现 */}}
+              <p class="scope-tele">MOD <b>FM</b><span id="tele-br" hidden> · BITRATE <b id="scope-br"></b></span><span id="tele-peak" hidden> · PEAK <b id="scope-peak"></b></span></p>
+              <p class="scope-desc" id="scope-desc">{{ $first.desc }}</p>
+            </div>
+            <span class="scope-pola"><img id="scope-cover" src="{{ $first.cover | relURL }}" alt="{{ $first.title }} 封面"></span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
   {{- end }}
 
+  {{- /* ---------- 05 INTERESTS ---------- */}}
   {{- with hugo.Data.interests }}
-  <section class="sec" id="interests">
-    {{- /* 小橘猫又路过了兴趣区：这串从右下往左上 */ -}}
-    <svg class="paw-trail trail-interests" viewBox="0 0 170 100" aria-hidden="true">
-      <use href="#paw" x="152" y="76" width="15" height="15" transform="rotate(14 159.5 83.5)" opacity=".28" />
-      <use href="#paw" x="120" y="62" width="14" height="14" transform="rotate(-12 127 69)" opacity=".22" />
-      <use href="#paw" x="88" y="48" width="13" height="13" transform="rotate(16 94.5 54.5)" opacity=".16" />
-      <use href="#paw" x="58" y="34" width="12" height="12" transform="rotate(-10 64 40)" opacity=".11" />
-      <use href="#paw" x="30" y="22" width="11" height="11" transform="rotate(12 35.5 27.5)" opacity=".07" />
-      <use href="#paw" x="6" y="12" width="10" height="10" transform="rotate(-14 11 17)" opacity=".04" />
-    </svg>
-    <div class="wrap">
-      <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="INTERESTS · 兴趣" data-en="INTERESTS · Interests">INTERESTS · 兴趣</span></div>
-        <h2 data-zh="兴趣" data-en="Interests">兴趣</h2>
-        <p class="sec-desc" data-zh="打球、睡觉、听歌、散步、做饭，还有一个正在改变我干活的 AI。" data-en="Ping-pong, sleep, music, walks, cooking — and an AI that changes how I work.">打球、睡觉、听歌、散步、做饭，还有一个正在改变我干活的 AI。</p>
+  <section class="card" id="c-interests" data-num="05" data-name="INTERESTS">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">05</span>
+        <h2 class="display solid rv" style="--i:1">Interests</h2>
+        <span class="cn rv" style="--i:2">生活进程表</span>
+        <button class="hob-sort rv" id="hob-sort" type="button" style="--i:3" aria-label="切换进程排序字段">SORT · CPU</button>
       </div>
-      <div class="hobby-grid rv">
-        {{- $ien := hugo.Data.interests_en }}
+      <div class="hair rv"></div>
+      <div class="htop rv" style="--i:2" data-nodrag>
+        {{- /* 表头种子 = 六行基线的真聚合（无 JS/reduced 兜底也不摆假数）；
+               JS 心跳接管后 htop.js 用活值重写 #hm-tasks/#hm-load */}}
+        {{- $run := 0 }}{{- $memsum := 0 }}{{- $cpusum := 0 }}
         {{- range . }}
-        {{- $zh := . }}
-        {{- $ie := dict }}{{ range $ien }}{{ if eq .name $zh.name }}{{ $ie = . }}{{ end }}{{ end }}
-        <div class="hobby-card">
-          <span class="hobby-icon" aria-hidden="true">{{ $zh.icon }}</span>
-          <div class="hobby-name" data-zh="{{ $zh.name }}" data-en="{{ $ie.label | default $zh.name }}">{{ $zh.name }}</div>
-          <p class="hobby-desc" data-zh="{{ $zh.desc }}" data-en="{{ $ie.desc | default $zh.desc }}">{{ $zh.desc }}</p>
-        </div>
+          {{- if or (eq .state "RUNNING") (eq .state "HIGH LOAD") }}{{- $run = add $run 1 }}{{- end }}
+          {{- $memsum = add $memsum .mem }}{{- $cpusum = add $cpusum .cpu }}
         {{- end }}
+        {{- $memfill := int (math.Round (div (div (float $memsum) (float (len .))) 10.0)) }}
+        {{- $loadseed := printf "%.2f" (div (float $cpusum) 100.0) }}
+        <div class="htop-meta">
+          <span class="hm-title">LIFE MONITOR · htop 0.6</span>
+          <span class="hm-tasks" id="hm-tasks">Tasks: {{ len . }}, {{ $run }} running</span>
+          <span class="hm-load" id="hm-load">Mem[{{- range $k := seq 10 }}{{ if le $k $memfill }}|{{ else }}·{{ end }}{{- end }}] Load average: {{ $loadseed }} {{ $loadseed }} {{ $loadseed }}</span>
+        </div>
+        <div class="htop-head" aria-hidden="true">
+          <span class="hc-pid">PID</span>
+          <span class="hc-proc">PROCESS</span>
+          <span class="hc-state">STATE</span>
+          <span class="hc-cpu">CPU</span>
+          <span class="hc-mem">MEM</span>
+          <span class="hc-up">UPTIME</span>
+        </div>
+        <div class="htop-rows" id="htop-rows">
+          {{- range $i, $e := . }}
+          <div class="htop-row" data-cursor="HI" style="--i:{{ $i }}"
+               data-name="{{ $e.name }}" data-desc="{{ $e.desc }}"
+               data-state="{{ strings.Replace $e.state " " "" }}"
+               data-cpu="{{ $e.cpu }}" data-mem="{{ $e.mem }}" data-up="{{ $e.uptime }}">
+            <span class="hc-pid">{{ printf "%02d" (add $i 1) }}</span>
+            <span class="hc-proc">
+              <span class="hob-icon">{{ partial "hob-icon.html" $e.icon }}</span>
+              <span class="hp-name">{{ $e.name }}</span>
+            </span>
+            <span class="hc-state st-{{ strings.Replace $e.state " " "" }}"><i aria-hidden="true"></i>{{ $e.state }}</span>
+            <span class="hc-cpu"><span class="hp-bar"><i style="--v:{{ $e.cpu }}"></i></span><em>{{ printf "%2d" $e.cpu }}%</em></span>
+            <span class="hc-mem"><span class="hp-bar mem"><i style="--v:{{ $e.mem }}"></i></span><em>{{ printf "%2d" $e.mem }}%</em></span>
+            <span class="hc-up">{{ $e.uptime }}</span>
+          </div>
+          {{- end }}
+        </div>
+        <div class="htop-foot">
+          <span class="hf-arrow">▸</span>
+          <span class="hf-text" id="htop-hint">悬停任意进程查看说明 · 点 SORT 换排序字段</span>
+          <span class="hf-wave" id="htop-wave" data-wave="idle" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </span>
+        </div>
       </div>
     </div>
   </section>
   {{- end }}
 
+  {{- /* ---------- 06 WORKS ---------- */}}
   {{- with hugo.Data.products }}
-  <section class="sec" id="products">
-    <div class="wrap">
-      <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="PRODUCTS · 产品" data-en="PRODUCTS · Products">PRODUCTS · 产品</span></div>
-        <h2 data-zh="产品" data-en="Products">产品</h2>
-        <p class="sec-desc" data-zh="自己捣鼓出来的，和用过之后觉得值得推荐的。" data-en="Things I built, and things worth recommending.">自己捣鼓出来的，和用过之后觉得值得推荐的。</p>
+  <section class="card" id="c-works" data-num="06" data-name="WORKS">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">06</span>
+        <h2 class="display solid rv" style="--i:1">Works</h2>
+        <span class="cn rv" style="--i:2">作品</span>
       </div>
-      <div class="prod-grid rv">
-        {{- range . }}
-        <div class="prod-card">
-          <span class="prod-badge{{ if eq .kind "self" }} self{{ end }}" data-zh="{{ if eq .kind "self" }}自己做{{ else }}推荐{{ end }}" data-en="{{ if eq .kind "self" }}Built by me{{ else }}Recommended{{ end }}">{{ if eq .kind "self" }}自己做{{ else }}推荐{{ end }}</span>
-          <div class="prod-name">{{ .name }}</div>
-          <p class="prod-desc">{{ .desc }}</p>
-        </div>
+      {{- /* 06 卡不留介绍词与标题下的发丝线（站主 2026-11 指定），列表直接跟标题 */}}
+      <div class="works-list">
+        {{- range $i, $p := . }}
+        {{- /* W1 放映机：data-shots = products.yml shots 经 relURL 逗号拼接，proj.js 读取；
+             去掉 target=_blank——点击被 proj.js 拦去开灯箱、GitHub 跳转由灯箱按钮完成，
+             无 JS 或行无 shots 时退化为同标签直开仓库（href 仍是兜底）。 */}}
+        <a class="work-row rv" href="{{ $p.url }}" rel="noopener" data-cursor="OPEN"
+           data-shots="{{ range $j, $s := $p.shots }}{{ if $j }},{{ end }}{{ $s | relURL }}{{ end }}">
+          <span class="wr-glint" aria-hidden="true"></span>
+          <span class="wr-no">{{ printf "%02d" (add $i 1) }}</span>
+          <span class="wr-main">
+            <span class="wr-name">{{ $p.name }}</span>
+            <span class="wr-sub">{{ $p.sub }}</span>
+            <span class="wr-tags"><span class="wr-tech mono">{{ $p.tech }}</span><span class="wr-updated mono">UPDATED {{ $p.updated }}</span></span>
+          </span>
+          <span class="wr-go" aria-hidden="true">↗</span>
+          {{- /* hover 预览卡：项目 README 真实截图（static/images/works/）；条目 wire:true 时无真图，叠全息线框（样式在 40-cards.css） */}}
+          <span class="wk-preview{{ if $p.tall }} wk-preview--tall{{ end }}{{ if $p.wire }} wk-preview--wire{{ end }}" aria-hidden="true" style="--wk-ar: {{ if $p.ar }}{{ $p.ar | safeCSS }}{{ else }}16 / 10{{ end }}">
+            <img class="wk-photo" src="{{ $p.photo | relURL }}" alt="" loading="lazy">
+            {{- if $p.wire }}
+            <svg class="wk-art" viewBox="0 0 200 125" fill="none" stroke="var(--d-acid)" stroke-width="1.25" stroke-linecap="round">
+              <rect x="16" y="18" width="48" height="62" rx="4"/>
+              <line x1="24" y1="29" x2="56" y2="29"/><line x1="24" y1="38" x2="50" y2="38"/>
+              <path d="M42 50 L56 61 L42 72 Z" stroke-linejoin="round"/>
+              <circle cx="98" cy="49" r="5.5"/>
+              <line class="wk-link" x1="104" y1="47" x2="146" y2="24"/>
+              <line class="wk-link wk-link2" x1="104" y1="50" x2="150" y2="58"/>
+              <line class="wk-link wk-link3" x1="103" y1="54" x2="140" y2="92"/>
+              <rect class="wk-node" x="146" y="16" width="28" height="16" rx="3"/>
+              <rect class="wk-node wk-node2" x="150" y="52" width="30" height="16" rx="3"/>
+              <rect class="wk-node wk-node3" x="140" y="86" width="28" height="16" rx="3"/>
+            </svg>
+            {{- end }}
+          </span>
+        </a>
         {{- end }}
       </div>
+      {{- /* 底部按钮组：GitHub 主页 / 全部仓库 / 博客源仓（外链新开；地址在 home.yml works:） */}}
+      {{- with hugo.Data.home.works }}
+      <div class="works-cta rv">
+        <a class="pill solid" href="{{ .profile }}" target="_blank" rel="noopener" data-magnet data-cursor="GO">GITHUB HOME<em>↗</em></a>
+        <a class="pill" href="{{ .repos }}" target="_blank" rel="noopener" data-magnet data-cursor="GO">ALL REPOS<em>↗</em></a>
+        <a class="pill" href="{{ .blog }}" target="_blank" rel="noopener" data-magnet data-cursor="GO">THIS REPO<em>↗</em></a>
+      </div>
+      {{- end }}
     </div>
   </section>
   {{- end }}
 
-  {{- /* 求职条：一条细提示，不抢首屏主 CTA；文案在 data/home.yml 的 career */ -}}
-  {{- with $h.career }}{{ if .enabled }}
-  <section class="sec" id="career">
-    <div class="wrap">
-      <div class="career-strip rv">
-        <span class="career-state"><span class="career-dot" aria-hidden="true"></span><span data-zh="OPEN TO WORK · 求职中" data-en="OPEN TO WORK">OPEN TO WORK · 求职中</span></span>
-        <p class="career-line"><strong>{{ .name }}</strong> 在找 <em>{{ .role }}</em> 的工作<span class="career-note">· {{ .note }}</span></p>
-        <a class="career-cta" href="{{ .url | relURL }}" data-zh="{{ .cta }}" data-en="Resume">{{ .cta }} <span class="arr" aria-hidden="true">→</span></a>
+  {{- /* ---------- 07 ARTICLES ---------- */}}
+  {{- /* 文章板块（2026-11 新增）：数据源 = content/posts/ 真实文章，日期倒序，卡内只列前 N 篇
+       （N 在 home.yml posts.list）。行复用 _partials/post-row.html（与 /posts/ 列表页同一套），
+       零文章时整块换成 _partials/post-empty.html 待机面板——读数如实，不编数字。
+       样式在 46-posts.css，窄屏/reduce 降级在 90-media.css。 */}}
+  <section class="card" id="c-posts" data-num="07" data-name="ARTICLES">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">07</span>
+        <h2 class="display acid rv" style="--i:1">Articles</h2>
+        <span class="cn rv" style="--i:2">文章</span>
       </div>
-    </div>
-  </section>
-  {{- end }}{{ end }}
-
-  <section class="sec" id="contact">
-    <div class="wrap">
-      <div class="sec-head rv">
-        <div class="sec-eyebrow"><span class="dot"></span><span data-zh="CONTACT · 联系" data-en="CONTACT · Get in touch">CONTACT · 联系</span></div>
-        <h2 data-zh="联系方式" data-en="Get in touch">联系方式</h2>
-        <p class="sec-desc" data-zh="点右侧按钮即可复制，欢迎来聊。" data-en="Click the button to copy. Say hi anytime.">点右侧按钮即可复制，欢迎来聊。</p>
-      </div>
-      <div class="contact-grid rv">
-        {{- range $h.contact }}
-        <div class="contact-card{{ if .url }} wide{{ end }}">
-          <span class="contact-icon" aria-hidden="true">
-            {{- if eq .key "wechat" }}
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg>
-            {{- else if eq .key "github" }}
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.9 9.6.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.7.1-.7.1-.7 1 0 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 2.9.8.1-.7.4-1.1.7-1.4-2.2-.3-4.6-1.1-4.6-5a3.9 3.9 0 0 1 1-2.7c-.1-.3-.5-1.3.1-2.7 0 0 .9-.3 2.8 1a9.5 9.5 0 0 1 5.1 0c1.9-1.3 2.8-1 2.8-1 .6 1.4.2 2.4.1 2.7a3.9 3.9 0 0 1 1 2.7c0 3.9-2.4 4.7-4.6 5 .4.3.8 1 .8 2.1v3.1c0 .3.2.6.8.5A10.1 10.1 0 0 0 22 12.2C22 6.6 17.5 2 12 2Z"/></svg>
-            {{- else }}
-            {{- /* QQ 企鹅轮廓（Iconify mingcute:qq-line，MIT）——simple-icons 已下架 QQ，用第三方绘制版 */ -}}
-            <svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M4.5 17c.368-2.21 1.28-4.148 1.733-5.016c.169-.321.267-.675.267-1.038V8.5a5.5 5.5 0 1 1 11 0v2.446c0 .363.098.717.267 1.038c.454.868 1.365 2.806 1.733 5.016M6.389 14l-.056 1.01a5.676 5.676 0 1 0 11.334 0L17.611 14"/><path fill="currentColor" d="M12 21.09c0 .502-.5.909-2 .909s-4 .048-4-.454C6 20.636 8.857 20 9.857 20S12 20.588 12 21.09m0 0c0 .502.5.909 2 .909s4 .048 4-.454C18 20.636 15.143 20 14.143 20S12 20.588 12 21.09"/></svg>
-            {{- end }}
-          </span>
-          <span class="contact-info">
-            <span class="contact-label" data-zh="{{ .label }}" data-en="{{ .label_en | default .label }}">{{ .label }}</span>
-            {{- if .url }}
-            <a class="contact-value" href="{{ .url }}" target="_blank" rel="noopener noreferrer">{{ .value }}</a>
-            {{- else }}
-            <span class="contact-value">{{ .value }}</span>
-            {{- end }}
-          </span>
-          <span class="contact-actions">
-            {{- if .url }}
-            <a class="contact-go" href="{{ .url }}" target="_blank" rel="noopener noreferrer" aria-label="打开{{ .label }}" data-zh-tip="打开" data-en-tip="Open"><span data-zh="打开" data-en="Open">打开</span> <span class="arr">↗</span></a>
-            {{- end }}
-            <button class="copy-btn" type="button" data-copy="{{ .value }}" aria-label="复制{{ .label }}" data-zh-tip="复制" data-en-tip="Copy"><span class="copy-label" data-zh="复制" data-en="Copy">复制</span></button>
-          </span>
-        </div>
+      {{- if $posts }}
+      {{- with hugo.Data.home.posts }}{{ with .note }}<p class="card-note rv" style="--i:3">{{ . }}</p>{{ end }}{{ end }}
+      <div class="posts-list">
+        {{- $n := hugo.Data.home.posts.list | default 4 -}}
+        {{- range $i, $p := first $n $posts }}
+          {{- partial "post-row.html" (dict "page" $p "i" $i "home" true) }}
         {{- end }}
       </div>
+      <div class="posts-cta rv">
+        <a class="pill solid" href="{{ "/posts/" | relURL }}" data-magnet data-cursor="GO">ALL POSTS<em>→</em></a>
+        {{- with index $posts 0 }}<a class="pill" href="{{ .RelPermalink }}" data-magnet data-cursor="GO">LATEST<em>→</em></a>{{ end }}
+        <span class="posts-stat mono">ENTRIES {{ printf "%03d" (len $posts) }} · SORT DATE▾</span>
+      </div>
+      {{- else }}
+        {{- partial "post-empty.html" (dict "home" true) }}
+      {{- end }}
     </div>
   </section>
-</main>
 
-<footer class="footer">
-  <div class="wrap footer-inner">
-    <span data-zh="{{ $h.footer.line }}" data-en="{{ $hen.footer.line }}">{{ $h.footer.line }}</span>
-    <span class="footer-links">
-      <a href="{{ "/posts/" | relURL }}" data-zh="文章" data-en="Articles">文章</a>
-      <a href="{{ "/tags/" | relURL }}" data-zh="标签" data-en="Tags">标签</a>
-      <a href="https://github.com/xiaoheizi112" target="_blank" rel="noopener noreferrer">GitHub</a>
-    </span>
-  </div>
-  {{- /* 页脚团睡的驻站猫 + 名分（中英随 data-zh/data-en 切换）。耳/尾先画，身体压叠其上 */ -}}
-  <div class="wrap footer-cat">
-    <svg viewBox="0 0 92 34" aria-hidden="true">
-      <ellipse cx="46" cy="28.5" rx="30" ry="2.4" fill="var(--ink-3)" opacity=".12" />
-      <path d="M66 25 q9 .5 8 -8 q-.8 -5 -5 -4.4" fill="none" stroke="var(--sun)" stroke-width="4.6" stroke-linecap="round" />
-      <path d="M25 13 L21 5 L29.5 9.5 Z" fill="var(--sun)" />
-      <path d="M35 13 L39 5 L30.5 9.5 Z" fill="var(--sun)" />
-      <ellipse cx="50" cy="21" rx="24" ry="8.4" fill="var(--sun)" />
-      <g fill="none" stroke="var(--sun-deep)" stroke-width="1.9" stroke-linecap="round" opacity=".55">
-        <path d="M51 15 q1.5 3.8 1 7.4" /><path d="M57 14.6 q1.3 3.6 .9 7" /><path d="M63 15.4 q1 3.2 .7 6.4" />
-      </g>
-      <circle cx="30" cy="18" r="9.2" fill="var(--sun)" />
-      <g class="cat">
-        <g class="eyes-closed" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round">
-          <path d="M25.6 18 q2 1.8 4 0" /><path d="M31.6 18 q2 1.8 4 0" />
-        </g>
-        <g class="eyes-open" fill="#2b3a42">
-          <ellipse cx="27.6" cy="18.2" rx="1.4" ry="1.7" /><ellipse cx="33.6" cy="18.2" rx="1.4" ry="1.7" />
-        </g>
-        <path d="M29.3 21.4 h1.4 l-.7 .95 z" fill="var(--sun-deep)" />
-      </g>
-      <use href="#paw" x="4" y="17" width="11" height="11" transform="rotate(-16 9.5 22.5)" opacity=".35" />
-    </svg>
-    <span class="footer-cat-name" data-zh="小橘猫 · 驻站猫，此刻正在晒太阳" data-en="The little orange tabby · station cat, sunbathing right now">小橘猫 · 驻站猫，此刻正在晒太阳</span>
-  </div>
-</footer>
+  {{- /* ---------- 08 GUESTBOOK ---------- */}}
+  <section class="card" id="c-guestbook" data-num="08" data-name="GUESTBOOK">
+    <div class="card-body cta-center">
+      <p class="eyebrow rv">GUESTBOOK · 留言板</p>
+      <p class="display solid rv" style="--i:1">Say hi,</p>
+      <p class="display acid rv" style="--i:2">leave a footprint!</p>
+      <p class="card-note rv" style="--i:3;margin:4vh auto 0"><b>访客需 GitHub 账号登录。</b></p>
+      <p><a class="pill solid" href="{{ "/message/" | relURL }}" data-magnet data-cursor="GO">ENTER GUESTBOOK<em>→</em></a></p>
+    </div>
+  </section>
 
-<button class="to-top" id="to-top" type="button" aria-label="返回顶部">
-  <svg class="to-top-paw" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <g class="toes">
-      <circle cx="5.6" cy="10.8" r="2" /><circle cx="9.7" cy="7.8" r="2.1" /><circle cx="14.3" cy="7.8" r="2.1" /><circle cx="18.4" cy="10.8" r="2" />
-    </g>
-    <path class="pad" d="M12 12.6c3 0 5.5 2.2 5.5 4.8 0 1.8-1.5 2.9-3.1 2.5-.9-.2-1.5-.6-2.4-.6s-1.5.4-2.4.6c-1.6.4-3.1-.7-3.1-2.5 0-2.6 2.5-4.8 5.5-4.8z" />
-  </svg>
-</button>
+  {{- /* ---------- 09 CONTACT ---------- */}}
+  <section class="card" id="c-contact" data-num="09" data-name="CONTACT">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">09</span>
+        <h2 class="display outline rv" style="--i:1">Get in touch ///</h2>
+      </div>
+      <div class="hair rv"></div>
+      <ul class="hair-list">
+        {{- $aliases := dict "微信" "wechat" "QQ" "qq" "GitHub" "github" }}
+        {{- range $i, $c := $h.contact }}
+        {{- $alias := or (index $aliases $c.label) (replaceRE "[^a-z0-9]+" "" (lower $c.label)) }}
+        <li class="rv" style="--i:{{ add $i 2 }}" data-cmd="{{ $alias }}">
+          <span class="k">{{ $c.label }}</span>
+          <span class="v">
+            {{- if $c.url }}<a href="{{ $c.url }}" target="_blank" rel="noopener">{{ $c.value }}</a>
+            {{- else }}<span class="t-val">{{ $c.value }}</span> <button class="cp mono" type="button" data-copy="{{ $c.value }}">COPY</button>{{ end -}}
+          </span>
+        </li>
+        {{- end }}
+      </ul>
+      <footer class="foot mono rv" style="--i:6">
+        <span>{{ $h.footer.line }}</span>
+        <span>© 2026 SLOW GONGZI</span>
+        <a href="{{ "/index.xml" | relURL }}">RSS</a>
+      </footer>
+    </div>
+  </section>
 
-<script src="{{ "js/home.js" | relURL }}"></script>
-{{- partial "extend_footer.html" . }}
-</body>
-</html>
+</div>
+{{- /* 播放器条：tape.js（P1）渲染进 #tape */}}
+{{- with resources.Get "js/tape.js" }}
+  {{- $f := . | minify | fingerprint }}
+<script src="{{ $f.RelPermalink }}" integrity="{{ $f.Data.Integrity }}" defer></script>
+{{- end }}
+<div class="tape" id="tape" aria-live="polite"></div>
+{{- end -}}

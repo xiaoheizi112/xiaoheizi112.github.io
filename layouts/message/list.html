@@ -1,0 +1,16 @@
+{{- /* 留言板页（P2）：giscus 集中在 /message/，mapping=pathname 各页独立。
+      标题与容器面板样式在 70-giscus.css；本页只排版壳与说明文字。 */ -}}
+{{- define "main" -}}
+<div class="sub-wrap page-message">
+  <a class="back-line mono" href="{{ "/" | relURL }}#c-guestbook">← BACK HOME</a>
+  <header class="row-head">
+    <span class="num">08</span>
+    <h1 class="display acid">Guestbook</h1>
+    <span class="cn">留言板</span>
+  </header>
+  <div class="hair show"></div>
+  <p class="card-note">黑底绿字的电子留言条——路过就留一句，不必留下姓名。
+    <b>访客需 GitHub 账号登录</b>（giscus 的取舍：挡广告换门槛）。</p>
+  {{- partial "comments.html" (dict "title" "访客留言") }}
+</div>
+{{- end -}}

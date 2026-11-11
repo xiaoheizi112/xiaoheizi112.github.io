@@ -1,0 +1,61 @@
+/* ============================================================
+   70-giscus.css —— 留言板 / giscus 评论容器（/message/）
+   归属：Phase 1 · P2。
+   comments.html（不动）渲染 <section class="comments giscus-wrap">
+   + <h2 class="comments-title">，giscus client.js 注入 .giscus > iframe，
+   iframe 主题固定 transparent_dark（底色透明，靠这里给深色衬底）。
+   原则：只管容器与标题，不越进去动 iframe 内部。
+   ============================================================ */
+
+.giscus-wrap {
+  margin: 6vh 0 0;
+}
+
+/* 标题走 eyebrow 风：mono 大写小字 + 前置 acid 小方块 */
+.giscus-wrap .comments-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--d-mute);
+  margin: 0 0 3vh;
+}
+.giscus-wrap .comments-title::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--d-acid);
+  box-shadow: var(--d-acid-glow);
+}
+
+/* 玻璃面板：深色衬底 + 发丝边框 + 圆角，让 transparent_dark iframe 融进来 */
+.giscus-wrap .giscus {
+  background: linear-gradient(180deg, rgba(58, 227, 92, 0.03), transparent 30%), var(--d-void-2);
+  border: 1px solid var(--d-line);
+  border-radius: 16px;
+  padding: clamp(6px, 1.5vw, 14px);
+  min-height: 220px;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* iframe 本身：透底、无原生边框；给足加载高度避免塌陷 */
+.giscus-wrap .giscus iframe,
+.giscus-wrap iframe.giscus-frame {
+  color-scheme: dark;
+  min-height: 340px;
+  border: 0;
+}
+
+/* 加载失败/无脚本时的降级文案 */
+.giscus-wrap noscript {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--d-dim);
+  padding: 20px 4px;
+}

@@ -1,12 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="慢">
-  <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0.25" y2="1">
-      <stop offset="0" stop-color="#6fbfe6"/>
-      <stop offset="1" stop-color="#3e9bd4"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="15" fill="url(#sky)"/>
-  <circle cx="49" cy="15" r="11.5" fill="#f5b740" opacity="0.20"/>
-  <circle cx="49" cy="15" r="7.2" fill="#f5b740"/>
-  <g transform="translate(17,58) scale(0.014851)"><g transform="scale(1,-1)"><path d="M288 1685H530V1310Q625 1273 722 1233L658 1019Q597 1051 530 1084V-263H288ZM756 1635H1872V1055H756ZM1624 1481H1002V1407H1624ZM1624 1209V1283H1002V1209ZM14 723Q70 1011 104 1323L272 1303Q234 963 184 691Q100 711 14 723ZM1958 525H660V979H1958ZM1732 689V815H1554V689ZM886 689H1064V815H886ZM1220 689H1398V815H1220ZM1876 439V263Q1751 110 1557 -1Q1774 -56 2034 -61Q1988 -167 1950 -269Q1579 -239 1295 -123Q1029 -221 676 -267Q630 -169 576 -69Q835 -51 1048 4Q904 95 790 217L874 263H718V439ZM1298 89Q1463 160 1590 263H1022Q1146 160 1298 89Z" fill="#ffffff" stroke="#ffffff" stroke-width="34" stroke-linejoin="round" stroke-linecap="round"/></g></g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="慢公子 准星">
+  <!-- 站标（2026 年 11 月 jiejoe 风重构 P3）：黑底 + 荧光绿线框准星。
+       对应站内 fx.js 的十字准星光标（.cur：横线、竖线、圆环），
+       以及背景斜激光，把「取景与瞄准」当成站的符号。
+       旧版是晴空蓝底加白色实心「慢」字，在黑底站里发灰，已弃用。
+       可读性约束：16px（viewBox 64 的 0.25 倍）下主笔画要够 1px，
+       所以描边统一 4.5（16px 下约 1.1px），中心实心点半径 5（2.5px），
+       不用滤镜与渐变（小尺寸会糊，部分标签页渲染器也不支持 filter）。
+       注意：XML 注释里不能出现连续两个减号，令牌名一律写成文字。 -->
+
+  <!-- 底色取站点 void 令牌值 050607；圆角兼容浏览器标签的圆形裁切 -->
+  <rect width="64" height="64" rx="14" fill="#050607"/>
+
+  <!-- 两条极淡斜激光：16px 下读作背景纹理，不影响准星剪影 -->
+  <g stroke="#3ae35c" stroke-width="1.6" opacity="0.16">
+    <path d="M-6 46 22 -6"/>
+    <path d="M40 70 68 18"/>
+  </g>
+
+  <!-- 准星主体：环加四向刻度（外端贴边、内端留缺口，小尺寸下最稳的十字剪影） -->
+  <g fill="none" stroke="#3ae35c" stroke-width="4.5" stroke-linecap="round">
+    <circle cx="32" cy="32" r="15.5"/>
+    <path d="M32 5.5v8M32 50.5v8M5.5 32h8M50.5 32h8"/>
+  </g>
+
+  <!-- 中心实心点：acid 绿，16px 下仍是最先被认出的那一颗 -->
+  <circle cx="32" cy="32" r="5" fill="#3ae35c"/>
 </svg>
