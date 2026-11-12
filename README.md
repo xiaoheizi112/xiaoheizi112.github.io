@@ -1,43 +1,53 @@
-# 慢公子的小站
+# 个人博客 - 慢公子 | AI实践者
 
-> 一个很懒的人的博客，想起来才更新。
+> 自由散漫的创作者，偶尔做点小项目。想过的，写下来才算数。
 
-这里是 <https://xiaoheizi112.github.io> 的源码仓库。一座**黑底荧光绿**的个人站：整站就是一份六屏的 deck（演示稿），Anton 大字 + 等宽小字 + 激光、辉光、准星光标，没有广告、没有算法推荐、没有文章列表。
+这里是 **<https://xiaoheizi112.github.io>** 的源码仓库。一座**黑底荧光绿**的个人站：整站是一份九屏的 deck（演示稿），Anton 大字 + 等宽小字 + 激光/辉光/全息工牌，没有广告、没有算法推荐、没有弹窗。
 
 技术栈：[Hugo](https://gohugo.io/) extended v0.166 + 手写 CSS/JS，**不用主题、不用前端框架、不装 npm 依赖**。
 
 ## 站上有什么
 
-首页是一屏一卡的 deck，鼠标滚轮 / 触屏滑动 / 方向键 / 右侧进度点都能换卡，地址栏 `#c-signals` 之类可直接跳到某屏：
+首页一屏一卡，滚轮 / 触屏滑动 / 方向键 / 右侧进度点都能换卡，地址栏 `#c-works` 之类可直接跳到某屏。九屏按「先认识我、再看我做过什么」的顺序排：
 
 | 屏 | 内容 |
 |---|---|
-| 01 HOME | 三行大字 `Think wild! / Build cool! / Ship slow!` + 一句话自介 |
-| 02 ABOUT | 我是谁、在做什么，下面一行行「标签—值」的信息表 |
-| 03 SIGNALS | 最近在听的歌：扇形铺开五张专辑卡，点一下就播（底部会滑出 `.tape` 播放器） |
-| 04 INTERESTS | 兴趣散卡（打球、睡觉、听歌、散步、做饭、AI），轻微歪斜的散落排布 |
-| 05 GUESTBOOK | 留言板的入口，点进去是 `/message/` |
-| 06 CONTACT | 联系方式与页脚 |
+| 01 HOME | 三行大字 + 循环打字欢迎语 + 站龄读数 + 跑马灯 + ENGINE CORE 线框核心 |
+| 02 ABOUT | 全息工牌：AI 卡通肖像 + 面部网格扫描 + 右侧「人事档案」读数表 |
+| 03 SKILLS | 技能矩阵带，三行错位滚动，13 枚官方原色图标，悬停出注脚 |
+| 04 WORKS | 作品列表，点击开「放映机」灯箱看多张截图 |
+| 05 ARTICLES | 文章入口，列出最近几篇；零文章时是 STANDBY 待机面板 |
+| 06 INTERESTS | 仿 htop 的生活进程表，可按 CPU/MEM 排序，带实时波形 |
+| 07 SIGNALS | 电台调谐面板：刻度盘 + 频道列表 + 卡带 + 示波器，点一下开播 |
+| 08 GUESTBOOK | 留言板入口，点进去是 `/message/` |
+| 09 CONTACT | 终端会话式联系方式，逐字打字输出，每行带复制按钮 |
 
-子页共用同一套壳（左上角 `← BACK HOME` 回首页）：
+角落还有两件常驻小东西：右下角一枚**可下拉点火的火箭**（松手飞回页顶），以及 `⌘K` / `Ctrl+K` 唤出的**命令面板**，可直接跳到任意屏或子页。
 
-- **`/about/`** —— 详细版自我介绍，带代码块
+子页共用同一套壳（左上角 `← BACK HOME`）：
+
+- **`/posts/`** —— 文章列表，日期倒序；详情页带阅读时长、字数、目录与上下篇
 - **`/message/`** —— 留言板（giscus，需用 GitHub 账号登录发言）
-- **404** —— 同款黑底绿字，一个描边的 `404`
+- **404** —— 同款黑底绿字，配一条会掉血的 BOSS 血条彩蛋
 
-移动端做了整套降级（≤720px 收字号与留白、隐藏进度点、扇形改成左右滑的一列、信息表上下两行；手机横屏这种矮视口会把换卡吸附放松成「就近吸附」，免得长内容读不到尾巴）。细节规则见 [CLAUDE.md](CLAUDE.md)。
+音效是一套 WebAudio 合成的仪器面板音色（点击 blip、气闸泄压、环境音床），默认开启，右上角声纹按钮可随时关掉。
+
+移动端做了整套降级（≤720px 收字号与留白、隐藏进度点、多列改单列、火箭缩到右下角；矮视口把换卡吸附放松成「就近吸附」）。细节规则见 [CLAUDE.md](CLAUDE.md)。
 
 ## 目录长这样
 
 ```
-layouts/               首页 + 子页壳 + 常驻层 partials（chrome/head/scripts/comments）
+layouts/               首页 + 子页壳 + 常驻层 partials（chrome / head / scripts / comments）
 assets/css/deck/       样式按编号分层：10 令牌 → 20 deck → 30 特效 → 40 卡内组件
-                       → 50 子页正文 → 60 代码高亮 → 70 giscus → 90 移动端降级
-assets/js/             引擎：boot / fx / deck / tape
-static/favicon.svg     站标（黑底 + 荧光绿准星）
-data/                  文案与数据：home.yml、interests.yml、music.yml、
-                       products.yml
-content/               message/、posts/（about、resume、相册、todo 体系已删除）
+                       → 42 作品 / 44 电台 / 46 文章 / 48 技能·火箭 → 50 子页正文
+                       → 60 代码高亮 → 70 giscus → 90 移动端降级
+assets/js/             引擎：boot / fx / deck / core / id / htop / works / proj
+                       / radio / term / welcome / rocket / tape
+static/icons/          技能图标（各家官方原色原图）
+static/images/         站主卡通肖像等
+data/                  文案与数据：home.yml、skills.yml、interests.yml、
+                       music.yml、products.yml、quotes.yml
+content/               posts/、message/（about、resume、相册、todo 体系已删除）
 .github/workflows/     GitHub Pages 部署
 ```
 
@@ -47,11 +57,13 @@ content/               message/、posts/（about、resume、相册、todo 体系
 
 | 想做的事 | 动哪里 |
 |---|---|
-| 改首页文案 / 联系方式 / 兴趣卡 / 歌单 | `data/home.yml`、`data/interests.yml`、`data/music.yml`（不用碰模板） |
+| 改首页文案 / 档案读数 / 联系方式 | `data/home.yml`（不用碰模板） |
+| 改技能图标 / 兴趣进程 / 歌单 / 作品 | `data/skills.yml`、`interests.yml`、`music.yml`、`products.yml` |
+| 写文章 | `content/posts/` 丢一个 `<slug>.md` 就自动上屏 |
 | 改配色、字体、缓动 | `assets/css/deck/10-base.css` 的 `:root` |
-| 改某一屏的版式 | 对应层：卡内组件在 `40-cards.css`，子页正文在 `50-sub.css` |
+| 改某一屏的版式 | 卡内组件在 `40-cards.css` 及同号文件，子页正文在 `50-sub.css` |
 | 改手机端表现 | **只写 `assets/css/deck/90-media.css`**，用媒体查询覆盖，别回去改前面的层 |
-| 换卡/光标/播放器等行为 | `assets/js/deck.js`、`fx.js`、`tape.js` |
+| 换卡 / 光标 / 播放器 / 火箭等行为 | 对应的 `assets/js/*.js` |
 
 两个坑值得先知道：
 
