@@ -1,9 +1,11 @@
 {{- /* 首页 = 竖向卡片甲板（2026-11 jiejoe 风重构）
-     九屏：01 HOME / 02 ABOUT ME / 03 IDENTITY / 04 SIGNALS / 05 INTERESTS / 06 WORKS
-           / 07 ARTICLES / 08 GUESTBOOK / 09 CONTACT
-     （05 FOCUS 要事四象限已按站主令整体删除，2026-11；07 ARTICLES 为 2026-11 新增文章板块）
+     九屏（2026-11-12 站主令按「内容漏斗」重排 + 重编号）：
+       01 HOME / 02 ABOUT ME / 03 SKILLS / 04 WORKS / 05 ARTICLES
+       / 06 INTERESTS / 07 SIGNALS / 08 GUESTBOOK / 09 CONTACT
+     顺序逻辑：先自报家门（我是谁→我会什么→我做过什么→我写过什么），
+       再展示生活趣味（兴趣→音乐），最后互动（留言→联系）。
      数据：data/home.yml（文案）· data/music.yml · data/interests.yml · data/products.yml
-          · content/posts/（07 屏文章，真实文章为唯一数据源） */ -}}
+          · content/posts/（05 屏文章，真实文章为唯一数据源） */ -}}
 {{- define "main" -}}
 {{- $h := hugo.Data.home -}}
 {{- $songs := hugo.Data.music -}}
@@ -11,6 +13,7 @@
 <div class="deck" id="deck">
 
   {{- /* ---------- 01 HOME ---------- */}}
+
   <section class="card" id="c-home" data-num="01" data-name="HOME">
     <div class="hero">
       <p class="eyebrow rv">SLOW GONGZI · <b>EST. 2026</b>{{ with $h.hero.online_since }}{{ $sn := time . }} · ONLINE DAY <span id="site-days" data-since="{{ . }}">{{ printf "%03d" (int (div ((now.Sub $sn).Hours) 24)) }}</span>{{ end }}</p>
@@ -118,65 +121,16 @@
     </svg>
   </section>
 
-  {{- /* ---------- 02 SKILLS（2026-11 R12 三行错位滚动 · 参照 xiaonie.me/guan-yu） ----------
-       站主定：图标一律用各家官方原色（data/skills.yml 的 src 指向 static/icons/），
-       三行同一批 13 枚但起始下标互相错开（插空），轨道 translateX(-50%)→0 = 自左向右。
-       R12 起三行同速 60s、起点由 48-skills.css 的负 animation-delay 错开（模板不再出 --sk-dur）。
-       注脚不再每格浮一层，改成带体下方一条共享读数行：纯 CSS :has() 按 data-sk 点亮对应
-       data-ro（键名写死在 48-skills.css，加图标要补一行）。 */}}
-  {{- $sk := site.Data.skills.items }}
-  {{- $sklen := len $sk }}
-  <section class="card" id="c-skills" data-num="02" data-name="SKILLS">
-    <div class="card-body">
-      <div class="row-head">
-        <span class="num rv">02</span>
-        <h2 class="display solid rv" style="--i:1">Skills</h2>
-        <span class="cn rv" style="--i:2">技能栈</span>
-      </div>
-      <div class="hair rv"></div>
-      <p class="sk-cap mono rv" style="--i:3">
-        <span class="sk-live" aria-hidden="true"></span>
-        SKILL MATRIX<span class="sk-sep">//</span>ENTRIES <b>{{ printf "%03d" $sklen }}</b> · ROWS 003
-        <span class="sk-hint">HOVER TO READ</span><span class="sk-hint-t">SWIPE / TAP TO READ</span>
-      </p>
-      {{- /* 三行：每行把列表铺两遍（第二遍 aria-hidden），轨道位移 -50% 即无缝；
-             条间距用 padding 而非 flex gap——gap 在接缝处会差半格，位移就不是整倍周期。
-             rot 让每行起始下标错开，视觉上互相插空。 */}}
-      <div class="sk-band rv" style="--i:4">
-        {{- range $r := (slice 0 1 2) }}
-        {{- $rot := mul $r 5 }}
-        <div class="sk-row">
-          <div class="sk-track">
-          {{- range $p := seq 0 (sub (mul $sklen 2) 1) }}
-          {{- $s := index $sk (mod (add $rot $p) $sklen) }}
-          <span class="sk-item" data-sk="{{ $s.key }}"{{ if ge $p $sklen }} aria-hidden="true"{{ end }} style="--si:{{ $s.tint | safeCSS }}">
-            <span class="sk-tile"><img class="sk-art" src="{{ $s.src }}" alt="" width="64" height="64" decoding="async"></span>
-            <span class="sk-name mono">{{ $s.name }}</span>
-          </span>
-          {{- end }}
-          </div>
-        </div>
-        {{- end }}
-      </div>
-      <p class="sk-readout mono rv" style="--i:5">
-        <span class="sk-ro sk-ro-def">悬停任意图标 · 这里出注脚</span>
-        <span class="sk-ro sk-ro-def-t">点按任意图标 · 这里出注脚</span>
-        {{- range $s := $sk }}<span class="sk-ro" data-ro="{{ $s.key }}"><b>{{ $s.name }}</b><span class="sk-ro-sub">{{ $s.sub }}</span><span class="sk-ro-desc">{{ $s.desc }}</span></span>{{- end }}
-      </p>
-      <p class="sk-note rv" style="--i:6">{{ site.Data.skills.note }}</p>
-    </div>
-  </section>
-
-  {{- /* ---------- 03 ABOUT ME · 全息工牌（2026-11 与 02 对调：肖像卡升格为关于我） ----------
+  {{- /* ---------- 02 ABOUT ME · 全息工牌（2026-11 与 02 对调：肖像卡升格为关于我） ----------
         左：id.js 认证状态机的全息工牌（原样搬来，一动不动）；
         右：人事档案卡 .id-file + READ FULL BIO——工牌当证件照，档案列真值。
         内容 2026-11-11 换血（站主令）：原 STATEMENT 大字引言与「AI 编程/自动化/听歌」三条
         （与 02 技能矩阵重复）整体撤掉，改一张 5 条 profile 读数表（人格测试打头）。
         原 5 行 .id-row 与编造的 FACE.HASH 假读数已于更早一轮撤掉。 */}}
-  <section class="card" id="c-about" data-num="03" data-name="ABOUT">
+  <section class="card" id="c-about" data-num="02" data-name="ABOUT">
     <div class="card-body">
       <div class="row-head">
-        <span class="num rv">03</span>
+        <span class="num rv">02</span>
         <h2 class="display solid rv" style="--i:1">About me</h2>
         <span class="cn rv" style="--i:2">关于我</span>
       </div>
@@ -292,72 +246,150 @@
     </div>
   </section>
 
-  {{- /* ---------- 04 SIGNALS ---------- */}}
-  {{- with $songs }}
-  <section class="card" id="c-signals" data-num="04" data-name="SIGNALS">
+  {{- /* ---------- 03 SKILLS（2026-11 R12 三行错位滚动 · 参照 xiaonie.me/guan-yu） ----------
+       站主定：图标一律用各家官方原色（data/skills.yml 的 src 指向 static/icons/），
+       三行同一批 13 枚但起始下标互相错开（插空），轨道 translateX(-50%)→0 = 自左向右。
+       R12 起三行同速 60s、起点由 48-skills.css 的负 animation-delay 错开（模板不再出 --sk-dur）。
+       注脚不再每格浮一层，改成带体下方一条共享读数行：纯 CSS :has() 按 data-sk 点亮对应
+       data-ro（键名写死在 48-skills.css，加图标要补一行）。 */}}
+  {{- $sk := site.Data.skills.items }}
+  {{- $sklen := len $sk }}
+  <section class="card" id="c-skills" data-num="03" data-name="SKILLS">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">03</span>
+        <h2 class="display solid rv" style="--i:1">Skills</h2>
+        <span class="cn rv" style="--i:2">技能栈</span>
+      </div>
+      <div class="hair rv"></div>
+      <p class="sk-cap mono rv" style="--i:3">
+        <span class="sk-live" aria-hidden="true"></span>
+        SKILL MATRIX<span class="sk-sep">//</span>ENTRIES <b>{{ printf "%03d" $sklen }}</b> · ROWS 003
+        <span class="sk-hint">HOVER TO READ</span><span class="sk-hint-t">SWIPE / TAP TO READ</span>
+      </p>
+      {{- /* 三行：每行把列表铺两遍（第二遍 aria-hidden），轨道位移 -50% 即无缝；
+             条间距用 padding 而非 flex gap——gap 在接缝处会差半格，位移就不是整倍周期。
+             rot 让每行起始下标错开，视觉上互相插空。 */}}
+      <div class="sk-band rv" style="--i:4">
+        {{- range $r := (slice 0 1 2) }}
+        {{- $rot := mul $r 5 }}
+        <div class="sk-row">
+          <div class="sk-track">
+          {{- range $p := seq 0 (sub (mul $sklen 2) 1) }}
+          {{- $s := index $sk (mod (add $rot $p) $sklen) }}
+          <span class="sk-item" data-sk="{{ $s.key }}"{{ if ge $p $sklen }} aria-hidden="true"{{ end }} style="--si:{{ $s.tint | safeCSS }}">
+            <span class="sk-tile"><img class="sk-art" src="{{ $s.src }}" alt="" width="64" height="64" decoding="async"></span>
+            <span class="sk-name mono">{{ $s.name }}</span>
+          </span>
+          {{- end }}
+          </div>
+        </div>
+        {{- end }}
+      </div>
+      <p class="sk-readout mono rv" style="--i:5">
+        <span class="sk-ro sk-ro-def">悬停任意图标 · 这里出注脚</span>
+        <span class="sk-ro sk-ro-def-t">点按任意图标 · 这里出注脚</span>
+        {{- range $s := $sk }}<span class="sk-ro" data-ro="{{ $s.key }}"><b>{{ $s.name }}</b><span class="sk-ro-sub">{{ $s.sub }}</span><span class="sk-ro-desc">{{ $s.desc }}</span></span>{{- end }}
+      </p>
+      <p class="sk-note rv" style="--i:6">{{ site.Data.skills.note }}</p>
+    </div>
+  </section>
+
+  {{- /* ---------- 04 WORKS ---------- */}}
+  {{- with hugo.Data.products }}
+  <section class="card" id="c-works" data-num="04" data-name="WORKS">
     <div class="card-body">
       <div class="row-head">
         <span class="num rv">04</span>
-        <h2 class="display solid rv" style="--i:1">Signals</h2>
-        <span class="cn rv" style="--i:2">电台调谐</span>
+        <h2 class="display solid rv" style="--i:1">Works</h2>
+        <span class="cn rv" style="--i:2">作品</span>
       </div>
-      <div class="hair rv"></div>
-      <p class="card-note rv">九台好歌，一盘不赶时间的混音带。<b>FM 调频电台，点频道即播，拖指针换台。</b></p>
-      {{- /* 电台调谐面板（方案 C）：刻度/指针/VU/示波器由 radio.js 驱动，契约见 40-cards.css「04 SIGNALS · 电台调谐面板」段 */}}
-      <div class="radio rv" style="--i:3" data-nodrag>
-        <span class="rm tl" aria-hidden="true"></span>
-        <span class="rm tr" aria-hidden="true"></span>
-        <span class="rm bl" aria-hidden="true"></span>
-        <span class="rm br" aria-hidden="true"></span>
-        <div class="dial" aria-hidden="true">
-          <span class="dial-read"><b id="dial-read">088.1</b><em>FM</em></span>
-          <div class="dial-scale" id="dial-scale">
-            <span class="needle" id="needle"></span>
-          </div>
-        </div>
-        <div class="radio-grid">
-          <div class="chan-list">
-            {{- range $i, $e := . }}
-            <button class="chan-row{{ if eq $i 0 }} active{{ end }}" type="button" data-i="{{ $i }}"
-              data-cursor="TUNE" data-freq="{{ $e.freq }}" data-src="{{ $e.url | relURL }}"
-              data-title="{{ $e.title }}" data-bar="{{ $e.short | default $e.title }}" data-artist="{{ $e.artist }}"
-              data-cover="{{ $e.cover | relURL }}" data-desc="{{ $e.desc }}">
-              <span class="ch-no">CH-{{ printf "%02d" (add $i 1) }}</span>
-              <span class="ch-title">{{ $e.short | default $e.title }}</span>
-              <span class="ch-artist">{{ $e.artist }}</span>
-              {{- /* hover/focus 才展开的调谐提示（参照 darkroom --button-inner 藏字手法，见 40-cards.css CHAN 段） */}}
-              <span class="ch-tap" aria-hidden="true">↺ TUNE</span>
-              <span class="vu" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="ch-go" aria-hidden="true">▸</span>
-            </button>
+      {{- /* 06 卡不留介绍词与标题下的发丝线（站主 2026-11 指定），列表直接跟标题 */}}
+      <div class="works-list">
+        {{- range $i, $p := . }}
+        {{- /* W1 放映机：data-shots = products.yml shots 经 relURL 逗号拼接，proj.js 读取；
+             去掉 target=_blank——点击被 proj.js 拦去开灯箱、GitHub 跳转由灯箱按钮完成，
+             无 JS 或行无 shots 时退化为同标签直开仓库（href 仍是兜底）。 */}}
+        <a class="work-row rv" href="{{ $p.url }}" rel="noopener" data-cursor="OPEN"
+           data-shots="{{ range $j, $s := $p.shots }}{{ if $j }},{{ end }}{{ $s | relURL }}{{ end }}">
+          <span class="wr-glint" aria-hidden="true"></span>
+          <span class="wr-no">{{ printf "%02d" (add $i 1) }}</span>
+          <span class="wr-main">
+            <span class="wr-name">{{ $p.name }}</span>
+            <span class="wr-sub">{{ $p.sub }}</span>
+            <span class="wr-tags"><span class="wr-tech mono">{{ $p.tech }}</span><span class="wr-updated mono">UPDATED {{ $p.updated }}</span></span>
+          </span>
+          <span class="wr-go" aria-hidden="true">↗</span>
+          {{- /* hover 预览卡：项目 README 真实截图（static/images/works/）；条目 wire:true 时无真图，叠全息线框（样式在 40-cards.css） */}}
+          <span class="wk-preview{{ if $p.tall }} wk-preview--tall{{ end }}{{ if $p.wire }} wk-preview--wire{{ end }}" aria-hidden="true" style="--wk-ar: {{ if $p.ar }}{{ $p.ar | safeCSS }}{{ else }}16 / 10{{ end }}">
+            <img class="wk-photo" src="{{ $p.photo | relURL }}" alt="" loading="lazy">
+            {{- if $p.wire }}
+            <svg class="wk-art" viewBox="0 0 200 125" fill="none" stroke="var(--d-acid)" stroke-width="1.25" stroke-linecap="round">
+              <rect x="16" y="18" width="48" height="62" rx="4"/>
+              <line x1="24" y1="29" x2="56" y2="29"/><line x1="24" y1="38" x2="50" y2="38"/>
+              <path d="M42 50 L56 61 L42 72 Z" stroke-linejoin="round"/>
+              <circle cx="98" cy="49" r="5.5"/>
+              <line class="wk-link" x1="104" y1="47" x2="146" y2="24"/>
+              <line class="wk-link wk-link2" x1="104" y1="50" x2="150" y2="58"/>
+              <line class="wk-link wk-link3" x1="103" y1="54" x2="140" y2="92"/>
+              <rect class="wk-node" x="146" y="16" width="28" height="16" rx="3"/>
+              <rect class="wk-node wk-node2" x="150" y="52" width="30" height="16" rx="3"/>
+              <rect class="wk-node wk-node3" x="140" y="86" width="28" height="16" rx="3"/>
+            </svg>
             {{- end }}
-          </div>
-          {{- $first := index . 0 }}
-          {{- /* 机芯舱：radio.js 把卡带(R1)与 VU(R3)注入此格并排，填右列上行；空壳时零高不占位 */}}
-          <div class="deck-bay" aria-hidden="true"></div>
-          <div class="scope-box">
-            <canvas class="scope" id="scope" width="600" height="200" aria-hidden="true"></canvas>
-            <div class="scope-info">
-              <p class="scope-title" id="scope-title">{{ $first.title }}</p>
-              <p class="scope-artist" id="scope-artist">{{ $first.artist }}</p>
-              {{- /* 工程机读数：MOD FM 恒真；BITRATE/PEAK 由 radio.js 取到真值才点亮，取不到整段不出现 */}}
-              <p class="scope-tele">MOD <b>FM</b><span id="tele-br" hidden> · BITRATE <b id="scope-br"></b></span><span id="tele-peak" hidden> · PEAK <b id="scope-peak"></b></span></p>
-              <p class="scope-desc" id="scope-desc">{{ $first.desc }}</p>
-            </div>
-            <span class="scope-pola"><img id="scope-cover" src="{{ $first.cover | relURL }}" alt="{{ $first.title }} 封面"></span>
-          </div>
-        </div>
+          </span>
+        </a>
+        {{- end }}
       </div>
+      {{- /* 底部按钮组：GitHub 主页 / 全部仓库 / 博客源仓（外链新开；地址在 home.yml works:） */}}
+      {{- with hugo.Data.home.works }}
+      <div class="works-cta rv">
+        <a class="pill solid" href="{{ .profile }}" target="_blank" rel="noopener" data-magnet data-cursor="GO">GITHUB HOME<em>↗</em></a>
+        <a class="pill" href="{{ .repos }}" target="_blank" rel="noopener" data-magnet data-cursor="GO">ALL REPOS<em>↗</em></a>
+        <a class="pill" href="{{ .blog }}" target="_blank" rel="noopener" data-magnet data-cursor="GO">THIS REPO<em>↗</em></a>
+      </div>
+      {{- end }}
     </div>
   </section>
   {{- end }}
 
-  {{- /* ---------- 05 INTERESTS ---------- */}}
-  {{- with hugo.Data.interests }}
-  <section class="card" id="c-interests" data-num="05" data-name="INTERESTS">
+  {{- /* ---------- 05 ARTICLES ---------- */}}
+  {{- /* 文章板块（2026-11 新增）：数据源 = content/posts/ 真实文章，日期倒序，卡内只列前 N 篇
+       （N 在 home.yml posts.list）。行复用 _partials/post-row.html（与 /posts/ 列表页同一套），
+       零文章时整块换成 _partials/post-empty.html 待机面板——读数如实，不编数字。
+       样式在 46-posts.css，窄屏/reduce 降级在 90-media.css。 */}}
+  <section class="card" id="c-posts" data-num="05" data-name="ARTICLES">
     <div class="card-body">
       <div class="row-head">
         <span class="num rv">05</span>
+        <h2 class="display acid rv" style="--i:1">Articles</h2>
+        <span class="cn rv" style="--i:2">文章</span>
+      </div>
+      {{- if $posts }}
+      {{- with hugo.Data.home.posts }}{{ with .note }}<p class="card-note rv" style="--i:3">{{ . }}</p>{{ end }}{{ end }}
+      <div class="posts-list">
+        {{- $n := hugo.Data.home.posts.list | default 4 -}}
+        {{- range $i, $p := first $n $posts }}
+          {{- partial "post-row.html" (dict "page" $p "i" $i "home" true) }}
+        {{- end }}
+      </div>
+      <div class="posts-cta rv">
+        <a class="pill solid" href="{{ "/posts/" | relURL }}" data-magnet data-cursor="GO">ALL POSTS<em>→</em></a>
+        {{- with index $posts 0 }}<a class="pill" href="{{ .RelPermalink }}" data-magnet data-cursor="GO">LATEST<em>→</em></a>{{ end }}
+        <span class="posts-stat mono">ENTRIES {{ printf "%03d" (len $posts) }} · SORT DATE▾</span>
+      </div>
+      {{- else }}
+        {{- partial "post-empty.html" (dict "home" true) }}
+      {{- end }}
+    </div>
+  </section>
+
+  {{- /* ---------- 06 INTERESTS ---------- */}}
+  {{- with hugo.Data.interests }}
+  <section class="card" id="c-interests" data-num="06" data-name="INTERESTS">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">06</span>
         <h2 class="display solid rv" style="--i:1">Interests</h2>
         <span class="cn rv" style="--i:2">生活进程表</span>
         <button class="hob-sort rv" id="hob-sort" type="button" style="--i:3" aria-label="切换进程排序字段">SORT · CPU</button>
@@ -416,94 +448,65 @@
   </section>
   {{- end }}
 
-  {{- /* ---------- 06 WORKS ---------- */}}
-  {{- with hugo.Data.products }}
-  <section class="card" id="c-works" data-num="06" data-name="WORKS">
-    <div class="card-body">
-      <div class="row-head">
-        <span class="num rv">06</span>
-        <h2 class="display solid rv" style="--i:1">Works</h2>
-        <span class="cn rv" style="--i:2">作品</span>
-      </div>
-      {{- /* 06 卡不留介绍词与标题下的发丝线（站主 2026-11 指定），列表直接跟标题 */}}
-      <div class="works-list">
-        {{- range $i, $p := . }}
-        {{- /* W1 放映机：data-shots = products.yml shots 经 relURL 逗号拼接，proj.js 读取；
-             去掉 target=_blank——点击被 proj.js 拦去开灯箱、GitHub 跳转由灯箱按钮完成，
-             无 JS 或行无 shots 时退化为同标签直开仓库（href 仍是兜底）。 */}}
-        <a class="work-row rv" href="{{ $p.url }}" rel="noopener" data-cursor="OPEN"
-           data-shots="{{ range $j, $s := $p.shots }}{{ if $j }},{{ end }}{{ $s | relURL }}{{ end }}">
-          <span class="wr-glint" aria-hidden="true"></span>
-          <span class="wr-no">{{ printf "%02d" (add $i 1) }}</span>
-          <span class="wr-main">
-            <span class="wr-name">{{ $p.name }}</span>
-            <span class="wr-sub">{{ $p.sub }}</span>
-            <span class="wr-tags"><span class="wr-tech mono">{{ $p.tech }}</span><span class="wr-updated mono">UPDATED {{ $p.updated }}</span></span>
-          </span>
-          <span class="wr-go" aria-hidden="true">↗</span>
-          {{- /* hover 预览卡：项目 README 真实截图（static/images/works/）；条目 wire:true 时无真图，叠全息线框（样式在 40-cards.css） */}}
-          <span class="wk-preview{{ if $p.tall }} wk-preview--tall{{ end }}{{ if $p.wire }} wk-preview--wire{{ end }}" aria-hidden="true" style="--wk-ar: {{ if $p.ar }}{{ $p.ar | safeCSS }}{{ else }}16 / 10{{ end }}">
-            <img class="wk-photo" src="{{ $p.photo | relURL }}" alt="" loading="lazy">
-            {{- if $p.wire }}
-            <svg class="wk-art" viewBox="0 0 200 125" fill="none" stroke="var(--d-acid)" stroke-width="1.25" stroke-linecap="round">
-              <rect x="16" y="18" width="48" height="62" rx="4"/>
-              <line x1="24" y1="29" x2="56" y2="29"/><line x1="24" y1="38" x2="50" y2="38"/>
-              <path d="M42 50 L56 61 L42 72 Z" stroke-linejoin="round"/>
-              <circle cx="98" cy="49" r="5.5"/>
-              <line class="wk-link" x1="104" y1="47" x2="146" y2="24"/>
-              <line class="wk-link wk-link2" x1="104" y1="50" x2="150" y2="58"/>
-              <line class="wk-link wk-link3" x1="103" y1="54" x2="140" y2="92"/>
-              <rect class="wk-node" x="146" y="16" width="28" height="16" rx="3"/>
-              <rect class="wk-node wk-node2" x="150" y="52" width="30" height="16" rx="3"/>
-              <rect class="wk-node wk-node3" x="140" y="86" width="28" height="16" rx="3"/>
-            </svg>
-            {{- end }}
-          </span>
-        </a>
-        {{- end }}
-      </div>
-      {{- /* 底部按钮组：GitHub 主页 / 全部仓库 / 博客源仓（外链新开；地址在 home.yml works:） */}}
-      {{- with hugo.Data.home.works }}
-      <div class="works-cta rv">
-        <a class="pill solid" href="{{ .profile }}" target="_blank" rel="noopener" data-magnet data-cursor="GO">GITHUB HOME<em>↗</em></a>
-        <a class="pill" href="{{ .repos }}" target="_blank" rel="noopener" data-magnet data-cursor="GO">ALL REPOS<em>↗</em></a>
-        <a class="pill" href="{{ .blog }}" target="_blank" rel="noopener" data-magnet data-cursor="GO">THIS REPO<em>↗</em></a>
-      </div>
-      {{- end }}
-    </div>
-  </section>
-  {{- end }}
-
-  {{- /* ---------- 07 ARTICLES ---------- */}}
-  {{- /* 文章板块（2026-11 新增）：数据源 = content/posts/ 真实文章，日期倒序，卡内只列前 N 篇
-       （N 在 home.yml posts.list）。行复用 _partials/post-row.html（与 /posts/ 列表页同一套），
-       零文章时整块换成 _partials/post-empty.html 待机面板——读数如实，不编数字。
-       样式在 46-posts.css，窄屏/reduce 降级在 90-media.css。 */}}
-  <section class="card" id="c-posts" data-num="07" data-name="ARTICLES">
+  {{- /* ---------- 07 SIGNALS ---------- */}}
+  {{- with $songs }}
+  <section class="card" id="c-signals" data-num="07" data-name="SIGNALS">
     <div class="card-body">
       <div class="row-head">
         <span class="num rv">07</span>
-        <h2 class="display acid rv" style="--i:1">Articles</h2>
-        <span class="cn rv" style="--i:2">文章</span>
+        <h2 class="display solid rv" style="--i:1">Signals</h2>
+        <span class="cn rv" style="--i:2">电台调谐</span>
       </div>
-      {{- if $posts }}
-      {{- with hugo.Data.home.posts }}{{ with .note }}<p class="card-note rv" style="--i:3">{{ . }}</p>{{ end }}{{ end }}
-      <div class="posts-list">
-        {{- $n := hugo.Data.home.posts.list | default 4 -}}
-        {{- range $i, $p := first $n $posts }}
-          {{- partial "post-row.html" (dict "page" $p "i" $i "home" true) }}
-        {{- end }}
+      <div class="hair rv"></div>
+      <p class="card-note rv">九台好歌，一盘不赶时间的混音带。<b>FM 调频电台，点频道即播，拖指针换台。</b></p>
+      {{- /* 电台调谐面板（方案 C）：刻度/指针/VU/示波器由 radio.js 驱动，契约见 40-cards.css「07 SIGNALS · 电台调谐面板」段 */}}
+      <div class="radio rv" style="--i:3" data-nodrag>
+        <span class="rm tl" aria-hidden="true"></span>
+        <span class="rm tr" aria-hidden="true"></span>
+        <span class="rm bl" aria-hidden="true"></span>
+        <span class="rm br" aria-hidden="true"></span>
+        <div class="dial" aria-hidden="true">
+          <span class="dial-read"><b id="dial-read">088.1</b><em>FM</em></span>
+          <div class="dial-scale" id="dial-scale">
+            <span class="needle" id="needle"></span>
+          </div>
+        </div>
+        <div class="radio-grid">
+          <div class="chan-list">
+            {{- range $i, $e := . }}
+            <button class="chan-row{{ if eq $i 0 }} active{{ end }}" type="button" data-i="{{ $i }}"
+              data-cursor="TUNE" data-freq="{{ $e.freq }}" data-src="{{ $e.url | relURL }}"
+              data-title="{{ $e.title }}" data-bar="{{ $e.short | default $e.title }}" data-artist="{{ $e.artist }}"
+              data-cover="{{ $e.cover | relURL }}" data-desc="{{ $e.desc }}">
+              <span class="ch-no">CH-{{ printf "%02d" (add $i 1) }}</span>
+              <span class="ch-title">{{ $e.short | default $e.title }}</span>
+              <span class="ch-artist">{{ $e.artist }}</span>
+              {{- /* hover/focus 才展开的调谐提示（参照 darkroom --button-inner 藏字手法，见 40-cards.css CHAN 段） */}}
+              <span class="ch-tap" aria-hidden="true">↺ TUNE</span>
+              <span class="vu" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="ch-go" aria-hidden="true">▸</span>
+            </button>
+            {{- end }}
+          </div>
+          {{- $first := index . 0 }}
+          {{- /* 机芯舱：radio.js 把卡带(R1)与 VU(R3)注入此格并排，填右列上行；空壳时零高不占位 */}}
+          <div class="deck-bay" aria-hidden="true"></div>
+          <div class="scope-box">
+            <canvas class="scope" id="scope" width="600" height="200" aria-hidden="true"></canvas>
+            <div class="scope-info">
+              <p class="scope-title" id="scope-title">{{ $first.title }}</p>
+              <p class="scope-artist" id="scope-artist">{{ $first.artist }}</p>
+              {{- /* 工程机读数：MOD FM 恒真；BITRATE/PEAK 由 radio.js 取到真值才点亮，取不到整段不出现 */}}
+              <p class="scope-tele">MOD <b>FM</b><span id="tele-br" hidden> · BITRATE <b id="scope-br"></b></span><span id="tele-peak" hidden> · PEAK <b id="scope-peak"></b></span></p>
+              <p class="scope-desc" id="scope-desc">{{ $first.desc }}</p>
+            </div>
+            <span class="scope-pola"><img id="scope-cover" src="{{ $first.cover | relURL }}" alt="{{ $first.title }} 封面"></span>
+          </div>
+        </div>
       </div>
-      <div class="posts-cta rv">
-        <a class="pill solid" href="{{ "/posts/" | relURL }}" data-magnet data-cursor="GO">ALL POSTS<em>→</em></a>
-        {{- with index $posts 0 }}<a class="pill" href="{{ .RelPermalink }}" data-magnet data-cursor="GO">LATEST<em>→</em></a>{{ end }}
-        <span class="posts-stat mono">ENTRIES {{ printf "%03d" (len $posts) }} · SORT DATE▾</span>
-      </div>
-      {{- else }}
-        {{- partial "post-empty.html" (dict "home" true) }}
-      {{- end }}
     </div>
   </section>
+  {{- end }}
 
   {{- /* ---------- 08 GUESTBOOK ---------- */}}
   <section class="card" id="c-guestbook" data-num="08" data-name="GUESTBOOK">
@@ -544,6 +547,7 @@
       </footer>
     </div>
   </section>
+
 
 </div>
 {{- /* 播放器条：tape.js（P1）渲染进 #tape */}}
