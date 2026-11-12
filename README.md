@@ -23,7 +23,6 @@
 
 - **`/about/`** —— 详细版自我介绍，带代码块
 - **`/message/`** —— 留言板（giscus，需用 GitHub 账号登录发言）
-- **`/resume/`** —— 在线简历，数据在 `data/resume.yml`
 - **404** —— 同款黑底绿字，一个描边的 `404`
 
 移动端做了整套降级（≤720px 收字号与留白、隐藏进度点、扇形改成左右滑的一列、信息表上下两行；手机横屏这种矮视口会把换卡吸附放松成「就近吸附」，免得长内容读不到尾巴）。细节规则见 [CLAUDE.md](CLAUDE.md)。
@@ -37,8 +36,8 @@ assets/css/deck/       样式按编号分层：10 令牌 → 20 deck → 30 特�
 assets/js/             引擎：boot / fx / deck / tape
 static/favicon.svg     站标（黑底 + 荧光绿准星）
 data/                  文案与数据：home.yml、interests.yml、music.yml、
-                       products.yml、resume.yml（+ _en 两份）
-content/               about.md、message/、resume/（文章与 todo 体系已删除）
+                       products.yml
+content/               message/、posts/（about、resume、相册、todo 体系已删除）
 .github/workflows/     GitHub Pages 部署
 ```
 
@@ -49,7 +48,6 @@ content/               about.md、message/、resume/（文章与 todo 体系已�
 | 想做的事 | 动哪里 |
 |---|---|
 | 改首页文案 / 联系方式 / 兴趣卡 / 歌单 | `data/home.yml`、`data/interests.yml`、`data/music.yml`（不用碰模板） |
-| 改简历内容 | `data/resume.yml`（网页即最终形态，Ctrl+P 可直印） |
 | 改配色、字体、缓动 | `assets/css/deck/10-base.css` 的 `:root` |
 | 改某一屏的版式 | 对应层：卡内组件在 `40-cards.css`，子页正文在 `50-sub.css` |
 | 改手机端表现 | **只写 `assets/css/deck/90-media.css`**，用媒体查询覆盖，别回去改前面的层 |

@@ -67,9 +67,18 @@
      勿再复位 .cassette——它已在 .deck-bay 内,不再是 radio-grid 的直接子项 */
   .chan-list, .deck-bay, .scope-box { grid-column: 1; grid-row: auto; }
   /* 单列后机芯舱满幅居中；VU 表挪到卡带【上方】（站主明说 vu 表放卡带上面），
-     宽度对齐该档卡带上限 360，消除两侧黑 */
-  .deck-bay { grid-template-columns: minmax(0, 1fr); width: 100%; justify-items: center; }
+     宽度对齐该档卡带上限 360，消除两侧黑。
+     2026-11-12：桌面档的 .deck-bay 已从 grid 改成 flex（两个子件成对居中、收掉中间空隙），
+     所以这里复位也得走 flex 写法 —— 列方向 + order:-1 把 VU 提到卡带上方。
+     在 flex 容器上只写 grid-template-columns 是完全不生效的，别改回去。 */
+  .deck-bay { display: flex; flex-direction: column; align-items: center; width: 100%; }
   .deck-bay .vu-meter { order: -1; width: min(100%, 360px); --vu-max: min(100%, 360px); }
+  /* 单列堆叠后左右刻度尺失去意义（此时舱是竖直长条，两侧只有 12px 边距），
+     四角括号保留即可 —— 把两条竖尺收掉，免得贴着边框画成两道噪线。 */
+  .deck-bay::before, .deck-bay::after { display: none; }
+  /* 上下 14 / 左右 18：四角括号缩进 10px、笔画 13px 宽，内容要退到 ~24px 才不撞上，
+     左右 18 + 括号只占顶角竖向 9px，实测刚好让开 OUTPUT / VU 那行字。 */
+  .deck-bay { padding: 14px 18px; }
   /* 单列时 scope-box 落在隐式 auto 行里，画布不能吃余高（flex:1 1 0 在
      auto 高容器里会退回 intrinsic 尺寸，和 radio.js 的 attribute 重写形成
      慢速正反馈——实测 1.5s 内 156→228 还在长）。这里改回固定高。 */
@@ -77,6 +86,34 @@
   /* 03 ABOUT ME：窄屏单列，全息工牌居中限宽（.id-row 随 02/03 对调退役，注脚带见 48-skills） */
   #c-about .id-grid { grid-template-columns: minmax(0, 1fr); gap: 22px; }
   .id-stage { width: min(100%, 340px); margin-inline: auto; }
+}
+
+/* ============================================================
+   矮视口（≤820px 高）—— 机芯舱加了边框后的高度补偿。
+   桌面档 .deck-bay 有 10px 上下 padding + 1px 边框，行高从 121 涨到 141~151px，
+   而这 30px 全从下面的示波器里扣。1366×768 上示波器会被压到 61px
+   （它的 min-height 是 clamp(56px, 7.4vh, 104px) = 56.8px，几乎贴底）。
+   这里把上下 padding 收到 5px、四角括号内缩同步收到 6px，
+   实测 1366×768 示波器回到 71px、1280×720 回到 79px，且不再触发 grid 溢出。
+   只动上下（padding-block）：左右是给刻度尺与括号留的位，收窄会撞到卡带。
+   ============================================================ */
+@media (min-width: 881px) and (max-height: 820px) {
+  .deck-bay { padding-block: 5px; }
+  .deck-bay::before, .deck-bay::after { top: 15px; bottom: 15px; }
+}
+
+/* ============================================================
+   中宽档（881~1150）—— 机芯舱加边框后的宽度补偿。
+   边框的左右 padding（clamp 28~44）+ VU 的 220px 定宽，在 1024~1150 这段把卡带挤扁：
+   实测 1100 档卡带只剩 134px（1024 档同样 134，900 档只剩 91），比例已经塌了。
+   这里把左右 padding 收到 18px、VU 收到 180px、刻度尺贴到 6px，
+   卡带回到 158~196px，与 VU 的 169~180 恢复成正常的一大一小。
+   （1366 以上不用这段：那边宽度够，padding 44 是给刻度尺与括号留的正常呼吸。） */
+@media (min-width: 881px) and (max-width: 1150px) {
+  .deck-bay { padding-inline: 18px; gap: 12px; }
+  .deck-bay .vu-meter { --vu-max: 180px; }
+  .deck-bay::before { left: 6px; }
+  .deck-bay::after { right: 6px; }
 }
 
 /* ============================================================
@@ -264,8 +301,9 @@
   .dial-scale { height: 34px; }
   .vu { height: 12px; }
   .ch-no { font-size: 10.5px; letter-spacing: 0.1em; }
-  /* 机芯舱单列居中叠放（VU 靠 ≤880 段的 order:-1 已在卡带上方）；VU 宽度跟该档卡带上限 290 对齐，消除两侧黑 */
-  .deck-bay { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  /* 机芯舱单列居中叠放（VU 靠 ≤880 段的 order:-1 已在卡带上方）；
+     VU 宽度跟该档卡带上限 290 对齐，消除两侧黑。
+     布局骨架已在 ≤880 段换成 flex 列，这里只调 VU 宽度，别再写 grid-template-columns。 */
   .deck-bay .vu-meter { width: min(100%, 290px); --vu-max: min(100%, 290px); }
 
   /* 触屏点按要有反馈：把 hover 辉光换成 active 态（见 (hover:none) 段） */
@@ -686,10 +724,10 @@
   .hw-prompt-sm { display: inline; }
 }
 
-/* 简历页型与 boss 血条小屏保底（原 50-sub.css 自带段，2026-11 体检迁移：
-   现 50-sub 全文已无 max-width 块，本两处为唯一存活保底，勿删） */
+/* 子页正文与 boss 血条小屏保底（原 50-sub.css 自带段，2026-11 体检迁移：
+   现 50-sub 全文已无 max-width 块，本处为唯一存活保底，勿删。
+   `.r-id` 那条随 /resume/ 页 2026-11-12 删除一并撤掉） */
 @media (max-width: 760px) {
-  .r-id .display { font-size: clamp(44px, 14vw, 64px); }
   .md-content table { font-size: 12px; }
   .md-content th, .md-content td { padding: 8px 10px; }
 }

@@ -66,15 +66,8 @@ works:
   repos: "https://github.com/xiaoheizi112?tab=repositories"
   blog: "https://github.com/xiaoheizi112/xiaoheizi112.github.io"
 
-# 求职条：首页产品区与联系区之间的一条细提示（enabled 设成 false 即整条隐藏）。
-# 简历页数据在 data/resume.yml，这里只放首页露出的那一行字
-career:
-  enabled: false          # 求职信息都放 /resume/，首页不再挂求职条
-  name: "慢公子"
-  role: "Qt / C++ 桌面开发"
-  note: "随时到岗"
-  cta: "看简历"
-  url: "/resume/"
+# 求职条：整块随 /resume/ 页于 2026-11-12 站主令删除（模板早已不读 career）。
+# 别再往回加——要挂求职信息请先问站主，并明确落到哪个板块。
 
 # since: 建站日期（首 commit 2026-09-21），首页第三张卡自动算运行天数
 stats:

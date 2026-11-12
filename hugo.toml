@@ -31,9 +31,6 @@ env = 'production'
 dateFormat = '2006年1月2日'
 description = '白天编译世界，夜里编译自己。A resident process of an engineer.'
 author = '慢公子'
-# 简历板块总开关：true = 首页 CONTACT 卡与 404 页出现入口（2026-11 起公开）。
-# 要隐藏：改 false，并在 content/resume/_index.md 加回 publishDate = 2099-01-01。
-showResume = true
 # 单主题：全站固定深色（2026-11 重构）。切换按钮已移除，localStorage.pref-theme 不再读取，
 # 具体令牌与降级见 assets/css/deck/10-base.css 头注释。
 defaultTheme = 'dark'

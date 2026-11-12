@@ -335,16 +335,63 @@ html.js .card.on .core-panel .core-node {
 }
 .chan-list { display: flex; flex-direction: column; min-width: 0; grid-column: 1; grid-row: 1 / span 2; }
 /* 机芯舱：右列上行，卡带居左、VU 表居右，把原先右半的空白吃掉。
-   两列都走 fr 定比（卡带≈55% / VU≈45%），窄格不溢出；
-   注入顺序即 DOM 顺序（buildCassette 先、buildVu 后），勿再给子件写 grid-column */
+   2026-11-12 站主：卡带与 VU 隔得太开（实测 1224 档中间空 121px、1440 档 155px）。
+   病根不是 gap（才 14px），是两列按 1fr/.72fr 定比、子件却小于列宽，留白全甩到中间；
+   实测 grid 的 auto 轨道会被子件（canvas 固有宽 / SVG max-content）顶到 292px，收不回来。
+   改为 flex + justify-content:center：两个子件按自身宽度成对居中，中间只留 gap（17px），
+   左右余白对称（1440 档各 69px）。子件尺寸不动、行高不动 —— 所以示波器高度一分不让。
+   （试过铺满整行：卡带是 320×200 定比，铺满会把机芯舱顶高 30~50px，
+   1366×768 上示波器会被压到 56px 的下限，得不偿失。）
+   align-items:flex-end 让两者底边齐（VU 114px / 卡带 106px，差 8.6px，居中时上缘更乱）。
+   注入顺序即 DOM 顺序（buildCassette 先、buildVu 后），勿再给子件写 grid-column。
+   ⚠ VU 必须给**定宽**：radio.js 的 vuFit() 每帧把 canvas 的 width attribute 写成
+   rect.width * dpr，而 flex 子件的 flex-basis:auto 取 max-content = canvas 固有宽 ——
+   2× 屏上每帧翻一倍（实测 196→385 还在长）。旧 grid 版靠 .72fr 的定宽列压住了这个环，
+   换 flex 后必须显式钉宽，否则 retina 屏上 VU 会越挤越宽、把卡带压没。
+   ≤880 的单列堆叠在 90-media.css 里另外复位成 flex 列，别在那边丢 .deck-bay 的布局覆盖。
+   2026-11-12 站主：加边框。边框/底色/圆角与下方 .scope-box **逐项对齐**（同 --d-line、
+   4px 圆角、--d-void-2 底），右列从此读成上下两块同款面板，居中那对仪器也就有了容器的名分。
+   站主又提「两侧加些其他装饰」——居中后左右各剩 ~68px 空白，用两样东西填：
+     ① 四角小括号（照 50-sub 的 .rm 语法，13×9px 的 L 形，纯 background 渐变画，零新节点）；
+     ② 左右竖刻度尺（8px 一格的发丝短线，呼应上方 FM 刻度与 VU 齿线）。
+   两者都走 --d-line-2 极淡线，是「机箱丝印」不是装饰画，不跟内容抢眼。
+   padding 特意比 scope-box 小一档（10 vs 10~15）：机芯舱行高直接决定示波器高度，
+   1366×768 上示波器下限只有 56.8px，这里多吃 10px 就会被压到限位（见 90-media 的短视口补偿）。 */
 .deck-bay {
   grid-column: 2;
   grid-row: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, .72fr);
-  align-items: center;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   gap: clamp(10px, 1.6vw, 18px);
+  position: relative;
+  padding: 10px clamp(28px, 3.6vw, 44px);
+  border: 1px solid var(--d-line);
+  border-radius: 4px;
+  background-color: var(--d-void-2);
+  /* 四角括号：每角两条（横 13×1、竖 1×9），八段渐变各画一条，10px 内缩 */
+  background-image:
+    linear-gradient(var(--d-line-2), var(--d-line-2)), linear-gradient(var(--d-line-2), var(--d-line-2)),
+    linear-gradient(var(--d-line-2), var(--d-line-2)), linear-gradient(var(--d-line-2), var(--d-line-2)),
+    linear-gradient(var(--d-line-2), var(--d-line-2)), linear-gradient(var(--d-line-2), var(--d-line-2)),
+    linear-gradient(var(--d-line-2), var(--d-line-2)), linear-gradient(var(--d-line-2), var(--d-line-2));
+  background-repeat: no-repeat;
+  background-size: 13px 1px, 1px 9px, 13px 1px, 1px 9px, 13px 1px, 1px 9px, 13px 1px, 1px 9px;
+  background-position:
+    left 10px top 10px, left 10px top 10px, right 10px top 10px, right 10px top 10px,
+    left 10px bottom 10px, left 10px bottom 10px, right 10px bottom 10px, right 10px bottom 10px;
 }
+/* 左右竖刻度尺：伪元素绝对定位，避开 flex 流（当 flex 子项会参与排布）。
+   top/bottom 22px 让开四角括号。 */
+.deck-bay::before,
+.deck-bay::after {
+  content: ''; position: absolute; top: 22px; bottom: 22px; width: 6px;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, var(--d-line-2) 0 1px, transparent 1px 8px);
+}
+.deck-bay::before { left: 12px; }
+.deck-bay::after { right: 12px; }
+.deck-bay .vu-meter { flex: 0 0 auto; width: min(100%, var(--vu-max, 220px)); }
 .chan-row {
   position: relative;
   flex: 1 1 auto;               /* 9 行均分列表高度，随面板余高连续伸缩 */

@@ -389,8 +389,13 @@
   });
 
   /* ---------- 声音：开关 + 微 blip + 环境音床 ---------- */
-  var snd = { on: false, ctx: null };
-  try { snd.on = localStorage.getItem("deck-snd") === "1"; } catch (e) {}
+  /* 2026-11-12 站主令：默认开。没存过（null）= 开；存过就尊重用户上次的选择。
+     首次有声仍需用户手势（浏览器 autoplay 策略），走 ambArmGesture。 */
+  var snd = { on: true, ctx: null };
+  try {
+    var sndPref = localStorage.getItem("deck-snd");
+    if (sndPref !== null) snd.on = sndPref === "1";
+  } catch (e) {}
   var btn = d.getElementById("sound-btn");
   /* 声纹开关反馈：每响一声给按钮挂 .snd-hit 190ms，纹线纵向弹一下再回落。
      连续快响（打字/悬停）只用 clearTimeout 续命，不重启动画——
