@@ -156,6 +156,38 @@ html.js .on .hair, html.js .hair.show { transform: scaleX(1); }
 .chrome-btn:hover { border-color: var(--d-acid); color: var(--d-acid); }
 .chrome-btn[aria-pressed="true"] { border-color: var(--d-acid); color: var(--d-acid); box-shadow: var(--d-acid-glow); }
 
+/* 声纹开关（2026-11 重设计）：OFF = 一条平线（死频道）；ON = 持续流动的正弦波。
+   每次发声 fx.js 给按钮加 .snd-hit 190ms，纹线纵向弹一下再回落。
+   动效只发生在"开"之后；reduced 档关掉流动与弹跳，状态仍靠描边+波形区分。 */
+.chrome-btn .snd-wave {
+  display: block;
+  width: 24px;
+  height: 12px;
+  transform-origin: center;
+  transition: transform 0.16s var(--ease);
+}
+.chrome-btn .snd-wave path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.chrome-btn .wave-live { opacity: 0; }
+.chrome-btn[aria-pressed="true"] .wave-flat { opacity: 0; }
+.chrome-btn[aria-pressed="true"] .wave-live {
+  opacity: 1;
+  animation: snd-flow 2.4s linear infinite;
+}
+.chrome-btn.snd-hit .snd-wave { transform: scaleY(1.75); }
+@keyframes snd-flow {
+  from { transform: translateX(0); }
+  to { transform: translateX(-16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chrome-btn[aria-pressed="true"] .wave-live { animation: none; }
+  .chrome-btn.snd-hit .snd-wave { transform: none; }
+}
+
 .chrome-pill {
   display: inline-flex;
   align-items: center;

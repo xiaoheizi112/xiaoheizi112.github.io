@@ -187,7 +187,7 @@
   /* ---------- 拖拽链 ---------- */
   var startY = 0, moved = 0, lastMark = -1, preTimer = 0;
   var MARKS = [0.25, 0.5, 0.75, 1];
-  var MARK_KIND = ['click', 'up', 'up', 'hover'];
+  var MARK_KIND = ['mark0', 'mark1', 'mark2', 'mark3'];
 
   function blip(kind) { if (w.fx && w.fx.blip) w.fx.blip(kind); }
 

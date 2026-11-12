@@ -704,36 +704,11 @@
       s.onended = function () { try { s.disconnect(); fl.disconnect(); g.disconnect(); } catch (e) {} };
     } catch (e) {}
   }
-  function clickClack() {                  /* 吸附「咔哒」(2026-11 重做,旧 220Hz 方波电子味):
-     14ms bandpass 1.8k 噪声擦音当"咔"(触点碰击) + 三角体 160→70Hz 60ms 下坠当"哒"(旋钮落闩)。
-     一次性短缓冲自己建自己摘,onended disconnect,与 fx.js 同一纪律 */
-    if (reduce || !ac || !ac.createOscillator) return;
-    try {
-      var t = ac.currentTime;
-      var len = Math.max(1, Math.floor(ac.sampleRate * 0.03));
-      var buf = ac.createBuffer(1, len, ac.sampleRate);
-      var ch = buf.getChannelData(0);
-      for (var i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
-      var s = ac.createBufferSource(); s.buffer = buf;
-      var bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1800; bp.Q.value = 1.2;
-      var g = ac.createGain();
-      g.gain.setValueAtTime(0.12, t);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.014);
-      s.connect(bp); bp.connect(g); g.connect(ac.destination);
-      var o = ac.createOscillator(), og = ac.createGain();
-      o.type = "triangle";
-      o.frequency.setValueAtTime(160, t);
-      o.frequency.exponentialRampToValueAtTime(70, t + 0.06);
-      og.gain.setValueAtTime(0.0001, t);
-      og.gain.exponentialRampToValueAtTime(0.14, t + 0.004);
-      og.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
-      o.connect(og); og.connect(ac.destination);
-      o.onended = function () {
-        try { o.disconnect(); og.disconnect(); s.disconnect(); bp.disconnect(); g.disconnect(); } catch (e) {}
-      };
-      s.start(t); s.stop(t + 0.04);
-      o.start(t); o.stop(t + 0.1);
-    } catch (e) {}
+  function clickClack() {                  /* 吸附「咔哒」：物理件声统一归 fx.js 的 snap 预设
+     （2026-11-12 音效重设计）：干式两段咔哒，没有旧版 220Hz 方波的电子味，也不带低频轰。
+     走 w.fx.snap，自然继承 SND 开关的总闸；reduced 档仍只在视觉上落位。 */
+    if (reduce) return;
+    if (w.fx && w.fx.snap) { try { w.fx.snap(); } catch (e) {} }
   }
   /* 读数滚动:tween 到目标频率(吸附期间) */
   var rollTimer = 0;

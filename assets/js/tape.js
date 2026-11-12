@@ -71,7 +71,7 @@
     }
   }
 
-  function blip() { if (w.fx && w.fx.blip) w.fx.blip("click"); }
+  function blip(kind) { if (w.fx && w.fx.blip) w.fx.blip(kind || "click"); }
 
   function setGlyph() {
     glyph.textContent = (!audio.paused && !audio.ended) ? "\u2759\u2759" : "\u25B6";
@@ -106,19 +106,20 @@
     var p = audio.play();
     if (p && p.catch) p.catch(function () { setGlyph(); }); // 自动播放被拦时图形回正
     emit("track", i);               // radio.js:指针滑动 + 读数 + 示波器换台
-    if (!quiet) blip();
+    if (!quiet) blip("tapeOn");     // 走带启动：按键咔 + 马达起转气声
   }
 
   /* ---------- 暂停 / 继续(当前曲目) ---------- */
   function togglePlay(quiet) {
     if (cur < 0) return;
-    if (audio.paused || audio.ended) {
+    var resuming = audio.paused || audio.ended;
+    if (resuming) {
       var p = audio.play();
       if (p && p.catch) p.catch(function () {});
     } else {
       audio.pause();
     }
-    if (!quiet) blip();
+    if (!quiet) blip(resuming ? "tapeOn" : "click"); /* 起播带马达声，暂停是普通按键音 */
   }
 
   /* ---------- 下一首(手动 / 播完自动,循环片单) ---------- */

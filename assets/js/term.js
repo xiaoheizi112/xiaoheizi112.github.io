@@ -88,7 +88,7 @@
     el.textContent = "";
     for (var i = 0; i < text.length; i++) {
       el.textContent += text.charAt(i);
-      if (i % 2 === 0) blip("hover");
+      if (i % 2 === 0) blip("key");
       await sleep(1000 / CPS);
     }
   }
@@ -121,7 +121,7 @@
       var it = items[i];
       await typeInto(it.cmdEl, it.cmdText);
       it.cmdEl.classList.add("done"); /* 打完收掉行尾光标，只留输入行那颗 */
-      blip("click");
+      blip("enter"); /* 行执行 = 回车脆响（与手打 Enter 同色） */
       await sleep(160);
       it.out.style.display = "";
       it.out.classList.add("on");
@@ -160,7 +160,12 @@
     input.addEventListener("compositionend", syncW);
     inputWrap.addEventListener("click", function (e) { if (e.target === inputWrap) input.focus(); });
     input.addEventListener("keydown", function (e) {
-      if (e.key !== "Enter") return;
+      if (e.key !== "Enter") {
+        /* 打字颗粒：只给可打印字符，组合输入与修饰键不响 */
+        if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing) blip("key");
+        return;
+      }
+      blip("enter"); /* 按下即响的回车脆响（机械键盘 Enter 色），即时确认在手势当帧 */
       var cmd = input.value.trim();
       input.value = ""; /* 命令行执行完即清空，像真终端 */
       syncW();
@@ -217,8 +222,7 @@
     if ((head === "contact" || head === "link") && it) {
       it.out.style.display = "";
       it.out.classList.add("on");
-      blip("click");
-      return;
+      return; /* 回车声已在 keydown 当帧响过，这里再 blip 会双响 */
     }
     if (head === "copy" && it) {
       if (it.ctl && it.ctl.hasAttribute("data-copy")) { it.ctl.click(); blip("up"); }

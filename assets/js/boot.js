@@ -323,11 +323,11 @@
     if (finePtr) d.removeEventListener("pointermove", onMove);
     gate.style.pointerEvents = "none";
     try { sessionStorage.setItem(GKEY, "1"); } catch (e) {}
-    if (w.fx && w.fx.blip) w.fx.blip("up");
+    if (w.fx && w.fx.blip) w.fx.blip("latch");
     var done = (sig.dom ? 1 : 0) + (sig.font ? 1 : 0) + (sig.paint ? 1 : 0);
     if (done < 3) logRow("OVERRIDE", "ENTER AT " + Math.round(done / 3 * 100) + "%");
     gate.classList.add("armed");
-    /* 泄压那一声跟视觉同帧起（blip("up") 是机械锁扣的「咔」，hiss 是气从缝里挤出的「嗞——」）。
+    /* 泄压那一声跟视觉同帧起（blip("latch") 是干咔的锁扣，hiss 是气从缝里挤出的「嗞——」）。
        只在 deck-snd 开着时响，fx.js 内部判；点门这一下本身就是解锁手势，所以 ctx 建得起来。 */
     if (w.fx && w.fx.hiss) w.fx.hiss();
     setTimeout(function () {

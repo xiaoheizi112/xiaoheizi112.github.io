@@ -392,9 +392,21 @@
   var snd = { on: false, ctx: null };
   try { snd.on = localStorage.getItem("deck-snd") === "1"; } catch (e) {}
   var btn = d.getElementById("sound-btn");
+  /* 声纹开关反馈：每响一声给按钮挂 .snd-hit 190ms，纹线纵向弹一下再回落。
+     连续快响（打字/悬停）只用 clearTimeout 续命，不重启动画——
+     视觉是"跟着声音抖"，不是每声从头播一遍。 */
+  var hitT = 0;
+  function waveHit() {
+    if (!btn) return;
+    btn.classList.add("snd-hit");
+    if (hitT) clearTimeout(hitT);
+    hitT = setTimeout(function () { btn.classList.remove("snd-hit"); hitT = 0; }, 190);
+  }
   function paint() {
     if (!btn) return;
     btn.setAttribute("aria-pressed", snd.on ? "true" : "false");
+    /* 可视标签换成声纹图标后，开关状态用 aria-label 交代（旧 SND 文字已挪进 SVG） */
+    btn.setAttribute("aria-label", snd.on ? "声音开关：已开启" : "声音开关：已关闭");
     var s = btn.querySelector(".snd-state");
     if (s) s.textContent = snd.on ? "ON" : "OFF";
   }
@@ -402,6 +414,21 @@
   function ensureCtx() {
     snd.ctx = snd.ctx || new (w.AudioContext || w.webkitAudioContext)();
     return snd.ctx;
+  }
+  /* 音效总线：所有 blip 预设经这一条 gain 出去，响度只改 MASTER 一个数。
+     2026-11-12 三调：1.45 → 3.2 → 5.0（约 +11dB）。前两档实测电平均在 -20dBFS
+     以下，小喇叭上仍偏轻；5.0 让点击/里程碑峰值落到 -12 ~ -10dBFS。
+     噪声类预设（气闸 hiss、切卡扫气、电台咔哒、马达气声）原始峰值已单独回调，
+     不跟着总线一起变刺；多声同响最坏叠加仍 < 0.75，不削顶。 */
+  var MASTER = 5.0, bus = null;
+  function busFor(c) {
+    if (!bus) {
+      bus = c.createGain();
+      bus.gain.value = MASTER;
+      bus.connect(c.destination);
+      if (w.fx) w.fx._bus = bus; /* 验收探针用，业务不消费 */
+    }
+    return bus;
   }
   /* ---------- 声音引擎（2026-11 重写）----------
      旧的四种 blip 是同一个方波只换频率——那就是"90 年代游戏机"味的来源。
@@ -431,7 +458,7 @@
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(peak, t + Math.min(atk || 0.003, dur * 0.5));
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    s.connect(fl); fl.connect(g); g.connect(c.destination);
+    s.connect(fl); fl.connect(g); g.connect(busFor(c));
     s.onended = function () { try { s.disconnect(); fl.disconnect(); g.disconnect(); } catch (e) {} };
     s.start(t, Math.random() * 0.3); s.stop(t + dur + 0.01);
   }
@@ -444,37 +471,150 @@
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(peak, t + 0.005);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(c.destination);
+    o.connect(g); g.connect(busFor(c));
     o.onended = function () { try { o.disconnect(); g.disconnect(); } catch (e) {} };
     o.start(t); o.stop(t + dur + 0.01);
   }
+  /* ---------- 声音引擎（2026-11-12 重新设计 · V1 仪器面板）----------
+     音色语言：高频、短、干。交互音全部落在 2–8kHz 瞬态颗粒，
+     不再用 100–300Hz 的"撞击体"做反馈——那是桌面硬件的语言，
+     和 HUD 仪器舱不是一套。语义分工：
+       探测 hover      = 极短颗粒（几乎无声）
+       激活 click/key  = 单记瞬态（"按到了"）
+       提交 enter      = 瞬态 + 短中频体（"敲定了"）
+       切卡 tune       = 频带扫气 + 极轻落位（"舱板滑过卡住"）
+       确认 up         = 两音上行动机（"完成了"）
+       电源 power      = 上/下滑音（"通电/断电"）
+       物理件          = 电台落位 snap / 磁带 tapeOn / 气闸 hiss，
+                         走真实材料声（两段干咔哒、马达气声、泄压白噪）
+     调用签名 blip(kind) 不变；未知 kind 归入 click。
+     burst 的 atk 参数管起音：长扫气给更长起音，避免"啪"一下起头。 */
+  /* 单音：指数衰减（确认动机用） */
+  function note(c, t, f, dur, peak, wave) {
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = wave || "sine";
+    o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(busFor(c));
+    o.onended = function () { try { o.disconnect(); g.disconnect(); } catch (e) {} };
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  /* 滑音：f0→f1 指数滑动（电源通断） */
+  function slide(c, t, dur, f0, f1, peak, wave, atk) {
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = wave || "sine";
+    o.frequency.setValueAtTime(f0, t);
+    o.frequency.exponentialRampToValueAtTime(f1, t + dur * 0.9);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + Math.min(atk || 0.02, dur * 0.6));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(busFor(c));
+    o.onended = function () { try { o.disconnect(); g.disconnect(); } catch (e) {} };
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  /* 拨弦：三角基音 + 二次泛音快衰减（火箭里程碑——全站唯一的"庆祝音"） */
+  function pluck(c, t, f, peak) {
+    var o1 = c.createOscillator(), g1 = c.createGain();
+    var o2 = c.createOscillator(), g2 = c.createGain();
+    o1.type = "triangle"; o1.frequency.value = f;
+    o2.type = "sine"; o2.frequency.value = f * 2; o2.detune.value = 4;
+    g1.gain.setValueAtTime(0.0001, t);
+    g1.gain.exponentialRampToValueAtTime(peak, t + 0.004);
+    g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.exponentialRampToValueAtTime(peak * 0.32, t + 0.003);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+    o1.connect(g1); g1.connect(busFor(c));
+    o2.connect(g2); g2.connect(busFor(c));
+    o1.onended = function () {
+      try { o1.disconnect(); g1.disconnect(); o2.disconnect(); g2.disconnect(); } catch (e) {}
+    };
+    o1.start(t); o1.stop(t + 0.38);
+    o2.start(t); o2.stop(t + 0.14);
+  }
   var BLIPS = {
-    /* thock：8ms 高频瞬态给"脆"，三角体 210→130Hz 90ms 下坠给"实"——键到底 */
-    click: function (c, t) {
-      burst(c, t, 0.012, "bandpass", 3200, 2200, 0.035, 1.4);
-      body(c, t, 0.09, "triangle", 210, 130, 0.045);
-    },
-    /* tick：只剩 8ms 极高频颗粒，音量压在原来的 hover 之下——近乎无声的确认 */
+    /* 探测：8ms 6kHz 颗粒——几乎无声，只证明"指针进入热区" */
     hover: function (c, t) {
-      burst(c, t, 0.008, "highpass", 6200, 6200, 0.012, 0.8);
+      burst(c, t, 0.008, "highpass", 6000, 6000, 0.016, 0.7);
     },
-    /* 锁扣：先一记击锤瞬态，45ms 后更低的"咚"落闩——两连击，开关到位的手感 */
+    /* 激活：12ms 3kHz 颗粒 + 40ms 820→760Hz 轻体——干爽，没有 200Hz 闷底。
+       体给到 40ms/0.04：纯 12ms 高频瞬态在小喇叭上会被听成"哒"一声没了 */
+    click: function (c, t) {
+      burst(c, t, 0.012, "bandpass", 3000, 2400, 0.05, 1.4);
+      body(c, t, 0.04, "triangle", 820, 760, 0.04);
+    },
+    /* 打字：8ms 4.2kHz 颗粒，无音高体——打字机粒感 */
+    key: function (c, t) {
+      burst(c, t, 0.008, "bandpass", 4200, 3600, 0.04, 1.6);
+    },
+    /* 回车：瞬态 + 60ms 500→300Hz 短体——比 click 更"敲定"，仍不轰 */
+    enter: function (c, t) {
+      burst(c, t, 0.01, "bandpass", 3000, 2200, 0.05, 1.5);
+      body(c, t, 0.06, "triangle", 500, 300, 0.045);
+    },
+    /* 确认：660→880Hz 两音上行，30ms 间隔——语义化的"完成"，不是更响的撞击 */
     up: function (c, t) {
-      burst(c, t, 0.01, "bandpass", 2400, 1800, 0.03, 1.2);
-      body(c, t, 0.05, "triangle", 340, 220, 0.03);
-      body(c, t + 0.045, 0.09, "sine", 150, 90, 0.04);
+      note(c, t, 660, 0.16, 0.036);
+      note(c, t + 0.06, 880, 0.22, 0.032);
     },
-    /* 换挡/翻页：140ms 频带由低向高扫的 swish，收尾一记轻点像纸过刃 */
+    /* 锁扣：一记干咔 + 40ms 极短低频体——开关到位的机械确认（比旧 up 轻得多） */
+    latch: function (c, t) {
+      burst(c, t, 0.008, "bandpass", 2200, 1800, 0.045, 1.3);
+      body(c, t, 0.04, "sine", 180, 120, 0.03);
+    },
+    /* 切卡：180ms 频带 400→1400Hz 扫气（舱板滑过）+ 尾部 110→70Hz 轻落位。
+       噪声扫气在总线上会把响度放大得更明显，峰值按噪声档回调 */
     tune: function (c, t) {
-      burst(c, t, 0.14, "bandpass", 700, 1900, 0.018, 1, 0.03);
-      burst(c, t + 0.12, 0.012, "bandpass", 2600, 2000, 0.025, 1.4);
-    }
+      burst(c, t, 0.18, "bandpass", 400, 1400, 0.022, 1, 0.06);
+      body(c, t + 0.15, 0.12, "sine", 110, 70, 0.022);
+    },
+    /* 磁带播放：按键干咔 + 120ms 300→900Hz 马达起转气声（噪声档同回调） */
+    tapeOn: function (c, t) {
+      burst(c, t, 0.01, "bandpass", 2800, 2200, 0.045, 1.4);
+      burst(c, t + 0.02, 0.12, "bandpass", 300, 900, 0.012, 1.1, 0.05);
+      body(c, t, 0.03, "triangle", 760, 700, 0.025);
+    },
+    /* 电台落位：两段干咔哒（1.9k→1.3k），无低频 boom——旋钮卡进刻度的手感 */
+    snap: function (c, t) {
+      burst(c, t, 0.008, "bandpass", 1900, 1600, 0.042, 1.5);
+      burst(c, t + 0.04, 0.008, "bandpass", 1300, 1100, 0.03, 1.5);
+    },
+    /* 火箭里程碑：A 小调五声逐级上行（A3 C4 E4 G4），一声一级 = 进度被听见 */
+    mark0: function (c, t) { pluck(c, t, 220, 0.05); },
+    mark1: function (c, t) { pluck(c, t, 261.63, 0.05); },
+    mark2: function (c, t) { pluck(c, t, 329.63, 0.05); },
+    mark3: function (c, t) { pluck(c, t, 392, 0.05); }
   };
   function blip(kind) {
     if (!snd.on) return;
     try {
       var c = ensureCtx();
       (BLIPS[kind] || BLIPS.click)(c, c.currentTime);
+      waveHit();
+    } catch (e) {}
+  }
+  /* 电台落位专用口（radio.js 调，替代它自己那份 220Hz 方波咔哒） */
+  function snap() {
+    if (!snd.on) return;
+    try {
+      var c = ensureCtx();
+      BLIPS.snap(c, c.currentTime);
+      waveHit();
+    } catch (e) {}
+  }
+  /* 电源音：开关 SND 时响。OFF 时 snd.on 已是 false，所以这一口绕过 blip 的门 */
+  function power(on) {
+    try {
+      var c = ensureCtx(), t = c.currentTime;
+      if (on) {
+        slide(c, t, 0.22, 80, 440, 0.045, "sine", 0.04);
+        burst(c, t, 0.22, "highpass", 3200, 5200, 0.01, 0.8, 0.08); /* 极轻气声 */
+      } else {
+        slide(c, t, 0.18, 440, 80, 0.04, "sine", 0.02);
+      }
+      waveHit();
     } catch (e) {}
   }
   /* 泄压白噪（档3 Stage D）：气闸开那一记 0.35s「嗞——」。照搬 radio.js 调谐噪音的链路
@@ -498,23 +638,19 @@
       bp.frequency.setValueAtTime(from || 2600, t);
       bp.frequency.exponentialRampToValueAtTime(to || 700, t + dur * 0.85);
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.055, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.05, t + 0.02); /* 噪声经总线会被放大得更多，原始峰值回调 */
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      src.connect(bp); bp.connect(g); g.connect(c.destination);
+      src.connect(bp); bp.connect(g); g.connect(busFor(c));
       src.onended = function () { try { src.disconnect(); bp.disconnect(); g.disconnect(); } catch (e) {} };
       src.start(t); src.stop(t + dur + 0.02);
     } catch (e) {}
   }
 
-  /* ---------- 环境音（ambient）：SND=ON 时的轻床 + 成调拨弦 ----------
+  /* ---------- 环境音（ambient）：SND=ON 时的轻床 ----------
      床：55Hz + 110Hz(+9 音分微失谐) 正弦，0.009+0.007=0.016 合计，
      0.15Hz LFO 调制 bed 增益 ±20% → 峰值 0.0192 ≤ 0.02 总闸；
-     拨弦（2026-11 重做，旧版是随机 1200~2400Hz 纯正弦——电梯到铃/微波炉味，
-     且两声之间不成调）：A 小调五声音阶 A3~C5 随机取音，三角波基音长衰减
-     + 二次谐波泛音快衰减（拨弦的"亮"先走、"肉"留下），触弦一记极短噪声
-     颗粒；峰值仍 ≤0.03 总闸。床是 A1/A2，取音全在 A minor pentatonic 上，
-     任意两声相继都协和，听感像远处风铃。
-     走 onended 自摘（数组剔除 + disconnect），不 leak oscillator。
+     （2026-11-12：随机拨弦"叮"按用户要求移除，环境只留纯低音床——
+      挂 SND 时除交互声外完全安静。）
      开：master 0→1 用 1.2s linear ramp（power-on hum 渐起）；
      关：master 0.5s ramp 到 0，0.6s 时 osc.stop、0.7s 后 disconnect 全链。
      首次启动必须落在用户手势里（localStorage 记着 ON 也只挂一次性
@@ -522,51 +658,6 @@
      页面隐藏 ctx.suspend，回来按开关状态 resume。
      window.fx._amb：当前环境音节点束（null=未开），供自动化验收。 */
   var amb = null;
-  /* A 小调五声（A3 C4 D4 E4 G4 A4 C5）——全音落在 55/110Hz 低音床的调上 */
-  var PENTA = [220, 261.63, 293.66, 329.63, 392, 440, 523.25];
-  function ambPing(a) {
-    if (amb !== a) return;
-    a.timer = setTimeout(function () { ambPing(a); }, 9000 + Math.random() * 9000);
-    try {
-      var c = a.ctx, t = c.currentTime;
-      var f = PENTA[(Math.random() * PENTA.length) | 0];
-      /* 基音：三角波（比正弦多一点泛音），4ms 快起音 + ~0.8s 长衰减 */
-      var o1 = c.createOscillator(), g1 = c.createGain();
-      o1.type = "triangle"; o1.frequency.value = f;
-      g1.gain.setValueAtTime(0.0001, t);
-      g1.gain.exponentialRampToValueAtTime(0.024, t + 0.004);
-      g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
-      o1.connect(g1); g1.connect(a.master);
-      /* 二次谐波泛音：正弦、+6 音分微失谐（弦感）、0.22s 先走完——
-         拨弦的亮度快速收掉、"肉"留下，不是铃那种全程等亮 */
-      var o2 = c.createOscillator(), g2 = c.createGain();
-      o2.type = "sine"; o2.frequency.value = f * 2; o2.detune.value = 6;
-      g2.gain.setValueAtTime(0.0001, t);
-      g2.gain.exponentialRampToValueAtTime(0.01, t + 0.003);
-      g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-      o2.connect(g2); g2.connect(a.master);
-      /* 触弦颗粒：12ms 高通噪声经 master 走（受开关包线管，不直连总线） */
-      var s = c.createBufferSource(); s.buffer = noiseBuf(c);
-      var hp = c.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 2400;
-      var gs = c.createGain();
-      gs.gain.setValueAtTime(0.012, t);
-      gs.gain.exponentialRampToValueAtTime(0.0001, t + 0.012);
-      s.connect(hp); hp.connect(gs); gs.connect(a.master);
-      var P = { oscs: [o1, o2, s] };
-      P.stop = function (at) {
-        for (var i = 0; i < P.oscs.length; i++) { try { P.oscs[i].stop(at); } catch (e) {} }
-      };
-      a.pings.push(P);
-      o1.onended = function () {
-        var k = a.pings.indexOf(P);
-        if (k > -1) a.pings.splice(k, 1);
-        try { o1.disconnect(); g1.disconnect(); o2.disconnect(); g2.disconnect(); s.disconnect(); hp.disconnect(); gs.disconnect(); } catch (e) {}
-      };
-      o1.start(t); o1.stop(t + 0.85);
-      o2.start(t); o2.stop(t + 0.27);
-      s.start(t, Math.random() * 0.3); s.stop(t + 0.02);
-    } catch (e) {}
-  }
   function ambStart() {
     if (amb) return;
     var c;
@@ -590,8 +681,7 @@
     lfo.connect(lg); lg.connect(bed.gain);
     o1.start(t); o2.start(t); lfo.start(t);
     if (c.state === "suspended" && c.resume) c.resume().catch(function () {});
-    amb = { ctx: c, master: master, bed: bed, oscs: [o1, o2, lfo], pings: [], timer: 0 };
-    amb.timer = setTimeout(function () { ambPing(amb); }, 9000 + Math.random() * 9000);
+    amb = { ctx: c, master: master, bed: bed, oscs: [o1, o2, lfo] };
     if (w.fx) w.fx._amb = amb;
   }
   function ambStop() {
@@ -599,7 +689,6 @@
     var a = amb;
     amb = null;
     if (w.fx) w.fx._amb = null;
-    clearTimeout(a.timer);
     try {
       var c = a.ctx, t = c.currentTime;
       var v = a.master.gain.value;
@@ -607,7 +696,6 @@
       a.master.gain.setValueAtTime(v, t);
       a.master.gain.linearRampToValueAtTime(0, t + 0.5);
       for (var i = 0; i < a.oscs.length; i++) { try { a.oscs[i].stop(t + 0.6); } catch (e) {} }
-      for (i = 0; i < a.pings.length; i++) { try { a.pings[i].stop(t + 0.05); } catch (e) {} }
       setTimeout(function () {
         try { a.bed.disconnect(); a.master.disconnect(); } catch (e) {}
       }, 700);
@@ -636,16 +724,17 @@
     snd.on = !snd.on;
     try { localStorage.setItem("deck-snd", snd.on ? "1" : "0"); } catch (e) {}
     paint();
-    if (snd.on) { blip("up"); ambStart(); }
-    else ambStop();
+    if (snd.on) { power(true); ambStart(); }
+    else { power(false); ambStop(); }
   });
   d.addEventListener("click", function (e) {
-    /* 播放器自己的按钮（sig-card / tape）由 tape.js 显式 blip，这里跳过防双响 */
+    /* 播放器自己的按钮（sig-card / tape）由 tape.js 显式 blip，这里跳过防双响；
+       SND 开关走 power 口；试听面板按钮自带预设——三处都排除 */
     if (e.target && e.target.closest && e.target.closest("a,button") &&
-        !e.target.closest(".sig-card, .tape")) blip("click");
+        !e.target.closest(".sig-card, .tape, #sound-btn, #snd-lab")) blip("click");
   }, true);
   w.fx = {
-    blip: blip, hiss: hiss, snd: snd, _amb: null,
+    blip: blip, hiss: hiss, snap: snap, power: power, snd: snd, _amb: null,
     emit: function (x, y, p) { if (laserEmit) laserEmit(x, y, p); },
     /* AMB-REACT 对外两口：setAudio 收 radio.js 的既有 AnalyserNode（不二次挂
        createMediaElementSource）；pulse 是换卡泄压脉冲，JS 侧指数衰减写 --pulse，
@@ -691,4 +780,44 @@
   w.addEventListener("pageshow", function (e) {
     if (e.persisted) d.body.classList.remove("wiping");
   });
+
+  /* ---------- 试听面板（临时验收件，2026-11-12）----------
+     ?snd-lab=1 时左下挂一组按钮，逐项试听当前音效设计。
+     不写样式表、不进导航；验收完整块删掉即可。
+     面板按钮点击本身是用户手势，ctx 在这里才建——所以进来先点任意一项就有声。 */
+  if (/[?&]snd-lab=1(?:&|$|#)/.test(location.search)) {
+    var lab = d.createElement("div");
+    lab.id = "snd-lab";
+    lab.style.cssText = "position:fixed;left:16px;bottom:16px;z-index:99999;display:flex;flex-wrap:wrap;gap:6px;max-width:380px;padding:10px;background:rgba(5,6,7,.94);border:1px solid rgba(58,227,92,.45);font:11px/1.2 'JetBrains Mono',ui-monospace,monospace;color:#97a49e;";
+    var ttl = d.createElement("div");
+    ttl.style.cssText = "width:100%;color:#3ae35c;letter-spacing:.18em;margin-bottom:2px;";
+    ttl.textContent = "SND LAB \u00b7 \u8bd5\u542c";
+    lab.appendChild(ttl);
+    function labBtn(label, fn) {
+      var b = d.createElement("button");
+      b.type = "button";
+      b.style.cssText = "font:inherit;color:#dff5e4;background:rgba(58,227,92,.08);border:1px solid rgba(58,227,92,.35);padding:5px 8px;cursor:pointer;";
+      b.textContent = label;
+      b.addEventListener("click", function () {
+        if (!snd.on) { snd.on = true; try { localStorage.setItem("deck-snd", "1"); } catch (e) {} paint(); }
+        ensureCtx();
+        if (amb && amb.ctx && amb.ctx.state === "suspended" && amb.ctx.resume) amb.ctx.resume().catch(function () {});
+        fn();
+      });
+      lab.appendChild(b);
+    }
+    var items = [
+      ["\u60ac\u505c", "hover"], ["\u70b9\u51fb", "click"], ["\u5207\u5361", "tune"],
+      ["\u6309\u952e", "key"], ["\u56de\u8f66", "enter"], ["\u786e\u8ba4", "up"],
+      ["\u9501\u6263", "latch"], ["\u7535\u53f0", "snap"], ["\u78c1\u5e26", "tapeOn"],
+      ["mark1", "mark0"], ["mark2", "mark1"], ["mark3", "mark2"], ["mark4", "mark3"]
+    ];
+    for (var li = 0; li < items.length; li++) (function (it) {
+      labBtn(it[0], function () { blip(it[1]); });
+    })(items[li]);
+    labBtn("\u7535\u6e90\u5f00", function () { power(true); });
+    labBtn("\u7535\u6e90\u5173", function () { power(false); });
+    labBtn("\u6c14\u95f8\u6cc4\u538b", function () { hiss(); });
+    d.body.appendChild(lab);
+  }
 })();

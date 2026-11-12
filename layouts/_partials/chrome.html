@@ -13,7 +13,15 @@
 </div>
 <div class="grain" aria-hidden="true"></div>
 <header class="chrome">
-  <button id="sound-btn" class="chrome-btn mono" type="button" aria-pressed="false" title="声音开关">SND<span class="snd-state">OFF</span></button>
+  {{- /* 声音开关（2026-11 重设计）：圆内一条声纹——OFF 是平线（死频道），
+         ON 是持续流动的正弦波；每次发声纹线弹一下（fx.js waveHit）。
+         状态仍由 aria-pressed 承载，snd-state 只留给读屏/兜底。 */ -}}
+  <button id="sound-btn" class="chrome-btn mono" type="button" aria-pressed="false" title="声音开关">
+    <svg class="snd-wave" viewBox="0 0 24 12" width="24" height="12" aria-hidden="true" focusable="false">
+      <path class="wave-flat" d="M0 6H24"></path>
+      <path class="wave-live" d="M0 6Q4 2.5 8 6T16 6T24 6T32 6T40 6T48 6"></path>
+    </svg><span class="snd-state">OFF</span>
+  </button>
   <div class="chrome-actions">
     <a class="chrome-pill" href="{{ "/" | relURL }}#c-contact" data-scroll data-cursor="GO">CONTACT<em>→</em></a>
     {{- if not .IsHome }}
