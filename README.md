@@ -1,6 +1,7 @@
 # 个人博客 - 慢公子 | AI实践者
 
 > 自由散漫的创作者，偶尔做点小项目。想过的，写下来才算数。
+> English: a black-on-neon-green personal site in nine full-screen "deck" cards — works, writing, radio, guestbook. Hugo + hand-written CSS/JS, no theme, no framework, no npm.
 
 这里是 **<https://xiaoheizi112.github.io>** 的源码仓库。一座**黑底荧光绿**的个人站：整站是一份九屏的 deck（演示稿），Anton 大字 + 等宽小字 + 激光/辉光/全息工牌，没有广告、没有算法推荐、没有弹窗。
 
