@@ -3,6 +3,13 @@
 > 自由散漫的创作者，偶尔做点小项目。想过的，写下来才算数。
 > English: a black-on-neon-green personal site in nine full-screen "deck" cards — works, writing, radio, guestbook. Hugo + hand-written CSS/JS, no theme, no framework, no npm.
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Hugo-extended--0.166-FF4088?logo=hugo&logoColor=white" alt="Hugo">
+  <img src="https://img.shields.io/badge/GitHub--Pages-deployed-221CC7?logo=githubpages&logoColor=white" alt="GitHub Pages">
+  <img src="https://img.shields.io/badge/npm--deps-none-brightgreen" alt="zero dependencies">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT"></a>
+</p>
+
 这里是 **<https://xiaoheizi112.github.io>** 的源码仓库。一座**黑底荧光绿**的个人站：整站是一份九屏的 deck（演示稿），Anton 大字 + 等宽小字 + 激光/辉光/全息工牌，没有广告、没有算法推荐、没有弹窗。
 
 技术栈：[Hugo](https://gohugo.io/) extended v0.166 + 手写 CSS/JS，**不用主题、不用前端框架、不装 npm 依赖**。
