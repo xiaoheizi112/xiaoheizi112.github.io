@@ -8,7 +8,7 @@
 
 ## 站上有什么
 
-首页一屏一卡，滚轮 / 触屏滑动 / 方向键 / 右侧进度点都能换卡，地址栏 `#c-works` 之类可直接跳到某屏。九屏按「先认识我、再看我做过什么」的顺序排：
+首页一屏一卡，滚轮与触屏自然滚动换卡，右侧进度点可直达任意屏，地址栏 `#c-works` 之类也能直接跳到某屏。九屏按「先认识我、再看我做过什么」的顺序排：
 
 | 屏 | 内容 |
 |---|---|
@@ -22,9 +22,9 @@
 | 08 GUESTBOOK | 留言板入口，点进去是 `/message/` |
 | 09 CONTACT | 终端会话式联系方式，逐字打字输出，每行带复制按钮 |
 
-角落还有两件常驻小东西：右下角一枚**可下拉点火的火箭**（松手飞回页顶），以及 `⌘K` / `Ctrl+K` 唤出的**命令面板**，可直接跳到任意屏或子页。
+09 CONTACT 卡上还泊着一枚**代码火箭**（终端面板与进度点之间的空带）：下拉蓄力、松手点火，飞回页顶。
 
-子页共用同一套壳（左上角 `← BACK HOME`）：
+子页共用同一套壳（顶部 `←HOME` 胶囊 + `← BACK HOME` 短线，落点是**你上次停留的那张卡**，不是页顶）：
 
 - **`/posts/`** —— 文章列表，日期倒序；详情页带阅读时长、字数、目录与上下篇
 - **`/message/`** —— 留言板（giscus，需用 GitHub 账号登录发言）
@@ -32,7 +32,7 @@
 
 音效是一套 WebAudio 合成的仪器面板音色（点击 blip、气闸泄压、环境音床），默认开启，右上角声纹按钮可随时关掉。
 
-移动端做了整套降级（≤720px 收字号与留白、隐藏进度点、多列改单列、火箭缩到右下角；矮视口把换卡吸附放松成「就近吸附」）。细节规则见 [CLAUDE.md](CLAUDE.md)。
+移动端做了整套降级（≤720px 收字号与留白、隐藏进度点、多列改单列、火箭回贴右缘；断点与触屏降级全部集中在 `90-media.css`）。细节规则见 [CLAUDE.md](CLAUDE.md)。
 
 ## 目录长这样
 
@@ -44,7 +44,9 @@ assets/css/deck/       样式按编号分层：10 令牌 → 20 deck → 30 特�
 assets/js/             引擎：boot / fx / deck / core / id / htop / works / proj
                        / radio / term / welcome / rocket / tape
 static/icons/          技能图标（各家官方原色原图）
-static/images/         站主卡通肖像等
+static/images/         站主卡通肖像、作品截图（images/works/）
+static/cursors/        纸飞机光标（plane / link / link-lg 三态）
+static/music/          电台歌单音频
 data/                  文案与数据：home.yml、skills.yml、interests.yml、
                        music.yml、products.yml、quotes.yml
 content/               posts/、message/（about、resume、相册、todo 体系已删除）
