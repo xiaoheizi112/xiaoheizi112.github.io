@@ -48,3 +48,23 @@
 <div class="hud hud-br" aria-hidden="true"><span id="chap-no">CH.01</span> · <span id="chap-name">HOME</span></div>
 <div class="boot" aria-hidden="true"><i></i></div>
 <div class="wipe" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+{{- /* 常驻播放器（方案 A · 2026-11-18）：播放条与歌单进常驻层，全站（含 /message/、/posts/）都在。
+       起因：进留言板整页导航，首页的 <audio> 随旧文档销毁，音乐直接断。
+       机制：music.yml 服务端渲染成 #tape 的 data-tracks JSON（与首页 chan-row 的 data-i 同源同序，
+       子页无卡片也能建歌单——走属性不走 <script type="application/json">，Go html/template
+       会把 script 上下文里的插值当 JS 字符串再编一层，实测双重编码；属性上下文只 HTML 转义，
+       与 #hero-welcome[data-welcome] 同款先例）；tape.js 把播放态 {i,t,playing,at} 写进
+       sessionStorage.deck-tape，页间导航后新页恢复——幕布盖满换页期间续上，进度按墙钟补偿。
+       tape.js 在这里先于 scripts.html 的引擎跑（defer 文档序），radio.js 仍在其后订阅总线。 */}}
+{{- $tracks := slice }}
+{{- range site.Data.music }}
+  {{- $tracks = $tracks | append (dict "src" (.url | relURL) "title" .title "bar" (.short | default .title) "artist" .artist "cover" (.cover | relURL) "desc" .desc) }}
+{{- end }}
+{{- if $tracks }}
+<div class="tape" id="tape" aria-live="polite" data-tracks="{{ $tracks | jsonify }}"></div>
+{{- with resources.Get "js/tape.js" }}
+  {{- $f := . | minify | fingerprint }}
+<script src="{{ $f.RelPermalink }}" integrity="{{ $f.Data.Integrity }}" defer></script>
+{{- end }}
+{{- end }}

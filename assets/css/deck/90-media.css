@@ -208,11 +208,11 @@
   .card-body { padding-right: 0; max-width: none; }
   .card-note { font-size: 14px; margin-bottom: 3vh; max-width: none; }
 
-  /* ---------- 02 ABOUT：引言降字号、水印收尺寸（hud 早已 ≤1100 整块隐藏） ---------- */
+  /* ---------- 03 ABOUT：引言降字号、水印收尺寸（hud 早已 ≤1100 整块隐藏） ---------- */
   .about-quote { font-size: clamp(19px, 5.4vw, 26px); padding-left: 14px; margin-bottom: 2.6vh; }
   .about-quote .q-by { margin-top: 1.2vh; }
 
-  /* ---------- 03 SIGNALS 电台面板：≤880 已堆叠，这里收行距与字号 ---------- */
+  /* ---------- 02 SIGNALS 电台面板：≤880 已堆叠，这里收行距与字号 ---------- */
   .radio { padding: 14px 12px; }
   .dial { padding: 7px 10px 9px; }
   .dial-read { font-size: 15px; }
@@ -227,7 +227,7 @@
   .scope-tele { font-size: 10px; }
   .scope-pola { top: 6px; right: 6px; }
 
-  /* ---------- 04 INTERESTS 进程表：收字号，详情行波形让位 ---------- */
+  /* ---------- 08 INTERESTS 进程表：收字号，详情行波形让位 ---------- */
   .htop-meta { font-size: 10px; padding: 8px 12px; }
   .htop-head { font-size: 10px; }
   .htop-row { min-height: 48px; }
@@ -235,13 +235,13 @@
   .htop .hob-svg { width: 20px; height: 20px; }
   .hf-text { font-size: 11px; }
 
-  /* ---------- 05 GUESTBOOK：居中大字 ---------- */
+  /* ---------- 09 GUESTBOOK：居中大字 ---------- */
   .cta-center .display { font-size: clamp(34px, 10.5vw, 68px); }
   .cta-center .pill { margin-top: 3.5vh; }
 
   .pill { padding: 10px 18px; font-size: 11px; letter-spacing: .1em; }
 
-  /* ---------- 06 CONTACT 底部小字条 ---------- */
+  /* ---------- 10 CONTACT 底部小字条 ---------- */
   .foot { gap: 10px 22px; margin-top: 4vh; font-size: 11px; letter-spacing: .1em; }
   .cp { padding: 4px 10px; margin-left: 8px; font-size: 10.5px; }
   /* 终端卡（term.js）触屏不接管，静态兜底已在上；万一接管也收字号防溢出 */
@@ -523,7 +523,7 @@
 }
 
 /* ============================================================
-   07 ARTICLES 文章板块（46-posts.css）—— 窄屏 / 触屏 / 减弱动效
+   06 ARTICLES / 07 READS 文章板块（46-posts.css）—— 窄屏 / 触屏 / 减弱动效
    原则同全站：只在这里覆写，不动 46 层本身。
    ≤880  行内三行结构（标题/摘要/读数）保留，编号列与右内边距收一档、摘要压一行。
    ≤720  详情页抬头五条读数改两列网格；上一篇/下一篇由左右分栏改上下堆叠
@@ -571,6 +571,9 @@
   .page-posts .pr-sum { display: -webkit-box; -webkit-line-clamp: 2; }
   /* 首页摘要没了，行就靠「日期 + 标题」两条撑，分钟/字数读数让位 */
   #c-posts .pr-meta span { display: none; }
+  /* 07 READS 同策略：≤480 收摘要与 PICK 推荐语，靠「站名 · 日期 + 标题」认行。
+     注意 .pr-site 是 span 但归 .pr-meta 整条保留（上面 573 的 span 规则只限 #c-posts，误伤不到这里） */
+  #c-reads .pr-sum, #c-reads .pr-why { display: none; }
   .pe-cap { font-size: 11px; letter-spacing: .1em; }
   .pe-read { font-size: 11px; }
 }
@@ -581,6 +584,7 @@
   .post-row:hover .pr-no { color: var(--d-dim); }
   .post-row:hover .pr-title { color: var(--d-white); }
   .post-row:hover .pr-go { color: var(--d-dim); translate: none; }
+  #c-reads .post-row:hover .pr-site { color: var(--d-acid-2); }
   .post-row:active { border-color: var(--d-acid); }
   .post-row:active .pr-title { color: var(--d-acid); }
   .pn-cell:hover .pn-k { color: var(--d-dim); }
@@ -594,7 +598,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .post-row, .post-row::before, .pr-no, .pr-title, .pr-go { transition: none; }
+  .post-row, .post-row::before, .pr-no, .pr-title, .pr-go, .pr-site { transition: none; }
   .pn-cell, .pn-cell .pn-k, .pn-cell .pn-t, .post-toc a { transition: none; }
   .pe-read a { transition: none; }
 }

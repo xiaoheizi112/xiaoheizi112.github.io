@@ -176,29 +176,36 @@
     markRows(i, audioPlaying && !!(opts && opts.keepLive));
   }
 
-  /* ---------- WebAudio:首次手势后懒接,analyser 取时域 ---------- */
-  var ac = null, an = null, td = null, wired = false;
+  /* ---------- WebAudio:ctx 真 running 了才接线(2026-11-18 方案 A 配套) ----------
+     旧版手势前被 track 事件叫起也会接 —— 恢复播放(页间导航/刷新)没有手势,
+     ctx 是 suspended,createMediaElementSource 把元素输出劫进静默图,
+     且 wired 置真后永不重试 → 音乐全程没声。
+     现在:not running 就原样出声;resume().then 或下次手势/事件再补接。
+     createMediaElementSource 一台元素只能挂一次,故 an 有值即收工。 */
+  var ac = null, an = null, td = null;
   var audioPlaying = false;
   function ensureGraph() {
-    if (wired) return;
+    if (an) return;                              /* 已接好,一锤子 */
     var t = w.tape;
     var AC = w.AudioContext || w.webkitAudioContext;
-    if (!t || !t.audio || !AC) { wired = true; return; } /* 不重试,画 idle */
+    if (!t || !t.audio || !AC) return;           /* 播放器不在,下次手势再来 */
+    if (!ac) { try { ac = new AC(); } catch (e) { return; } }
+    if (ac.state === "suspended" && ac.resume) {
+      var pr = ac.resume();                      /* 有手势会成,没有就 pending rejected,都无所谓 */
+      if (pr && pr.then) pr.then(function () { ensureGraph(); }).catch(function () {});
+      if (ac.state !== "running") return;        /* 未运行不接管:native 出声路径保持 */
+    }
     try {
-      ac = new AC();
       var src = ac.createMediaElementSource(t.audio);
       an = ac.createAnalyser();
       an.fftSize = 256;                      /* 256 时域采样 */
       td = new Uint8Array(an.fftSize);
       src.connect(an);
       an.connect(ac.destination);            /* 必须接回输出,否则没声 */
-      if (ac.state === "suspended" && ac.resume) ac.resume();
       /* AMB-REACT:把这条既有 AnalyserNode 递给背景引擎(fx.js)。全站只有这一条
-         挂在 tape.audio 上——createMediaElementSource 一台元素只能挂一次,
-         背景躁动必须复用真信号,不许另建一条假监听。 */
+         挂在 tape.audio 上——背景躁动必须复用真信号,不许另建一条假监听。 */
       if (w.fx && w.fx.setAudio) w.fx.setAudio(an);
-      wired = true;
-    } catch (e) { wired = true; }            /* 接不上就算了 */
+    } catch (e) { an = null; }               /* 接不上就算了,下个事件重试 */
   }
   d.addEventListener("pointerdown", ensureGraph, true);
   if (w.tape && w.tape.on) {

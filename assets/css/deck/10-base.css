@@ -411,6 +411,28 @@ html.wipeout .deck, html.wipeout .sub-wrap { animation: wipe-rise 0.62s linear b
 }
 @keyframes wipe-scan { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
 
+/* ---------- pjax 覆层（2026-11-18 站主令「我不想要卡顿」，行为在 pjax.js） ----------
+   同文档子页导航的容器。真子页走 body 滚动（上面 is-sub overflow:auto），veil 就是
+   那根模拟滚条：自成一列 overflow-y。z-index 30 —— 压在 .deck(1) 之上、chrome(.dots/
+   .hud 40)与 .tape(88)、.wipe(90) 之下：页头胶囊照常可点、播放条浮在子页上、幕布盖一切。
+   veil 本身透明：body.pjax-open 用 visibility 藏 #main——不能用 display:none，滚动容器
+   的 scrollTop 会在隐藏时归零，首页停留位就是这么丢的。藏掉 deck 后 .fx 的地板/扫描线/
+   激光照常从 veil 底下透出来，与真子页渲染像素等价。dots/hud/scroll-rail 都是首页甲板
+   专属读数，veil 开着时按 is-sub 先例（:272 与 20-deck :294）一并隐藏。 */
+.pjax-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  visibility: hidden;
+}
+.pjax-veil.on { visibility: visible; }
+body.pjax-open #main { visibility: hidden; }
+body.pjax-open .dots,
+body.pjax-open .hud,
+body.pjax-open .scroll-rail { display: none; }
+
 /* ---------- 进场基元（deck.js 打 .on；无 JS 全部直接可见） ---------- */
 
 html.js .rv {

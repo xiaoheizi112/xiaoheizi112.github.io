@@ -176,16 +176,16 @@ html.js [data-par] { transform: translateY(var(--py, 0px)); }
 .foot a { color: var(--d-mute); transition: color 0.3s; }
 .foot a:hover { color: var(--d-acid); }
 
-/* ---------- 03 SIGNALS / 04 INTERESTS：容器内部样式全在 40-cards.css ---------- */
+/* ---------- 02 SIGNALS / 08 INTERESTS：容器内部样式全在 40-cards.css ---------- */
 /* （fan-stage 卡堆已随电台面板重构退役，2026-11） */
 
-/* ---------- 06 GUESTBOOK：居中大 CTA ---------- */
+/* ---------- 09 GUESTBOOK：居中大 CTA ---------- */
 
 .cta-center { text-align: center; }
 .cta-center .display { font-size: clamp(48px, 8vw, 120px); }
 .cta-center .pill { margin-top: 5vh; }
 
-/* ---------- 08 GUESTBOOK 入场：一条因果链（2026-11 参照 darkroom.engineering 幕布手法）----
+/* ---------- 09 GUESTBOOK 入场：一条因果链（2026-11 参照 darkroom.engineering 幕布手法）----
    幕布 = 父级 clip-path 自下而上揭开，光带 ::after 骑在同一条边上（top 走 100%→0，
    与 clip 的 top inset 同步），大字仍交给既有 .rv 的 --i 错峰——不另起第二段动画。
    正向注册（只写在 no-preference 里），reduce/无 JS 根本不注册=静态成品。

@@ -1,12 +1,14 @@
 {{- /* 首页 = 竖向卡片甲板（2026-11 jiejoe 风重构）
-     九屏（2026-11-12 站主令按「内容漏斗」重排 + 重编号）：
-       01 HOME / 02 ABOUT ME / 03 SKILLS / 04 WORKS / 05 ARTICLES
-       / 06 INTERESTS / 07 SIGNALS / 08 GUESTBOOK / 09 CONTACT
-     顺序逻辑：先自报家门（我是谁→我会什么→我做过什么→我写过什么），
-       再展示生活趣味（兴趣→音乐），最后互动（留言→联系）。
+     十屏（2026-11-12 站主令按「内容漏斗」重排 + 重编号；READS 为后插；
+       2026-11-18 站主令 SIGNALS 电台提前到 HOME 之后——先切台，边听边看，其余依次顺延）：
+       01 HOME / 02 SIGNALS / 03 ABOUT ME / 04 SKILLS / 05 WORKS / 06 ARTICLES
+       / 07 READS / 08 INTERESTS / 09 GUESTBOOK / 10 CONTACT
+     顺序逻辑：自报家门后先递上电台（音乐垫底，边听边逛），
+       再走内容漏斗（我是谁→我会什么→我做过什么→我写过什么→我读什么→兴趣），最后互动（留言→联系）。
      数据：data/home.yml（文案）· data/music.yml · data/interests.yml · data/products.yml
-          · content/posts/（05 屏文章，真实文章为唯一数据源） */ -}}
-{{- define "main" -}}
+          · content/posts/（06 屏文章，真实文章为唯一数据源）
+          · data/reads.yml（07 屏站外好文清单，手维护） */ -}}
+ {{- define "main" -}}
 {{- $h := hugo.Data.home -}}
 {{- $songs := hugo.Data.music -}}
 {{- $posts := where site.RegularPages "Type" "posts" -}}
@@ -121,16 +123,76 @@
     </svg>
   </section>
 
-  {{- /* ---------- 02 ABOUT ME · 全息工牌（2026-11 与 02 对调：肖像卡升格为关于我） ----------
+  {{- /* ---------- 02 SIGNALS ---------- */}}
+  {{- with $songs }}
+  <section class="card" id="c-signals" data-num="02" data-name="SIGNALS">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">02</span>
+        <h2 class="display solid rv" style="--i:1">Signals</h2>
+        <span class="cn rv" style="--i:2">电台调谐</span>
+      </div>
+      <div class="hair rv"></div>
+      <p class="card-note rv">九台好歌，一盘不赶时间的混音带。<b>FM 调频电台，点频道即播，拖指针换台。</b></p>
+      {{- /* 电台调谐面板（方案 C）：刻度/指针/VU/示波器由 radio.js 驱动，契约见 40-cards.css「02 SIGNALS · 电台调谐面板」段 */}}
+      <div class="radio rv" style="--i:3" data-nodrag>
+        <span class="rm tl" aria-hidden="true"></span>
+        <span class="rm tr" aria-hidden="true"></span>
+        <span class="rm bl" aria-hidden="true"></span>
+        <span class="rm br" aria-hidden="true"></span>
+        <div class="dial" aria-hidden="true">
+          <span class="dial-read"><b id="dial-read">088.1</b><em>FM</em></span>
+          <div class="dial-scale" id="dial-scale">
+            <span class="needle" id="needle"></span>
+          </div>
+        </div>
+        <div class="radio-grid">
+          <div class="chan-list">
+            {{- range $i, $e := . }}
+            <button class="chan-row{{ if eq $i 0 }} active{{ end }}" type="button" data-i="{{ $i }}"
+              data-cursor="TUNE" data-freq="{{ $e.freq }}" data-src="{{ $e.url | relURL }}"
+              data-title="{{ $e.title }}" data-bar="{{ $e.short | default $e.title }}" data-artist="{{ $e.artist }}"
+              data-cover="{{ $e.cover | relURL }}" data-desc="{{ $e.desc }}">
+              <span class="ch-no">CH-{{ printf "%02d" (add $i 1) }}</span>
+              <span class="ch-title">{{ $e.short | default $e.title }}</span>
+              <span class="ch-artist">{{ $e.artist }}</span>
+              {{- /* hover/focus 才展开的调谐提示（参照 darkroom --button-inner 藏字手法，见 40-cards.css CHAN 段） */}}
+              <span class="ch-tap" aria-hidden="true">↺ TUNE</span>
+              <span class="vu" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="ch-go" aria-hidden="true">▸</span>
+            </button>
+            {{- end }}
+          </div>
+          {{- $first := index . 0 }}
+          {{- /* 机芯舱：radio.js 把卡带(R1)与 VU(R3)注入此格并排，填右列上行；空壳时零高不占位 */}}
+          <div class="deck-bay" aria-hidden="true"></div>
+          <div class="scope-box">
+            <canvas class="scope" id="scope" width="600" height="200" aria-hidden="true"></canvas>
+            <div class="scope-info">
+              <p class="scope-title" id="scope-title">{{ $first.title }}</p>
+              <p class="scope-artist" id="scope-artist">{{ $first.artist }}</p>
+              {{- /* 工程机读数：MOD FM 恒真；BITRATE/PEAK 由 radio.js 取到真值才点亮，取不到整段不出现 */}}
+              <p class="scope-tele">MOD <b>FM</b><span id="tele-br" hidden> · BITRATE <b id="scope-br"></b></span><span id="tele-peak" hidden> · PEAK <b id="scope-peak"></b></span></p>
+              <p class="scope-desc" id="scope-desc">{{ $first.desc }}</p>
+            </div>
+            <span class="scope-pola"><img id="scope-cover" src="{{ $first.cover | relURL }}" alt="{{ $first.title }} 封面"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {{- end }}
+
+  {{- /* ---------- 03 ABOUT ME · 全息工牌（2026-11 与 02 对调：肖像卡升格为关于我） ----------
         左：id.js 认证状态机的全息工牌（原样搬来，一动不动）；
         右：人事档案卡 .id-file + READ FULL BIO——工牌当证件照，档案列真值。
         内容 2026-11-11 换血（站主令）：原 STATEMENT 大字引言与「AI 编程/自动化/听歌」三条
         （与 02 技能矩阵重复）整体撤掉，改一张 5 条 profile 读数表（人格测试打头）。
         原 5 行 .id-row 与编造的 FACE.HASH 假读数已于更早一轮撤掉。 */}}
-  <section class="card" id="c-about" data-num="02" data-name="ABOUT">
+  <section class="card" id="c-about" data-num="03" data-name="ABOUT">
     <div class="card-body">
       <div class="row-head">
-        <span class="num rv">02</span>
+        <span class="num rv">03</span>
         <h2 class="display solid rv" style="--i:1">About me</h2>
         <span class="cn rv" style="--i:2">关于我</span>
       </div>
@@ -246,7 +308,7 @@
     </div>
   </section>
 
-  {{- /* ---------- 03 SKILLS（2026-11 R12 三行错位滚动 · 参照 xiaonie.me/guan-yu） ----------
+  {{- /* ---------- 04 SKILLS（2026-11 R12 三行错位滚动 · 参照 xiaonie.me/guan-yu） ----------
        站主定：图标一律用各家官方原色（data/skills.yml 的 src 指向 static/icons/），
        三行同一批 13 枚但起始下标互相错开（插空），轨道 translateX(-50%)→0 = 自左向右。
        R12 起三行同速 60s、起点由 48-skills.css 的负 animation-delay 错开（模板不再出 --sk-dur）。
@@ -254,10 +316,10 @@
        data-ro（键名写死在 48-skills.css，加图标要补一行）。 */}}
   {{- $sk := site.Data.skills.items }}
   {{- $sklen := len $sk }}
-  <section class="card" id="c-skills" data-num="03" data-name="SKILLS">
+  <section class="card" id="c-skills" data-num="04" data-name="SKILLS">
     <div class="card-body">
       <div class="row-head">
-        <span class="num rv">03</span>
+        <span class="num rv">04</span>
         <h2 class="display solid rv" style="--i:1">Skills</h2>
         <span class="cn rv" style="--i:2">技能栈</span>
       </div>
@@ -295,12 +357,12 @@
     </div>
   </section>
 
-  {{- /* ---------- 04 WORKS ---------- */}}
+  {{- /* ---------- 05 WORKS ---------- */}}
   {{- with hugo.Data.products }}
-  <section class="card" id="c-works" data-num="04" data-name="WORKS">
+  <section class="card" id="c-works" data-num="05" data-name="WORKS">
     <div class="card-body">
       <div class="row-head">
-        <span class="num rv">04</span>
+        <span class="num rv">05</span>
         <h2 class="display solid rv" style="--i:1">Works</h2>
         <span class="cn rv" style="--i:2">作品</span>
       </div>
@@ -353,15 +415,15 @@
   </section>
   {{- end }}
 
-  {{- /* ---------- 05 ARTICLES ---------- */}}
+  {{- /* ---------- 06 ARTICLES ---------- */}}
   {{- /* 文章板块（2026-11 新增）：数据源 = content/posts/ 真实文章，日期倒序，卡内只列前 N 篇
        （N 在 home.yml posts.list）。行复用 _partials/post-row.html（与 /posts/ 列表页同一套），
        零文章时整块换成 _partials/post-empty.html 待机面板——读数如实，不编数字。
        样式在 46-posts.css，窄屏/reduce 降级在 90-media.css。 */}}
-  <section class="card" id="c-posts" data-num="05" data-name="ARTICLES">
+  <section class="card" id="c-posts" data-num="06" data-name="ARTICLES">
     <div class="card-body">
       <div class="row-head">
-        <span class="num rv">05</span>
+        <span class="num rv">06</span>
         <h2 class="display acid rv" style="--i:1">Articles</h2>
         <span class="cn rv" style="--i:2">文章</span>
       </div>
@@ -384,12 +446,56 @@
     </div>
   </section>
 
-  {{- /* ---------- 06 INTERESTS ---------- */}}
-  {{- with hugo.Data.interests }}
-  <section class="card" id="c-interests" data-num="06" data-name="INTERESTS">
+  {{- /* ---------- 07 READS · 好文推荐（2026-11 新增） ----------
+        站外好文清单：数据源 data/reads.yml（人工精选，list=首页最多露出几条）。
+        行完全复用 05 卡 .post-row 语言（样式在 46-posts.css READS 增量段），只差三处：
+        meta 行 = SITE · DATE、可选 PICK ▸ 推荐语行、行尾箭头 ↗。
+        外链一律 target=_blank rel=noopener；date 按原文署名如实填（模板直出字符串，不做格式化）。
+        零条目（文件或 items 清空）走 post-empty 待机面板（entries/index 参数覆写，INDEX 行不出）。 */}}
+  {{- $rd := hugo.Data.reads | default (dict) }}
+  {{- $reads := $rd.items | default (slice) }}
+  {{- $rn := int ($rd.list | default 5) }}
+  <section class="card" id="c-reads" data-num="07" data-name="READS">
     <div class="card-body">
       <div class="row-head">
-        <span class="num rv">06</span>
+        <span class="num rv">07</span>
+        <h2 class="display solid rv" style="--i:1">Reads</h2>
+        <span class="cn rv" style="--i:2">好文推荐</span>
+      </div>
+      {{- if $reads }}
+      {{- with $rd.note }}<p class="card-note rv" style="--i:3">{{ . }}</p>{{ end }}
+      <div class="posts-list">
+        {{- range $i, $r := first $rn $reads }}
+        <a class="post-row rv" style="--i:{{ add $i 3 }}" href="{{ $r.url }}" target="_blank" rel="noopener" data-cursor="OPEN">
+          <span class="pr-no">{{ printf "[%02d]" (add $i 1) }}</span>
+          <span class="pr-main">
+            <span class="pr-title">{{ $r.title }}</span>
+            {{- with $r.desc }}<span class="pr-sum">{{ . }}</span>{{ end }}
+            <span class="pr-meta">
+              <span class="pr-site">{{ $r.site }}</span>
+              {{- with $r.date }}<time>{{ . }}</time>{{ end }}
+            </span>
+            {{- with $r.why }}<span class="pr-why"><b>PICK ▸</b>{{ . }}</span>{{ end }}
+          </span>
+          <span class="pr-go" aria-hidden="true">↗</span>
+        </a>
+        {{- end }}
+      </div>
+      <div class="posts-cta rv">
+        <span class="posts-stat mono">PICKS {{ printf "%03d" (len $reads) }} · CURATED BY HAND{{ if gt (len $reads) $rn }} · TOP {{ $rn }} SHOWN{{ end }}</span>
+      </div>
+      {{- else }}
+        {{- partial "post-empty.html" (dict "home" true "entries" (len $reads) "index" "" "line" "推荐清单正在整理。读到值得挂上来的，就补在这里。") }}
+      {{- end }}
+    </div>
+  </section>
+
+  {{- /* ---------- 08 INTERESTS ---------- */}}
+  {{- with hugo.Data.interests }}
+  <section class="card" id="c-interests" data-num="08" data-name="INTERESTS">
+    <div class="card-body">
+      <div class="row-head">
+        <span class="num rv">08</span>
         <h2 class="display solid rv" style="--i:1">Interests</h2>
         <span class="cn rv" style="--i:2">生活进程表</span>
         <button class="hob-sort rv" id="hob-sort" type="button" style="--i:3" aria-label="切换进程排序字段">SORT · CPU</button>
@@ -448,68 +554,8 @@
   </section>
   {{- end }}
 
-  {{- /* ---------- 07 SIGNALS ---------- */}}
-  {{- with $songs }}
-  <section class="card" id="c-signals" data-num="07" data-name="SIGNALS">
-    <div class="card-body">
-      <div class="row-head">
-        <span class="num rv">07</span>
-        <h2 class="display solid rv" style="--i:1">Signals</h2>
-        <span class="cn rv" style="--i:2">电台调谐</span>
-      </div>
-      <div class="hair rv"></div>
-      <p class="card-note rv">九台好歌，一盘不赶时间的混音带。<b>FM 调频电台，点频道即播，拖指针换台。</b></p>
-      {{- /* 电台调谐面板（方案 C）：刻度/指针/VU/示波器由 radio.js 驱动，契约见 40-cards.css「07 SIGNALS · 电台调谐面板」段 */}}
-      <div class="radio rv" style="--i:3" data-nodrag>
-        <span class="rm tl" aria-hidden="true"></span>
-        <span class="rm tr" aria-hidden="true"></span>
-        <span class="rm bl" aria-hidden="true"></span>
-        <span class="rm br" aria-hidden="true"></span>
-        <div class="dial" aria-hidden="true">
-          <span class="dial-read"><b id="dial-read">088.1</b><em>FM</em></span>
-          <div class="dial-scale" id="dial-scale">
-            <span class="needle" id="needle"></span>
-          </div>
-        </div>
-        <div class="radio-grid">
-          <div class="chan-list">
-            {{- range $i, $e := . }}
-            <button class="chan-row{{ if eq $i 0 }} active{{ end }}" type="button" data-i="{{ $i }}"
-              data-cursor="TUNE" data-freq="{{ $e.freq }}" data-src="{{ $e.url | relURL }}"
-              data-title="{{ $e.title }}" data-bar="{{ $e.short | default $e.title }}" data-artist="{{ $e.artist }}"
-              data-cover="{{ $e.cover | relURL }}" data-desc="{{ $e.desc }}">
-              <span class="ch-no">CH-{{ printf "%02d" (add $i 1) }}</span>
-              <span class="ch-title">{{ $e.short | default $e.title }}</span>
-              <span class="ch-artist">{{ $e.artist }}</span>
-              {{- /* hover/focus 才展开的调谐提示（参照 darkroom --button-inner 藏字手法，见 40-cards.css CHAN 段） */}}
-              <span class="ch-tap" aria-hidden="true">↺ TUNE</span>
-              <span class="vu" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="ch-go" aria-hidden="true">▸</span>
-            </button>
-            {{- end }}
-          </div>
-          {{- $first := index . 0 }}
-          {{- /* 机芯舱：radio.js 把卡带(R1)与 VU(R3)注入此格并排，填右列上行；空壳时零高不占位 */}}
-          <div class="deck-bay" aria-hidden="true"></div>
-          <div class="scope-box">
-            <canvas class="scope" id="scope" width="600" height="200" aria-hidden="true"></canvas>
-            <div class="scope-info">
-              <p class="scope-title" id="scope-title">{{ $first.title }}</p>
-              <p class="scope-artist" id="scope-artist">{{ $first.artist }}</p>
-              {{- /* 工程机读数：MOD FM 恒真；BITRATE/PEAK 由 radio.js 取到真值才点亮，取不到整段不出现 */}}
-              <p class="scope-tele">MOD <b>FM</b><span id="tele-br" hidden> · BITRATE <b id="scope-br"></b></span><span id="tele-peak" hidden> · PEAK <b id="scope-peak"></b></span></p>
-              <p class="scope-desc" id="scope-desc">{{ $first.desc }}</p>
-            </div>
-            <span class="scope-pola"><img id="scope-cover" src="{{ $first.cover | relURL }}" alt="{{ $first.title }} 封面"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  {{- end }}
-
-  {{- /* ---------- 08 GUESTBOOK ---------- */}}
-  <section class="card" id="c-guestbook" data-num="08" data-name="GUESTBOOK">
+  {{- /* ---------- 09 GUESTBOOK ---------- */}}
+  <section class="card" id="c-guestbook" data-num="09" data-name="GUESTBOOK">
     <div class="card-body cta-center">
       <p class="eyebrow rv">GUESTBOOK · 留言板</p>
       <p class="display solid rv" style="--i:1">Say hi,</p>
@@ -519,11 +565,11 @@
     </div>
   </section>
 
-  {{- /* ---------- 09 CONTACT ---------- */}}
-  <section class="card" id="c-contact" data-num="09" data-name="CONTACT">
+  {{- /* ---------- 10 CONTACT ---------- */}}
+  <section class="card" id="c-contact" data-num="10" data-name="CONTACT">
     <div class="card-body">
       <div class="row-head">
-        <span class="num rv">09</span>
+        <span class="num rv">10</span>
         <h2 class="display outline rv" style="--i:1">Get in touch ///</h2>
       </div>
       <div class="hair rv"></div>
@@ -550,10 +596,5 @@
 
 
 </div>
-{{- /* 播放器条：tape.js（P1）渲染进 #tape */}}
-{{- with resources.Get "js/tape.js" }}
-  {{- $f := . | minify | fingerprint }}
-<script src="{{ $f.RelPermalink }}" integrity="{{ $f.Data.Integrity }}" defer></script>
-{{- end }}
-<div class="tape" id="tape" aria-live="polite"></div>
+{{- /* 播放器条已移到常驻层 _partials/chrome.html（2026-11-18 方案 A：全站挂载 + 状态恢复，子页不断乐） */}}
 {{- end -}}

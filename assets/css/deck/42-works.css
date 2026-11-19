@@ -5,6 +5,7 @@
      .pj .pj.on .pj-scrim .pj-frame .pj-col-main .pj-stage .pj-img .pj-wait
      .pj-bar .pj-read .pj-thumbs .pj-thumb(.on) .pj-meta .pj-kicker .pj-name
      .pj-sub .pj-tech .pj-stats .pj-count .pj-acts .pj-btn .pj-open .pj-close
+     .pj-nav .pj-nav-prev .pj-nav-next（proj.js 仅多图时注入）
    层级定标（grep 实测）: .tape=88、.boot=90、.gate=110、.cur=70 → 灯箱 z-index 89，
    高于播放器、低于 LOADING 幕布与进场门；十字光标会被灯箱盖住属预期（模态层自绘光标）。
    minifier 坑位遵守: 归零态全走 --* 自定义属性(--pj-o/--pj-y/--pi/--piy/--wr-gh/--wgi/--pt)，
@@ -167,6 +168,53 @@
 }
 @keyframes pj-pulse { from { opacity: 0.35; } to { opacity: 1; } }
 
+/* ---------- 左右切换箭头（2026-11-18 站主令：灯箱缺可见切换控件） ----------
+   proj.js 仅在多图时注入这两颗按钮——单图无空控件（真数据纪律）；
+   step() 取模回绕，首尾互切，没有禁用态。
+   语言复用本组件件：暗玻璃实底 + 发丝描边 + 等宽箭头字符（← → 与 chrome 的
+   ←HOME 同源，不引第三种图标语言）。hover 酸绿描边 + 顺方向 2px 内移＝「往这走」，
+   active 压感；hover 层包 (hover:hover) and (pointer:fine)，触屏只留可点实体。
+   不加 backdrop-filter：44px 小件收益零、易掉帧清单在案，直接实底压亮截图。 */
+
+.pj-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 58px;
+  margin-top: -29px;
+  padding: 0;
+  border: 1px solid var(--d-line-2);
+  border-radius: 8px;
+  background: rgba(5, 6, 7, 0.82);
+  color: var(--d-white);
+  font-family: var(--f-mono);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: border-color 0.25s, color 0.25s, background-color 0.25s,
+              box-shadow 0.25s, translate 0.25s var(--ease), scale 0.12s;
+}
+.pj-nav-prev { left: clamp(4px, 1.2vw, 14px); }
+.pj-nav-next { right: clamp(4px, 1.2vw, 14px); }
+.pj-nav:active { scale: 0.94; }
+.pj-nav:focus-visible { outline: 1px solid var(--d-acid); outline-offset: 2px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .pj-nav:hover {
+    border-color: var(--d-acid);
+    color: var(--d-acid);
+    background: rgba(58, 227, 92, 0.10);
+    box-shadow: 0 0 16px rgba(58, 227, 92, 0.25);
+  }
+  .pj-nav-prev:hover { translate: 2px 0; }
+  .pj-nav-next:hover { translate: -2px 0; }
+}
+
 .pj-bar {
   display: flex;
   align-items: center;
@@ -287,6 +335,15 @@
 .pj-btn.pj-close:hover { border-color: var(--d-white); }
 .pj-btn:focus-visible { outline: 1px solid var(--d-acid); outline-offset: 3px; }
 
+/* ---------- 窄屏：箭头随舞台收小（触屏档仍显示——它是仅有的显式切换件） ---------- */
+
+@media (max-width: 720px) {
+  .pj-nav { width: 38px; height: 50px; margin-top: -25px; font-size: 14px; }
+}
+@media (max-width: 480px) {
+  .pj-nav { width: 34px; height: 44px; margin-top: -22px; font-size: 13px; }
+}
+
 /* ---------- 触屏：无 hover，衬底与走线回到静态 ---------- */
 
 @media (hover: none) {
@@ -297,7 +354,7 @@
 /* ---------- reduced-motion：无动画直接显隐 ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .pj, .pj-frame, .pj-img, .pj-thumb, .work-row::after { transition: none; }
+  .pj, .pj-frame, .pj-img, .pj-thumb, .pj-nav, .work-row::after { transition: none; }
   .pj { --pj-o: 1; }
   .pj-frame { --pj-y: 0px; }
   .pj-img { --pi: 1; --piy: 0px; }

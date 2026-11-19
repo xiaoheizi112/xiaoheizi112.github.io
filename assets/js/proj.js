@@ -2,7 +2,8 @@
  * proj.js — 05 WORKS 放映机灯箱（W1）
  *   点击带 data-shots 的 .work-row → preventDefault，全屏灯箱看 README 原图：
  *   大图 max-height 82vh 原始分辨率居中，右列 name / sub / tech / 行内 .wr-stats
- *   读数 / GITHUB 按钮 / CLOSE；多图时底部缩略条，←→ 切换，Esc / 点遮罩关闭。
+ *   读数 / GITHUB 按钮 / CLOSE；多图时底部缩略条 + 舞台左右 HUD 箭头，←→ 键与箭头
+ *   均可切换（step 取模首尾回绕，无禁用态），Esc / 点遮罩关闭。
  *   数据来源：行上 data-shots（Hugo 由 products.yml shots 渲染，逗号分隔，relURL）。
  *   打开期间：锁 .deck 滚动；document 捕获层吞掉全部按键（deck.js 的方向键换卡
  *   不会在灯箱里生效，不依赖也不修改它的监听）；焦点入灯箱、Tab 困在灯箱、
@@ -88,6 +89,19 @@
     return b;
   }
 
+  /* 左右箭头：切图 + 与 deck.js 换卡同源的 tune 音。挂在 .pj-stage 上，
+     stage 的点击监听按 e.target 放行（按钮不是 img/stage，不会二次触发）。 */
+  function mkNav(cls, glyph, label, dir) {
+    var b = mk("button", cls, glyph);
+    b.type = "button";
+    b.setAttribute("aria-label", label);
+    b.addEventListener("click", function () {
+      step(dir);
+      if (window.fx && window.fx.blip) window.fx.blip("tune");
+    });
+    return b;
+  }
+
   /* ---------- 开 / 关 ---------- */
 
   function open(row) {
@@ -120,6 +134,10 @@
       if (e.target !== img && e.target !== stage) return;  // 大图/空白区点击=下一张（单图=关）
       if (cur && cur.n > 1) step(1); else close();
     });
+    if (shots.length > 1) {   // 真数据纪律：单图项目不造空控件
+      stage.appendChild(mkNav("pj-nav pj-nav-prev", "←", "上一张截图", -1));
+      stage.appendChild(mkNav("pj-nav pj-nav-next", "→", "下一张截图", 1));
+    }
     colMain.appendChild(stage);
 
     var bar = mk("div", "pj-bar");

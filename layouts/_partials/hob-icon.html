@@ -1,5 +1,5 @@
 {{- /* hob-icon.html —— 兴趣屏手绘线框图标（方案 B）
-   用法：{{ partial "hob-icon.html" .icon }}，icon 取 pingpong/sleep/music/walk/cook/ai。
+   用法：{{ partial "hob-icon.html" .icon }}，icon 取 pingpong/sleep/music/walk/cook/read/ai。
    48x48 线框，stroke=currentColor（卡片里是荧光绿），动画类挂在内部元素上，
    关键帧在 30-fx.css（.hb-* 选择器），reduced-motion 时整组停掉。 */}}
 {{- $k := . -}}
@@ -48,6 +48,12 @@
   <path class="hb-s1" d="M17 20c0-3 2-3 2-6"/>
   <path class="hb-s2" d="M24 20c0-3 2-3 2-6"/>
   <path class="hb-s3" d="M31 20c0-3 2-3 2-6"/>
+</svg>
+{{- else if eq $k "read" -}}
+<svg class="hob-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+  <path d="M24 16c-3.5-2.4-8.2-3.4-13-3.4V37c4.8 0 9.5 1 13 3.4 3.5-2.4 8.2-3.4 13-3.4V12.6c-4.8 0-9.5 1-13 3.4z"/>
+  <path d="M24 16v24.4"/>
+  <circle class="hb-z1" cx="38" cy="8" r="2" fill="currentColor" stroke="none"/>
 </svg>
 {{- else if eq $k "ai" -}}
 <svg class="hob-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">

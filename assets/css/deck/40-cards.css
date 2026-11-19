@@ -1,7 +1,7 @@
 /* ============================================================
    40-cards.css —— 卡内细节样式(Phase 1 · P1)
-   覆盖:01 HOME 跑马灯带/旋转徽章 / 03 SIGNALS 电台调谐面板 / 04 INTERESTS 生活进程表(htop) / 05 WORKS 作品行 + hover 预览卡(README 真实截图,video-notes 保留全息线框) /
-        06 CONTACT 复制胶囊 / #tape 播放器条
+   覆盖:01 HOME 跑马灯带/旋转徽章 / 02 SIGNALS 电台调谐面板 / 08 INTERESTS 生活进程表(htop) / 05 WORKS 作品行 + hover 预览卡(README 真实截图,video-notes 保留全息线框) /
+        10 CONTACT 复制胶囊 / #tape 播放器条
    （05 FOCUS 四象限已随板块整体删除,2026-11；02 全息头像已撤下,2026-11；03 扇形卡堆 fan-stage 已整体换成电台调谐面板(2026-11),旧扇形 CSS 与抽卡仪式同删）
    契约类名(index.html 与 tape.js/radio.js 引用,勿改名):
      .radio .rm .dial .dial-read .dial-scale .d-tick .d-lab .needle .radio-grid .chan-list .chan-row .ch-no .ch-title .ch-artist .vu .ch-go .scope-box .scope .scope-info .scope-title .scope-artist .scope-tele .scope-pola
@@ -182,7 +182,7 @@ html.js .card.on .core-panel .core-node {
 .core-read #core-status { color: var(--d-acid); }
 
 /* ============================================================
-   04 SIGNALS · 电台调谐面板（方案 C，radio.js 驱动，2026-11 重构；R4 细节打磨：
+   02 SIGNALS · 电台调谐面板（方案 C，radio.js 驱动，2026-11 重构；R4 细节打磨：
    行网格 5 列 + TUNE 脱流角贴、静止 VU 柱透明、拍立得收进画框、真读数 BITRATE/PEAK）
    契约（index.html 04 卡 ↔ radio.js ↔ tape.js 的 data-*）:
      .radio[data-nodrag] > .rm(tl/tr/bl/br 四角 L 标)
@@ -609,7 +609,7 @@ html.js .card.on .core-panel .core-node {
   background: var(--d-void-2);
 }
 
-/* ---------- 05 INTERESTS · 生活进程表（htop 面板，2026-11 站主选型方案 A） ----------
+/* ---------- 08 INTERESTS · 生活进程表（htop 面板，2026-11 站主选型方案 A） ----------
    契约类名：.htop 面板 / .htop-head 表头 / .htop-row 行（数据在 interests.yml，
    排序与详情行引擎在 htop.js）/ #hob-sort 按钮。
    行 hover 反白 = 终端选中语义；CPU 绿条 / MEM 琥珀条（暖阳黄点缀全站令牌）；
@@ -838,7 +838,7 @@ html.js .card.on .core-panel .core-node {
 }
 @keyframes ah-blink { 50% { opacity: .25; } }
 
-/* ---------- 07 CONTACT:COPY 复制胶囊(fx.js 负责点击复制) ---------- */
+/* ---------- 10 CONTACT:COPY 复制胶囊(fx.js 负责点击复制) ---------- */
 
 .cp {
   font-family: var(--f-mono);
@@ -885,6 +885,14 @@ html.js .card.on .core-panel .core-node {
 }
 /* tape.js 挂的 <audio> 只借 DOM 存在,不占版面 */
 .tape > audio { display: none; }
+/* 子页常驻播放条(2026-11-18 方案 A):条收起时不垫,html.tape-on 由 tape.js 挂/摘;
+   垫出条高 + 悬浮余量,免得浮在底部的玻璃条压住 /message/ 末段与 giscus。
+   第二条选择器给 pjax 覆层(同文档导航时 body 仍是 is-home):垫的是 veil 里那棵 .sub-wrap */
+html.tape-on body.is-sub .sub-wrap,
+html.tape-on body.pjax-open .pjax-veil .sub-wrap {
+  padding-bottom: clamp(72px, 11vh, 104px);
+  transition: padding-bottom .45s var(--ease);
+}
 
 .tape-bar {
   display: flex;
@@ -1207,7 +1215,7 @@ html.js .card.on .core-panel .core-node {
    ============================================================ */
 
 /* ---------- 03 抽卡仪式（Plein 式扇形聚拢→扇开）已随 fan-stage 卡堆退役
-   （2026-11 电台调谐面板重构，见上方「03 SIGNALS · 电台调谐面板」段） ---------- */
+   （2026-11 电台调谐面板重构，见上方「02 SIGNALS · 电台调谐面板」段） ---------- */
 
 /* ---------- WORKS 编号改 [01] 括号 + 发丝箭头感（Capit） ---------- */
 .work-row .wr-no::before { content: "["; margin-right: 3px; opacity: 0.45; }
@@ -1229,7 +1237,7 @@ html.js .card.on .core-panel .core-node {
 .hair-list a:hover, .foot a:hover { background-size: 100% 1px; color: var(--d-white); }
 
 /* ============================================================
-   05 INTERESTS · SORT 胶囊（引擎在 htop.js，循环 CPU→MEM→UPTIME→NAME）
+   08 INTERESTS · SORT 胶囊（引擎在 htop.js，循环 CPU→MEM→UPTIME→NAME）
    契约类名：#hob-sort 按钮（row-head 行尾）
    ============================================================ */
 
@@ -1468,7 +1476,7 @@ html.js .card.on .core-panel .core-node {
    现在只剩 pending/scanning → locked 的 brightness(0.62→1) 亮度过渡，
    卡片一次性出现、不再二次闪。别再往回加 mask 动画。 */
 
-/* ---------- 08 CONTACT · 终端会话（2026-11 站主选型方案 A，引擎 term.js） ----------
+/* ---------- 10 CONTACT · 终端会话（2026-11 站主选型方案 A，引擎 term.js） ----------
    term.js 把 .hair-list 整表搬进 .term-log 逐行打字；无 JS / 触屏 / reduced-motion
    时 .term 不存在，hair-list 静态兜底即成品。 */
 .term {

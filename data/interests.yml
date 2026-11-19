@@ -1,5 +1,5 @@
 # 兴趣板块数据（05 生活进程表）：改这里就够了，不动模板和 CSS。
-# icon 对应 layouts/_partials/hob-icon.html 里的线稿键名（pingpong/sleep/music/walk/cook/ai）。
+# icon 对应 layouts/_partials/hob-icon.html 里的线稿键名（pingpong/sleep/music/walk/cook/read/ai）。
 # state 进程状态（RUNNING/SLEEPING/IDLE/WAITING/HIGH LOAD），cpu/mem 0-100 整数（条宽），
 # uptime 累计时长串（HHHH:MM:SS 感即可，SORT·UPTIME 按它的小时数排），desc 详情行文案。
 
@@ -32,14 +32,21 @@
   uptime: "0035:59:12"
   desc: "想不通的事，走一走就通了。"
 - icon: "cook"
-  name: "做饭"
+  name: "烹饪"
   state: "WAITING"
   cpu: 41
   mem: 30
   uptime: "0089:17:26"
   desc: "自己做的饭比外卖香，攒了几道拿手菜。"
+- icon: "read"
+  name: "阅读"
+  state: "RUNNING"
+  cpu: 58
+  mem: 41
+  uptime: "0276:15:38"
+  desc: "睡前翻几页纸书，进度慢但记得牢。"
 - icon: "ai"
-  name: "AI"
+  name: "AI Coding"
   state: "HIGH LOAD"
   cpu: 97
   mem: 88

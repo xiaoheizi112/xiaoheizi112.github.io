@@ -1,6 +1,6 @@
 /* ============================================================
-   46-posts.css —— 07 ARTICLES 文章板块（2026-11 新增）
-   覆盖三处：首页 07 卡（.posts-list / .post-row / .posts-cta + 空状态 .post-empty）、
+   46-posts.css —— 06 ARTICLES 文章板块（2026-11 新增；文末第 4 节为 07 READS 增量）
+   覆盖：首页 05 卡（.posts-list / .post-row / .posts-cta + 空状态 .post-empty）、
              /posts/ 列表子页（.page-posts）、文章详情页（.post-meta / .post-toc / .post-nav）。
    纪律（CLAUDE.md 优化定调）：
    · 只用「工程机界面」一种语言——发丝线 + 等宽读数 + HUD 角括号（.rm，40-cards 全局件）
@@ -323,3 +323,34 @@
 }
 .pn-cell:hover .pn-k,
 .pn-cell:hover .pn-t { color: var(--d-acid); }
+
+/* ---------- 4. 07 READS 好文推荐卡（2026-11 新增，data/reads.yml） ----------
+   行结构完全复用上面的 .post-row / .pr-*（进场、hover 吸气、酸绿竖线、磁吸全免费继承），
+   这里只补三件该卡专属：meta 行的站名读数 + 间隔点、PICK ▸ 推荐语行。
+   外链由模板的 target=_blank rel=noopener 负责，不在此。 */
+
+/* 站名读数值比日期亮一档（沿用 .posts-stat a 的 acid-2 语法），hover 随标题转正绿 */
+#c-reads .pr-meta { gap: 4px 8px; }
+#c-reads .pr-site { color: var(--d-acid-2); transition: color .35s; }
+#c-reads .post-row:hover .pr-site { color: var(--d-acid); }
+/* 间隔点挂在 time::before：date 留空时 <time> 整条不渲染，点也不会孤悬行尾 */
+#c-reads .pr-site + time::before { content: "·"; margin-right: 8px; color: var(--d-dim); }
+
+/* 推荐理由行：等宽小字压成一行，前缀 PICK ▸ 是工程机标签读法（酸绿），理由本体走 mute */
+.pr-why {
+  font-family: var(--f-mono);
+  font-size: clamp(11px, 1.05vw, 12px);
+  line-height: 1.6;
+  letter-spacing: .02em;
+  color: var(--d-mute);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+.pr-why b {
+  color: var(--d-acid);
+  font-weight: 700;
+  letter-spacing: .1em;
+  margin-right: 8px;
+}

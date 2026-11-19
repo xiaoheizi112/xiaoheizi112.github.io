@@ -1,0 +1,42 @@
+# 06 屏好文推荐（2026-11 新增板块）：站外长文推荐清单。
+#   note     —— 标题下的介绍词，留空（""）就不渲染那一行
+#   list     —— 首页卡最多露出几条（清单本身可以更长，做「精选 + 余量」）
+#   items[]  —— 列表顺序 = 推荐顺序
+#     title/url/site —— 必填；url 必须是真人验证过能打开的原文直达链接
+#     date —— 按原文署名如实填，粒度到能确证的为止（"2026-10-30" / "2023-07" / "2000"）；留空则该位不显
+#     desc —— 一两句介绍（首页行内 CSS 两行截断）
+#     why   —— 推荐理由（行内 PICK ▸ 小字，可省）
+# 预填五篇全部经 2026-11-18 实抓验证可达；站主日后直接改这份文件替换即可。
+note: "读过的站外长文，觉得好就挂在这里——不追热点，只收经得起重读的。链接直达原文。"
+list: 5
+items:
+  - title: "How to Do Great Work"
+    url: "https://paulgraham.com/greatwork.html"
+    site: "Paul Graham"
+    date: "2023-07"
+    desc: "不谈成功学，只谈怎么挑一件值得做的事：靠兴趣选赛道、靠好奇导航、靠勤奋与品味把事做扎实。约一万两千字的长信。"
+    why: "每年重读一遍都有新收获，PG 近十年最好的长篇。"
+  - title: "科技爱好者周刊（第 417 期）：不要让 AI 代表你"
+    url: "https://www.ruanyifeng.com/blog/2026/10/weekly-issue-417.html"
+    site: "阮一峰的网络日志"
+    date: "2026-10-30"
+    desc: "本期主题：AI 会循环尝试直到穷尽可能，但社会的运转规则仍要为人设计。附电车难题实验与一批实用工具。"
+    why: "中文科技周刊的常青树，这期关于 AI 与人的分工，和本博客互为镜像。"
+  - title: "There's no point at which turning your brain off will work"
+    url: "https://danluu.com/brain-off/"
+    site: "Dan Luu"
+    date: "2026-09"
+    desc: "把活交给 LLM 就关机不管的人，正在把自己变成「肉代理」——模型再强，出了错买单的还是你。短而一针见血。"
+    why: "对「用 AI 不动脑」最不客气的纠正，配合周刊 417 期食用更佳。"
+  - title: "Teach Yourself Programming in Ten Years"
+    url: "https://norvig.com/21-days.html"
+    site: "Peter Norvig"
+    date: "2001"
+    desc: "为什么没有「21 天学会编程」这回事：刻意练习、十年功夫，外加一份不短的推荐书单。写给所有被速成广告撩过的人。"
+    why: "所有『X 天学会 Y』的书封都该配上这篇再投放。"
+  - title: "How Complex Systems Fail"
+    url: "https://how.complexsystems.fail/"
+    site: "Richard Cook"
+    date: "1998–2000"
+    desc: "患者安全领域被引用最多的清单体论文：复杂系统为什么必然失败、为什么「根本原因」多半是一种事后错觉。共 18 条命题。"
+    why: "软件事故复盘的底层物理学，工程师读它像读一面镜子。"
