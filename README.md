@@ -1,6 +1,14 @@
 # 个人博客 - 慢公子 | AI实践者
 
 > 自由散漫的创作者，偶尔做点小项目。想过的，写下来才算数。
+> English: a black-on-neon-green personal site in nine full-screen "deck" cards — works, writing, radio, guestbook. Hugo + hand-written CSS/JS, no theme, no framework, no npm.
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Hugo-extended--0.166-FF4088?logo=hugo&logoColor=white" alt="Hugo">
+  <img src="https://img.shields.io/badge/GitHub--Pages-deployed-221CC7?logo=githubpages&logoColor=white" alt="GitHub Pages">
+  <img src="https://img.shields.io/badge/npm--deps-none-brightgreen" alt="zero dependencies">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT"></a>
+</p>
 
 这里是 **<https://xiaoheizi112.github.io>** 的源码仓库。一座**黑底荧光绿**的个人站：整站是一份九屏的 deck（演示稿），Anton 大字 + 等宽小字 + 激光/辉光/全息工牌，没有广告、没有算法推荐、没有弹窗。
 
@@ -8,7 +16,7 @@
 
 ## 站上有什么
 
-首页一屏一卡，滚轮 / 触屏滑动 / 方向键 / 右侧进度点都能换卡，地址栏 `#c-works` 之类可直接跳到某屏。九屏按「先认识我、再看我做过什么」的顺序排：
+首页一屏一卡，滚轮与触屏自然滚动换卡，右侧进度点可直达任意屏，地址栏 `#c-works` 之类也能直接跳到某屏。九屏按「先认识我、再看我做过什么」的顺序排：
 
 | 屏 | 内容 |
 |---|---|
@@ -22,9 +30,9 @@
 | 08 GUESTBOOK | 留言板入口，点进去是 `/message/` |
 | 09 CONTACT | 终端会话式联系方式，逐字打字输出，每行带复制按钮 |
 
-角落还有两件常驻小东西：右下角一枚**可下拉点火的火箭**（松手飞回页顶），以及 `⌘K` / `Ctrl+K` 唤出的**命令面板**，可直接跳到任意屏或子页。
+09 CONTACT 卡上还泊着一枚**代码火箭**（终端面板与进度点之间的空带）：下拉蓄力、松手点火，飞回页顶。
 
-子页共用同一套壳（左上角 `← BACK HOME`）：
+子页共用同一套壳（顶部 `←HOME` 胶囊 + `← BACK HOME` 短线，落点是**你上次停留的那张卡**，不是页顶）：
 
 - **`/posts/`** —— 文章列表，日期倒序；详情页带阅读时长、字数、目录与上下篇
 - **`/message/`** —— 留言板（giscus，需用 GitHub 账号登录发言）
@@ -32,7 +40,7 @@
 
 音效是一套 WebAudio 合成的仪器面板音色（点击 blip、气闸泄压、环境音床），默认开启，右上角声纹按钮可随时关掉。
 
-移动端做了整套降级（≤720px 收字号与留白、隐藏进度点、多列改单列、火箭缩到右下角；矮视口把换卡吸附放松成「就近吸附」）。细节规则见 [CLAUDE.md](CLAUDE.md)。
+移动端做了整套降级（≤720px 收字号与留白、隐藏进度点、多列改单列、火箭回贴右缘；断点与触屏降级全部集中在 `90-media.css`）。细节规则见 [CLAUDE.md](CLAUDE.md)。
 
 ## 目录长这样
 
@@ -44,7 +52,9 @@ assets/css/deck/       样式按编号分层：10 令牌 → 20 deck → 30 特�
 assets/js/             引擎：boot / fx / deck / core / id / htop / works / proj
                        / radio / term / welcome / rocket / tape
 static/icons/          技能图标（各家官方原色原图）
-static/images/         站主卡通肖像等
+static/images/         站主卡通肖像、作品截图（images/works/）
+static/cursors/        纸飞机光标（plane / link / link-lg 三态）
+static/music/          电台歌单音频
 data/                  文案与数据：home.yml、skills.yml、interests.yml、
                        music.yml、products.yml、quotes.yml
 content/               posts/、message/（about、resume、相册、todo 体系已删除）
@@ -96,4 +106,4 @@ hugo --quiet -D -d _smoke      # 产物写到临时目录 _smoke，看完就删
 
 ## License
 
-文字与图片内容版权归站主所有；代码部分供学习参考。
+代码部分遵循 [MIT License](LICENSE)，拿去参考、改造成自己的都行；站内文字与图片内容版权归站主所有。
